@@ -1,9 +1,11 @@
 # Xinmapper-ghsol
 Xinmapper is an xbox controller keyboard and mouse input sim app
+
 *NOTE: This project no longer uses the Boost library as the features 
 of the library that were used by this app
 are now standard C++ library features. Ignore the Boost lib 
 dependency in the "Xinmapper Build Help" folder instructions.
+
 
 You will need to build the project to edit the Map string at this time, 
 the tokens mapping a controller button to keyboard and mouse input
