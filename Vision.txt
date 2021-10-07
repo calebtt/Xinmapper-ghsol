@@ -1,0 +1,7 @@
+This is the vision.
+
+Free, open-source input mapping software for the xbox 360 controller with which any user of Microsoft Windows can use
+to play video games, or use their controller as a mouse.
+
+It will support the mapping of keys to controller buttons, triggers, and thumbsticks as well as mouse movement to a
+thumbstick.
