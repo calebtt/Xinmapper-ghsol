@@ -22,7 +22,7 @@ namespace sds
 		ButtonAction *btn;
 		TriggerAction *trg;
 		ThumbstickAction *thmb;
-		PlayerInfo *player;
+		//PlayerInfo *player; // not used
 	public:
 		XInputTranslater()
 		{

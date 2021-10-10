@@ -1,0 +1,187 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1" MembersFormat="NameAndType">
+  <Class Name="sds::ButtonAction">
+    <Position X="6.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>ButtonAction.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="sds::GamepadUser">
+    <Position X="8.75" Y="2" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>ACAAAAAAAAAIAAAAAAAAAEAAAAAAAABAAAAACBAAAAA=</HashCode>
+      <FileName>GamepadUser.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="sds::InputPoller">
+    <Position X="0.75" Y="1.75" Width="2.25" />
+    <Members>
+      <Field Name="m" Hidden="true" />
+      <Field Name="mse" Hidden="true" />
+      <Field Name="t" Hidden="true" />
+      <Field Name="THREAD_DELAY" Hidden="true" />
+      <Method Name="workThread" Hidden="true" />
+    </Members>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAACAAJAAAAAEAQAAQIAAAAAAAIgQAAAAAAAA=</HashCode>
+      <FileName>InputPoller.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="sds::Mapper">
+    <Position X="5.75" Y="5.25" Width="2.5" />
+    <Members>
+      <Method Name="GetTokens" Hidden="true" />
+      <Method Name="GetVkFromTokenString" Hidden="true" />
+      <Field Name="keySend" Hidden="true" />
+      <Field Name="map" Hidden="true" />
+      <Field Name="mapTokenInfo" Hidden="true" />
+      <Method Name="Normal" Hidden="true" />
+      <Method Name="ProcessStates" Hidden="true" />
+      <Method Name="ProcessTokens" Hidden="true" />
+      <Method Name="Rapid" Hidden="true" />
+      <Method Name="Toggle" Hidden="true" />
+    </Members>
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Struct Name="sds::Mapper::WordData" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Mapper.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Struct>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AAAAEQgAFCABEABAAAAAAEAAAAAIABABAAAAAAAAAAA=</HashCode>
+      <FileName>Mapper.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="sds::SendKey">
+    <Position X="8.75" Y="5.75" Width="1.75" />
+    <Members>
+      <Method Name="GetScanCode" Hidden="true" />
+      <Field Name="keyInput" Hidden="true" />
+      <Field Name="mouseInput" Hidden="true" />
+    </Members>
+    <TypeIdentifier>
+      <HashCode>AAAQAAAAABAAAAAAAEAAAAAAAAAAEABAAAAAAAAAAAA=</HashCode>
+      <FileName>SendKey.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="sds::ThumbstickAction">
+    <Position X="11.25" Y="4" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>ThumbstickAction.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="sds::TriggerAction">
+    <Position X="13" Y="4" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>TriggerAction.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="sds::XInputBoostAsync">
+    <Position X="3" Y="5.5" Width="1.75" />
+    <Members>
+      <Method Name="getCurrentState" Hidden="true" />
+      <Field Name="isStopRequested" Hidden="true" />
+      <Field Name="isThreadRunning" Hidden="true" />
+      <Field Name="local_state" Hidden="true" />
+      <Method Name="requestStop" Hidden="true" />
+      <Method Name="startThread" Hidden="true" />
+      <Field Name="stateMutex" Hidden="true" />
+      <Method Name="stopThread" Hidden="true" />
+      <Field Name="thread" Hidden="true" />
+      <Method Name="updateState" Hidden="true" />
+    </Members>
+    <TypeIdentifier>
+      <HashCode>AAAAAACiAQAAJAEAAAAABAAAgAAMEAACAAAAAAAAAAA=</HashCode>
+      <FileName>XInputBoostAsync.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="sds::XInputBoostMouse">
+    <Position X="4" Y="0.5" Width="2.5" />
+    <Members>
+      <Field Name="data" Hidden="true" />
+      <Method Name="doesRequireMove" Hidden="true" />
+      <Method Name="doInput" Hidden="true" />
+      <Method Name="getFunctionalValue" Hidden="true" />
+      <Field Name="is_left_stick" Hidden="true" />
+      <Field Name="MOVE_THREAD_SLEEP" Hidden="true" />
+      <Method Name="NormalizeAxis" Hidden="true" />
+      <Method Name="NormalizeRange" Hidden="true" />
+      <Field Name="SENSITIVITY" Hidden="true" />
+      <Field Name="step" Hidden="true" />
+      <Field Name="threadX" Hidden="true" />
+      <Field Name="threadY" Hidden="true" />
+      <Method Name="workThread" Hidden="true" />
+    </Members>
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Enum Name="sds::XInputBoostMouse::MouseMap">
+        <TypeIdentifier>
+          <NewMemberFileName>XInputBoostMouse.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AAMEAFAgAGAAJEAAABAAAAAAAAAkAAAACAIQEAAEAAA=</HashCode>
+      <FileName>XInputBoostMouse.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="sds::XInputMouse" Collapsed="true">
+    <Position X="15" Y="1" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIBgEAAAFhgAIAQAAAAqAAAQAAoAAAgRAIBABCBAEBA=</HashCode>
+      <FileName>XInputMouse.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="sds::XInputTranslater">
+    <Position X="11.5" Y="0.5" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>CAAAAAAAAAAAIAAAAAAQAAEAAAAQAAAAEAAAAAAAAAA=</HashCode>
+      <FileName>XInputTranslater.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Struct Name="sds::ActionDescriptors" Collapsed="true">
+    <Position X="11.5" Y="7.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQAAAAEAABACAAQkIAAAQQBAAACIAAAiAYBwAoBAgAE=</HashCode>
+      <FileName>ActionDescriptors.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="sds::MultiBool" Collapsed="true">
+    <Position X="11.25" Y="6.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAABAAAAAAAAABAAAAAACAAAAAAAAAAAA=</HashCode>
+      <FileName>MultiBool.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="sds::PlayerInfo" Collapsed="true">
+    <Position X="13" Y="6.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>BAQACAAAAAAAABAAAAAAAAAAQAAAAAAAAAAAQAAAIAA=</HashCode>
+      <FileName>PlayerInfo.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Typedef Name="ActionDetails" Collapsed="true">
+    <Position X="0.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>stdafx.h</FileName>
+    </TypeIdentifier>
+  </Typedef>
+  <Typedef Name="MapInformation" Collapsed="true">
+    <Position X="2.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>stdafx.h</FileName>
+    </TypeIdentifier>
+  </Typedef>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
