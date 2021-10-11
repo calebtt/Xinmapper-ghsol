@@ -46,7 +46,7 @@
       <Compartment Name="Nested Types" Collapsed="false" />
     </Compartments>
     <NestedTypes>
-      <Struct Name="sds::Mapper::WordData" Collapsed="true">
+      <Struct Name="sds::Mapper::WordData">
         <TypeIdentifier>
           <NewMemberFileName>Mapper.h</NewMemberFileName>
         </TypeIdentifier>

@@ -18,7 +18,8 @@ namespace sds
 		/// <returns>true if the button is depressed, false otherwise</returns>
 		bool Down(const XINPUT_STATE &state, std::string token)
 		{
-			for(auto it = sds::sdsActionDescriptors.xin_buttons.begin(); it != sds::sdsActionDescriptors.xin_buttons.end(); ++it)
+			//std::const_iterator used for access
+			for(auto it = sds::sdsActionDescriptors.xin_buttons.cbegin(); it != sds::sdsActionDescriptors.xin_buttons.cend(); ++it)
 			{
 				if( it->first == token )
 				{

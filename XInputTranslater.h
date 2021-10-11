@@ -47,7 +47,7 @@ namespace sds
 		{
 			ActionDetails details;
 			//Buttons
-			for(auto it = sds::sdsActionDescriptors.xin_buttons.begin(); it != sds::sdsActionDescriptors.xin_buttons.end(); ++it)
+			for(auto it = sds::sdsActionDescriptors.xin_buttons.cbegin(); it != sds::sdsActionDescriptors.xin_buttons.cend(); ++it)
 			{
 				if( btn->Down(state,it->first ) ) 
 				{
