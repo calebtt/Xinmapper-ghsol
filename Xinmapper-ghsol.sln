@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.31727.386
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Xinmapper-gh", "Xinmapper_2013.vcxproj", "{10CECAEE-F268-478C-B595-5BE92540BEFD}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "XNMTest", "..\XNMTest\XNMTest.vcxproj", "{6894A870-92AC-4C7C-B895-BC7C0F02E93E}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "XNMTest", "XNMTest\XNMTest.vcxproj", "{6894A870-92AC-4C7C-B895-BC7C0F02E93E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
