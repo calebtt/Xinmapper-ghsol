@@ -139,8 +139,8 @@ namespace XNMTest
 			
 			//Change these here to increase/decrease the test data size.
 			//Some const variables affecting the size of the random	test data. 
-			const int RandomStringCount = 1000;
-			const int RandomStringLength = 10;
+			const int RandomStringCount = 1000000;
+			const int RandomStringLength = 8;
 			const int RandomStateCount = 1000;
 
 			
@@ -152,12 +152,14 @@ namespace XNMTest
 			sds::ButtonAction ba;
 
 			//Test every valid string token in vector<string> testTokens against a zeroed XINPUT_STATE
+			//(Test the equivalence class with a zeroed XINPUT_STATE)
 			auto tf = [&testState, &ba](string& st) { Assert::IsFalse(ba.Down(testState, st)); };
 			for_each(testTokens.begin(), testTokens.end(), tf);
 
 
 			//Test 1000 randomized XINPUT_STATE objects with a sample token
 			//assert that the result ONLY is true with the correct token and state.
+			//(Test boundary values against the tokens)
 			vector<XINPUT_STATE> tempVector = BuildRandomTestStates(RandomStateCount);
 			const map<const string, int> &r = testMap;
 
@@ -184,6 +186,8 @@ namespace XNMTest
 
 			//Random strings (tokens) test
 			//generate [RandomStringCount] strings up to [RandomStringLength] characters in length
+			//(Test boundary values for the string tokens, 
+			// the token is mapped to a value in the map which makes this easier)
 			vector<string> randomTestTokens = BuildRandomStringVector(RandomStringCount, RandomStringLength);
 			for_each(randomTestTokens.begin(), randomTestTokens.end(), tsv);
 
