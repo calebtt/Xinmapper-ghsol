@@ -155,8 +155,8 @@
       <FileName>ActionDescriptors.h</FileName>
     </TypeIdentifier>
   </Struct>
-  <Struct Name="sds::MultiBool" Collapsed="true">
-    <Position X="11.25" Y="6.25" Width="1.5" />
+  <Struct Name="sds::MultiBool">
+    <Position X="15.25" Y="5.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAABAAAAAAAAABAAAAAACAAAAAAAAAAAA=</HashCode>
       <FileName>MultiBool.h</FileName>

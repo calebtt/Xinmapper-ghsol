@@ -80,5 +80,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />
+    <None Include="xinmapper_drawing.pdf" />
   </ItemGroup>
 </Project>
