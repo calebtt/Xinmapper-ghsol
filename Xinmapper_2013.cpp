@@ -1,6 +1,7 @@
 // Xinmapper_2013.cpp : Defines the entry point for the console application.
 //Caleb Taylor
-//last updated Oct 6th, 2021
+//last updated Oct 14th, 2021
+//Keep in mind need to run the .exe in administrator mode to work with programs running in admin mode.
 
 
 #include "stdafx.h"
@@ -15,7 +16,15 @@ int _tmain(int argc, _TCHAR* argv[])
 	mapInfo = "LTHUMB:LEFT:NORM:a LTHUMB:RIGHT:NORM:d LTHUMB:UP:NORM:w LTHUMB:DOWN:NORM:s X:NONE:NORM:r A:NONE:NORM:VK32 Y:NONE:NORM:VK164 B:NONE:NORM:VK160";
 	mapInfo += " LSHOULDER:NONE:NORM:v RSHOULDER:NONE:NORM:Q LTHUMB:NONE:NORM:c RTHUMB:NONE:NORM:e START:NONE:NORM:VK27 BACK:NONE:NORM:VK8 LTRIGGER:NONE:NORM:VK2";
 	mapInfo += " RTRIGGER:NONE:NORM:VK1 DPAD:LEFT:NORM:c DPAD:DOWN:NORM:x DPAD:UP:NORM:f DPAD:RIGHT:RAPID:VK1";
-	gamepadUser.mapper->SetMapInfo(mapInfo);
+	
+	std::tuple<bool,std::string> err = gamepadUser.mapper->SetMapInfo(mapInfo);
+	//First element of the tuple is a bool indicating success or failure.
+	if (!std::get<0>(err))
+	{
+		//Error in setting the map information.
+		std::cout << "Error in setting the map information. Exiting." << std::endl;
+		return 1;
+	}
 	gamepadUser.mouse->SetSensitivity(35);
 	gamepadUser.mouse->EnableProcessing(XInputBoostMouse::RIGHT_STICK);
 	

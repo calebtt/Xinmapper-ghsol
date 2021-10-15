@@ -56,27 +56,36 @@ namespace sds
 		/// to keyboard and mouse input.
 		/// </summary>
 		/// <param name="newMap">MapInformation string containing info on how to map controller input to kbd/mouse.</param>
-		/// <returns>true always, TODO</returns>
-		bool SetMapInfo(const MapInformation &newMap)
+		/// <returns>A tuple{bool,string} indicating the presence of an error, and the error message.</returns>
+		std::tuple<bool,std::string> SetMapInfo(const MapInformation &newMap)
 		{
-			//Todo, validate.
-			assert( newMap.size() > 0 );
+			if (newMap.size() == 0)
+			{
+				return std::tuple<bool, std::string>(false, "Error in Mapper::SetMapInfo(), MapInformation newMap size() is 0.");
+			}
 			//Reset map token info.
 			mapTokenInfo.clear();
 			//Set MapInformation
 			map = newMap;
 			//Set WordData vector.
+			std::string previousToken;
 			std::string t;
 			std::stringstream ss(newMap);
 			while( ss >> t )
 			{
+				if (t.size() == 0)
+				{
+					std::string errorInfo = ("Error in Mapper::SetMapInfo(), a MapInformation token could not be parsed, t.size() == 0" +
+						std::string(" last token parsed was: ") + previousToken);
+					return std::tuple<bool, std::string>(false, errorInfo);
+				}
 				WordData data;
-				assert(t.size() > 0);
 				std::replace(t.begin(), t.end(), sds::sdsActionDescriptors.moreInfo, ' ');
 				std::stringstream(t) >> data.control >> data.info >> data.sim_type >> data.value;
 				mapTokenInfo.push_back(data);
+				previousToken = t;
 			}
-			return true;
+			return std::tuple<bool, std::string>(true, "");
 		}
 	private:
 
