@@ -56,12 +56,12 @@ namespace sds
 		/// to keyboard and mouse input.
 		/// </summary>
 		/// <param name="newMap">MapInformation string containing info on how to map controller input to kbd/mouse.</param>
-		/// <returns>A tuple{bool,string} indicating the presence of an error, and the error message.</returns>
-		std::tuple<bool,std::string> SetMapInfo(const MapInformation &newMap)
+		/// <returns>A std::string indicating the presence of an error, and the error message.</returns>
+		std::string SetMapInfo(const MapInformation &newMap)
 		{
 			if (newMap.size() == 0)
 			{
-				return std::tuple<bool, std::string>(false, "Error in Mapper::SetMapInfo(), MapInformation newMap size() is 0.");
+				return "Error in Mapper::SetMapInfo(), MapInformation newMap size() is 0.";
 			}
 			//Reset map token info.
 			mapTokenInfo.clear();
@@ -77,7 +77,7 @@ namespace sds
 				{
 					std::string errorInfo = ("Error in Mapper::SetMapInfo(), a MapInformation token could not be parsed, t.size() == 0" +
 						std::string(" last token parsed was: ") + previousToken);
-					return std::tuple<bool, std::string>(false, errorInfo);
+					return errorInfo;
 				}
 				WordData data;
 				std::replace(t.begin(), t.end(), sds::sdsActionDescriptors.moreInfo, ' ');
@@ -85,7 +85,7 @@ namespace sds
 				mapTokenInfo.push_back(data);
 				previousToken = t;
 			}
-			return std::tuple<bool, std::string>(true, "");
+			return "";
 		}
 	private:
 
