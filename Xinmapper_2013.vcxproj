@@ -87,6 +87,7 @@
   <ItemGroup>
     <ClInclude Include="ActionDescriptors.h" />
     <ClInclude Include="ButtonAction.h" />
+    <ClInclude Include="CPPThreadRunner.h" />
     <ClInclude Include="GamepadUser.h" />
     <ClInclude Include="Globals.h" />
     <ClInclude Include="InputPoller.h" />

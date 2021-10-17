@@ -20,7 +20,7 @@ Also need sensitivity for both X and Y axis.
 */
 #pragma once
 #include "stdafx.h"
-#include "XInputBoostAsync.h"
+#include "CPPThreadRunner.h"
 
 namespace sds
 {
@@ -29,13 +29,13 @@ namespace sds
 	/// The class holds info on which mouse stick (if any) is to be used for controlling the mouse,
 	/// the MouseMap enum holds this info.
 	/// </summary>
-	class XInputBoostMouse : public XInputBoostAsync
+	class XInputBoostMouse : public CPPThreadRunner<XINPUT_STATE>
 	{
 		//small typedef for locking the mutex
 		using lock = std::lock_guard<std::mutex>;
 
 	public:
-		enum MouseMap
+		enum class MouseMap
 		{
 			NEITHER_STICK,
 			RIGHT_STICK,
@@ -55,9 +55,9 @@ namespace sds
 		//static const int SLEEP_PRECISION = 15;//15 ms
 	public:
 		XInputBoostMouse() 
-			: XInputBoostAsync(),
+			: CPPThreadRunner(),
 			SENSITIVITY(30),
-			stickMapInfo(NEITHER_STICK)
+			stickMapInfo(MouseMap::NEITHER_STICK)
 		{
 			memset((LPVOID)&data,0, sizeof(INPUT));
 			data.mi.dwFlags = MOUSEEVENTF_MOVE;
@@ -83,12 +83,12 @@ namespace sds
 		/// <param name="state"> an XINPUT_STATE </param>
 		void ProcessState(const XINPUT_STATE &state)
 		{
-			if(stickMapInfo == NEITHER_STICK)
+			if(stickMapInfo == MouseMap::NEITHER_STICK)
 				return;
 			//Holds the reported stick values and will compare to determine if movement has occurred.
 			int tsx, tsy;
 		
-			if(stickMapInfo == RIGHT_STICK)
+			if(stickMapInfo == MouseMap::RIGHT_STICK)
 			{
 				tsx = state.Gamepad.sThumbRX;
 				tsy = state.Gamepad.sThumbRY;
@@ -140,7 +140,7 @@ namespace sds
 		/// <returns>true if requires moving the mouse, false otherwise</returns>
 		bool doesRequireMove(int x, int y)
 		{
-			int DEADZONE = stickMapInfo == LEFT_STICK ? sds::sdsPlayerOne.left_dz : sds::sdsPlayerOne.right_dz;
+			int DEADZONE = stickMapInfo == MouseMap::LEFT_STICK ? sds::sdsPlayerOne.left_dz : sds::sdsPlayerOne.right_dz;
 			return ( (x > DEADZONE
 				|| x < -DEADZONE)
 				|| (y > DEADZONE

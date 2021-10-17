@@ -26,7 +26,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		return 1;
 	}
 	gamepadUser.mouse->SetSensitivity(35);
-	gamepadUser.mouse->EnableProcessing(XInputBoostMouse::RIGHT_STICK);
+	gamepadUser.mouse->EnableProcessing(XInputBoostMouse::MouseMap::RIGHT_STICK);
 	
 	std::cout << "Xbox 360 controller polling started..." << std::endl;
 	std::cout << "Controller reported as: " << (gamepadUser.poller->IsControllerConnected() ? "Connected." : "Disconnected.") << std::endl;

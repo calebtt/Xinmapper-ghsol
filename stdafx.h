@@ -32,6 +32,7 @@
 #include <mutex>
 #include <functional>
 #include <tuple>
+#include <locale>
 
 /// <summary>
 /// ActionDetails is a std::string specifically used to transmit state information

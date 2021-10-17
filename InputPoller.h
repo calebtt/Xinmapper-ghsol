@@ -3,6 +3,7 @@
 #include "Mapper.h"
 #include "XInputTranslater.h"
 #include "XInputBoostMouse.h"
+#include "CPPThreadRunner.h"
 
 namespace sds
 {
@@ -10,9 +11,9 @@ namespace sds
 	/// Polls for input from the XInput library in it's worker thread function,
 	/// sends them to XInputBoostMouse and Mapper for processing.
 	/// </summary>
-	class InputPoller : public XInputBoostAsync
+	class InputPoller : public CPPThreadRunner<XINPUT_STATE>
 	{
-		const int THREAD_DELAY;
+		const int THREAD_DELAY = 10;
 		Mapper *m;
 		XInputTranslater *t;
 		XInputBoostMouse *mse;
@@ -26,6 +27,8 @@ namespace sds
 		/// </summary>
 		virtual void workThread()
 		{
+			memset(&local_state, 0, sizeof(local_state));
+
 			while( ! this->isStopRequested )
 			{
 				DWORD error = XInputGetState(sds::sdsPlayerOne.player_id, &local_state);
@@ -41,13 +44,19 @@ namespace sds
 	public:
 		/// <summary>
 		/// Constructor, requires pointer to: Mapper, XInputTranslater, XInputBoostMouse
+		/// Throws std::string with error message if nullptr given.
 		/// </summary>
+		/// 
 		/// <param name="mapper"></param>
 		/// <param name="transl"></param>
 		/// <param name="mouse"></param>
 		InputPoller(Mapper *mapper, XInputTranslater *transl, XInputBoostMouse *mouse)
-			: XInputBoostAsync(), THREAD_DELAY(10), m(mapper), t(transl), mse(mouse)
+			: CPPThreadRunner(), m(mapper), t(transl), mse(mouse)
 		{
+			if (mapper == nullptr || transl == nullptr || mouse == nullptr)
+			{
+				throw std::string("NULL POINTERS in InputPoller::InputPoller() constructor.");
+			}
 		}
 
 		/// <summary>

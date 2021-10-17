@@ -54,9 +54,6 @@
     <ClInclude Include="TriggerAction.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="XInputBoostAsync.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="XInputBoostMouse.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -64,6 +61,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="XInputTranslater.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CPPThreadRunner.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="XInputBoostAsync.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
