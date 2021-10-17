@@ -61,7 +61,7 @@ namespace sds
 		{
 			if (newMap.size() == 0)
 			{
-				return "Error in Mapper::SetMapInfo(), MapInformation newMap size() is 0.";
+				return "Error in sds::Mapper::SetMapInfo(), MapInformation newMap size() is 0.";
 			}
 			//Reset map token info.
 			mapTokenInfo.clear();

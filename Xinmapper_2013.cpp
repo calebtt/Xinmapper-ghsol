@@ -11,6 +11,11 @@
 int _tmain(int argc, _TCHAR* argv[])
 {
 	using namespace sds;
+	auto errInfo = [](const std::string e, int retVal)
+	{
+		std::cout << e << std::endl;
+		return retVal;
+	};
 	MapInformation mapInfo;
 	GamepadUser gamepadUser;
 	mapInfo = "LTHUMB:LEFT:NORM:a LTHUMB:RIGHT:NORM:d LTHUMB:UP:NORM:w LTHUMB:DOWN:NORM:s X:NONE:NORM:r A:NONE:NORM:VK32 Y:NONE:NORM:VK164 B:NONE:NORM:VK160";
@@ -22,11 +27,13 @@ int _tmain(int argc, _TCHAR* argv[])
 	if (err.size())
 	{
 		//Error in setting the map information.
-		std::cout << "Error in setting the map information. Exiting." << std::endl;
-		std::cout << err << std::endl;
-		return 1;
+		return errInfo("Error in setting the map information. Exiting.", 1);
 	}
-	gamepadUser.mouse->SetSensitivity(35);
+	err = gamepadUser.mouse->SetSensitivity(35);
+	if (err.size())
+	{
+		return errInfo("Error in setting the mouse sensitivity. Exiting.", 2);
+	}
 	gamepadUser.mouse->EnableProcessing(XInputBoostMouse::MouseMap::RIGHT_STICK);
 	
 	std::cout << "Xbox 360 controller polling started..." << std::endl;

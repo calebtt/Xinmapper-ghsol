@@ -116,11 +116,14 @@ namespace sds
 		/// Setter for sensitivity value
 		/// </summary>
 		/// <param name="new_sens"></param>
-		void SetSensitivity(int new_sens)
+		std::string SetSensitivity(int new_sens)
 		{
-			if(new_sens <= 0)
-				return;
+			if (new_sens <= 0)
+			{
+				return "Error in sds::XInputBoostMouse::SetSensitivity(), int new_sens less than or equal to 0.";
+			}
 			SENSITIVITY = new_sens;
+			return "";
 		}
 		/// <summary>
 		/// Getter for sensitivity value
