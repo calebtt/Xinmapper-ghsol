@@ -104,14 +104,6 @@ namespace sds
 			XINPUT_STATE ss = {0};
 			return XInputGetState(sds::sdsPlayerOne.player_id, &ss) == ERROR_SUCCESS;
 		}
-		/// <summary>
-		/// Unimplemented. Do not use.
-		/// </summary>
-		/// <param name="state"></param>
-		void ProcessState(const XINPUT_STATE &state)
-		{
-			throw sds::ERR1;
-		}
 	};
 
 }

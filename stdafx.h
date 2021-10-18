@@ -36,12 +36,6 @@
 #include <format>
 
 /// <summary>
-/// ActionDetails is a std::string specifically used to transmit state information
-/// about input from the controller to the various classes that will process the information.
-/// </summary>
-typedef std::string ActionDetails;
-
-/// <summary>
 /// Created with input from the user (of the classes), it will likely
 /// be a plain text string describing how to respond to an ActionDetails
 /// 
