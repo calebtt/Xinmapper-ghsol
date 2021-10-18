@@ -55,6 +55,8 @@ namespace sds
 		{
 			if (mapper == nullptr || transl == nullptr || mouse == nullptr)
 			{
+				//At present this new exception type is only available in the preview features "C++ latest" setting.
+				//throw std::format_error("NULL POINTERS in InputPoller::InputPoller() constructor.");
 				throw std::string("NULL POINTERS in InputPoller::InputPoller() constructor.");
 			}
 		}

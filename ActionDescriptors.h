@@ -44,6 +44,11 @@ namespace sds
 		const char delimiter = ' ';//spacebar space
 
 		//Maps the tokens above to XINPUT library #defines
+		//Because the XINPUT lib doesn't send a "down" signal 
+		//to be tested against with a define bitmask, it
+		//isn't mapped to an xinput lib define bitmask here.
+		//instead lTrigger, rTrigger are tested against the current value
+		//in BYTE bLeftTrigger and bRightTrigger in the XINPUT_GAMEPAD struct
 		const std::map<const std::string, int> xin_buttons = 
 		{
 			{x,XINPUT_GAMEPAD_X},

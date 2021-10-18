@@ -24,9 +24,6 @@
     <ClInclude Include="ActionDescriptors.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ButtonAction.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="GamepadUser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -48,16 +45,7 @@
     <ClInclude Include="SendKey.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ThumbstickAction.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="TriggerAction.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="XInputBoostMouse.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="XInputMouse.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="XInputTranslater.h">
@@ -66,7 +54,7 @@
     <ClInclude Include="CPPThreadRunner.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="XInputBoostAsync.h">
+    <ClInclude Include="ButtonStateDown.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

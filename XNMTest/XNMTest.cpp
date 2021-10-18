@@ -6,7 +6,7 @@
 #include <random>
 #include <limits>
 #include "..\stdafx.h"
-#include "..\ButtonAction.h"
+#include "..\ButtonStateDown.h"
 //#include "..\Xinmapper-gh\ActionDescriptors.h"
 //#include "..\Xinmapper-gh\Globals.h"
 
@@ -148,12 +148,12 @@ namespace XNMTest
 			XINPUT_STATE testState;
 			//zero it
 			memset(&testState, 0, sizeof(XINPUT_STATE));
-			//subject of our test, ButtonAction
-			sds::ButtonAction ba;
+			//subject of our test, ButtonStateDown
+			sds::ButtonStateDown ba;
 
 			//Test every valid string token in vector<string> testTokens against a zeroed XINPUT_STATE
 			//(Test the equivalence class with a zeroed XINPUT_STATE)
-			auto tf = [&testState, &ba](string& st) { Assert::IsFalse(ba.Down(testState, st)); };
+			auto tf = [&testState, &ba](string& st) { Assert::IsFalse(ba.ButtonDown(testState, st)); };
 			for_each(testTokens.begin(), testTokens.end(), tf);
 
 
@@ -166,7 +166,7 @@ namespace XNMTest
 			//Lambda helper function to Assert test "testState" and a token
 			auto tsv = [&ba, &r, &testState](const string& st)
 			{
-				if (ba.Down(testState, st))
+				if (ba.ButtonDown(testState, st))
 				{
 					//assert that the string is in the map!
 					Assert::IsTrue(r.count(st));

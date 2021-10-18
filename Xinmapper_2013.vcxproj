@@ -86,7 +86,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="ActionDescriptors.h" />
-    <ClInclude Include="ButtonAction.h" />
     <ClInclude Include="CPPThreadRunner.h" />
     <ClInclude Include="GamepadUser.h" />
     <ClInclude Include="Globals.h" />
@@ -97,11 +96,8 @@
     <ClInclude Include="SendKey.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
-    <ClInclude Include="ThumbstickAction.h" />
-    <ClInclude Include="TriggerAction.h" />
-    <ClInclude Include="XInputBoostAsync.h" />
+    <ClInclude Include="ButtonStateDown.h" />
     <ClInclude Include="XInputBoostMouse.h" />
-    <ClInclude Include="XInputMouse.h" />
     <ClInclude Include="XInputTranslater.h" />
   </ItemGroup>
   <ItemGroup>
