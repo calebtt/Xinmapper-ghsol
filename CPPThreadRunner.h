@@ -22,7 +22,7 @@ namespace sds
 
 	protected:
 		std::unique_ptr<std::thread> thread;
-		//std::shared_ptr<std::thread> thread;
+
 		volatile bool isThreadRunning;
 		volatile bool isStopRequested;
 		InternalData local_state;
