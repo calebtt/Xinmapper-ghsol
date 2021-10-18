@@ -52,7 +52,7 @@ namespace sds
 			return map;
 		}
 		/// <summary>
-		/// Takes a "MapInformation" string and internalizes it to adjust how controller input is mapped
+		/// Takes a "MapInformation" string and internalizes (copies) it to adjust how controller input is mapped
 		/// to keyboard and mouse input.
 		/// </summary>
 		/// <param name="newMap">MapInformation string containing info on how to map controller input to kbd/mouse.</param>
@@ -75,7 +75,7 @@ namespace sds
 			{
 				if (t.size() == 0)
 				{
-					std::string errorInfo = ("Error in Mapper::SetMapInfo(), a MapInformation token could not be parsed, t.size() == 0" +
+					std::string errorInfo = ("Error in sds::Mapper::SetMapInfo(), a MapInformation token could not be parsed, t.size() == 0" +
 						std::string(" last token parsed was: ") + previousToken);
 					return errorInfo;
 				}

@@ -48,11 +48,8 @@ namespace sds
 		volatile SHORT threadX, threadY;
 		volatile LONG step;
 		volatile int SENSITIVITY;
-		volatile bool is_left_stick;
 
 		static const int MOVE_THREAD_SLEEP = 10;//10 ms
-		//static const int PRECISION_RANGE_PERCENT = 15;//15%
-		//static const int SLEEP_PRECISION = 15;//15 ms
 	public:
 		XInputBoostMouse() 
 			: CPPThreadRunner(),
