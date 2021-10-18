@@ -5,9 +5,18 @@
 
 namespace sds
 {
+	/// <summary>
+	/// Used as a global data structure to hold player information, includes
+	/// thumbstick and trigger deadzone information.
+	/// </summary>
 	static PlayerInfo sdsPlayerOne;
+
+	/// <summary>
+	/// ActionDescriptors is a struct containing string tokens used to build a string describing how controller
+	/// buttons are mapped to Keyboard & Mouse buttons. It also has a std::map xin_buttons mapping some string tokens
+	/// to XINPUT lib defines.
+	/// </summary>
 	static ActionDescriptors sdsActionDescriptors;
-	static std::string ERR1("Exception, Empty Virtual Function Called.");
 
 	/// <summary>
 	/// ActionDetails is a std::string specifically used to transmit state information
