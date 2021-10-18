@@ -21,7 +21,8 @@ namespace sds
 		using lock = std::lock_guard<std::mutex>;
 
 	protected:
-		std::shared_ptr<std::thread> thread;
+		std::unique_ptr<std::thread> thread;
+		//std::shared_ptr<std::thread> thread;
 		volatile bool isThreadRunning;
 		volatile bool isStopRequested;
 		InternalData local_state;
@@ -42,8 +43,11 @@ namespace sds
 			{
 				this->isStopRequested = false;
 				this->isThreadRunning = true;
-				this->thread = std::shared_ptr<std::thread>
-					(new std::thread(std::bind(&CPPThreadRunner::workThread,this)));
+				this->thread = std::unique_ptr<std::thread>
+					(new std::thread(std::bind(&CPPThreadRunner::workThread, this)));
+
+				//this->thread = std::shared_ptr<std::thread>
+				//	(new std::thread(std::bind(&CPPThreadRunner::workThread,this)));
 			}
 		}
 
