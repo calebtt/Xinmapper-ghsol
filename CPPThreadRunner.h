@@ -123,6 +123,7 @@ namespace sds
 		/// </summary>
 		CPPThreadRunner()
 		{
+			local_state = {};
 			isThreadRunning = false;
 			isStopRequested = false;
 		}

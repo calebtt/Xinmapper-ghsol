@@ -159,7 +159,7 @@ namespace sds
 		/// Worker thread, protected visibility, gets updated data from ProcessState() function to use.
 		/// Accesses the volatile threadX and threadY members.
 		/// </summary>
-		void workThread()
+		virtual void workThread()
 		{
 			SHORT tx, ty;
 			while(!isStopRequested)//<--Danger! From the base class.
