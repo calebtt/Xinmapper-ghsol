@@ -18,7 +18,10 @@ namespace sds
 		/// </summary>
 		struct WordData
 		{
-			std::string control, info, sim_type, value;
+			std::string control, //LTHUMB
+				info, //LEFT
+				sim_type, //NORM
+				value; //'a'
 			//char value;
 			sds::MultiBool fsm;
 			bool down;

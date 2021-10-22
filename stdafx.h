@@ -35,32 +35,7 @@
 #include <locale>
 #include <format>
 
-/// <summary>
-/// Created with input from the user (of the classes), it will likely
-/// be a plain text string describing how to respond to an ActionDetails
-/// 
-/// The string can be tokenized into "words" separated by spaces,
-/// each "word" can be further subdivided into four parts.
-/// 
-/// <list type="bullet">
-/// <listheader><term>ex.</term></listheader>
-/// <item>
-/// LTHUMB:LEFT:NORM:a 
-/// </item>
-/// <item>
-/// LTHUMB:RIGHT:NORM:d
-/// </item>
-/// <item>
-/// LTHUMB:UP:NORM:w
-/// </item>
-/// <item>
-/// LTHUMB:DOWN:NORM:s
-/// </item>
-/// </list>
-/// <br/>
-/// They are of the form: {btn/trigr/thumb}:{moreinfo}:{input sim type}:{value mapped to}
-/// </summary>
-typedef std::string MapInformation;
+
 
 // Include some commonly used global stuff.
 #include "Globals.h"
