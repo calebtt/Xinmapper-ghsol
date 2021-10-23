@@ -5,7 +5,7 @@ namespace sds
 {
 	/// <summary>
 	/// Utility class that aids in determining if an XINPUT_STATE has the token
-	/// information buttons depressed.
+	/// information buttons depressed. Only used in "XInputTranslater" class.
 	/// </summary>
 	class ButtonStateDown
 	{

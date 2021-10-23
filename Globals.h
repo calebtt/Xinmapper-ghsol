@@ -21,6 +21,8 @@ namespace sds
 	/// <summary>
 	/// ActionDetails is a std::string specifically used to transmit state information
 	/// about input from the controller to the various classes that will process the information.
+	/// Meaning an ActionDetails string will have something like "X B LTRIGGER RTRIGGER LTHUMB:UP RTHUMB:DOWN"
+	/// that will be processed into simulated input. The string is generated in XInputTranslater.
 	/// </summary>
 	typedef std::string ActionDetails;
 
