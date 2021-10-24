@@ -11,7 +11,7 @@ namespace sds
 	/// <summary>
 	/// Base class for processing input concurrently, contains pure virtual member "workThread"
 	/// to be overridden by an inheriting class. The startThread() and stopThread() protected members will allow
-	/// control by the inheriting class. The std::mutex stateMutex and std::shared_ptr{std::thread} thread serve
+	/// control by the inheriting class. The std::mutex stateMutex and std::unique_ptr{std::thread} thread serve
 	/// as concurrency helpers with std::lock_guard{std::mutex}
 	/// Instantiate with the type you would like to have mutex protected access to within a running thread.
 	/// </summary>
