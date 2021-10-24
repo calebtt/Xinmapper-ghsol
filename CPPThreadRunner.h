@@ -11,7 +11,7 @@ namespace sds
 	/// <summary>
 	/// Base class for processing input concurrently, contains pure virtual member "workThread"
 	/// to be overridden by an inheriting class. The startThread() and stopThread() protected members will allow
-	/// control by the inheriting class. The std::mutex stateMutex and std::unique_ptr{std::thread} thread serve
+	/// control by the inheriting class. The std::mutex stateMutex and std::shared_ptr{std::thread} thread serve
 	/// as concurrency helpers with std::lock_guard{std::mutex}
 	/// Instantiate with the type you would like to have mutex protected access to within a running thread.
 	/// </summary>
@@ -21,10 +21,11 @@ namespace sds
 		using lock = std::lock_guard<std::mutex>;
 
 	protected:
-		std::unique_ptr<std::thread> thread;
+		std::shared_ptr<std::thread> thread;
 
-		volatile bool isThreadRunning;
-		volatile bool isStopRequested;
+		std::atomic<bool> isThreadRunning;
+		std::atomic<bool> isStopRequested;
+
 		InternalData local_state;
 		std::mutex stateMutex;
 		
@@ -43,11 +44,16 @@ namespace sds
 			{
 				this->isStopRequested = false;
 				this->isThreadRunning = true;
-				this->thread = std::unique_ptr<std::thread>
-					(new std::thread(std::bind(&CPPThreadRunner::workThread, this)));
-
-				//this->thread = std::shared_ptr<std::thread>
-				//	(new std::thread(std::bind(&CPPThreadRunner::workThread,this)));
+				if (this->thread == nullptr)
+				{
+					this->thread = std::shared_ptr<std::thread>
+						(new std::thread(std::bind(&CPPThreadRunner::workThread, this)));
+				}
+				else
+				{
+					this->thread.reset();
+					this->thread = std::shared_ptr<std::thread>(new std::thread(std::bind(&CPPThreadRunner::workThread, this)));
+				}
 			}
 		}
 
@@ -76,22 +82,23 @@ namespace sds
 		/// </summary>
 		void stopThread()
 		{
+			//Get this setting out of the way.
+			this->isStopRequested = true;
+
 			//If there is a thread obj..
 			if(this->thread != nullptr)
 			{
-				//if thread is not running, return
-				if (!this->isThreadRunning)
+				//if it is not joinable, set to nullptr
+				if (!this->thread->joinable())
 				{
+					this->thread = nullptr;
+					this->isThreadRunning = false;
 					return;
 				}
-				//else request stop and join to current thread.
 				else
 				{
-					this->isStopRequested = true;
-					if (this->thread->joinable())
-					{
-						this->thread->join();
-					}
+					this->thread->join();
+					this->thread = nullptr;
 					this->isThreadRunning = false;
 				}
 			}
