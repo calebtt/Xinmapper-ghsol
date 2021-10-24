@@ -43,15 +43,15 @@ namespace sds
 		using lock = std::lock_guard<std::mutex>;
 
 	public:
-		enum class MouseMap
+		enum class MouseMap : int
 		{
 			NEITHER_STICK,
 			RIGHT_STICK,
 			LEFT_STICK
-		} volatile stickMapInfo;
+		};// std::atomic<MouseMap> stickMapInfo;
 
 	private:
-
+		std::atomic<MouseMap> stickMapInfo;
 		INPUT data;
 		volatile SHORT threadX, threadY;
 		volatile LONG step;
