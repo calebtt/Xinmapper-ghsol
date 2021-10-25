@@ -99,8 +99,8 @@ namespace sds
 		/// <param name="detail">(std::vector&lt;std::string&gt;) is a ref to vector of strings containing ActionDetails style tokens</param>
 		void ProcessTokens(std::vector<std::string> &detail)
 		{
-			using wit_type = std::vector<WordData>::iterator;
-			using sit_type = std::vector<std::string>::iterator;
+			//using wit_type = std::vector<WordData>::iterator;
+			//using sit_type = std::vector<std::string>::iterator;
 			using std::string;
 
 			//set all worddata "down" fields to false, the "down" member denotes that the button is currently being pressed
@@ -116,7 +116,7 @@ namespace sds
 			//meaning if the button is reported as being pressed from the XINPUT library
 			string controlButton, buttonExtraDetail;
 			//iterate the vector<string> containing map tokens
-			for(sit_type it = detail.begin(); it != detail.end(); ++it)
+			for(auto it = detail.begin(); it != detail.end(); ++it)
 			{
 				//replace the "moreInfo" character (which is separating values) with whitespace in the string.
 				std::replace(it->begin(), it->end(), sds::sdsActionDescriptors.moreInfo, ' ');
@@ -126,7 +126,7 @@ namespace sds
 				//iterate the vector of worddata internal to this class, 
 				//if controlButton matches the current "worddata" AND the extra detail is NONE or matches the current "worddata"
 				//then set "down" to true
-				for(wit_type ij = mapTokenInfo.begin(); ij != mapTokenInfo.end(); ++ij)
+				for(auto ij = mapTokenInfo.begin(); ij != mapTokenInfo.end(); ++ij)
 				{
 					if (controlButton == ij->control 
 						&& (buttonExtraDetail + sds::sdsActionDescriptors.none == ij->info 
