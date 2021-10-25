@@ -27,15 +27,27 @@ namespace sds
 		/// </summary>
 		virtual void workThread()
 		{
-			memset(&local_state, 0, sizeof(local_state));
+			//creating a local scope for a scoped lock to protect access to the local_state
+			{
+				lock l(this->stateMutex);
+				memset(&local_state, 0, sizeof(local_state));
+			}
 
 			while( ! this->isStopRequested )
 			{
-				DWORD error = XInputGetState(sds::sdsPlayerOne.player_id, &local_state);
-				if( error != ERROR_SUCCESS )
-					break;
-				mse->ProcessState(local_state);
-				m->ProcessActionDetails( t->ProcessState(local_state) );
+				{
+					lock l2(this->stateMutex);
+					DWORD error = XInputGetState(sds::sdsPlayerOne.player_id, &local_state);
+					if (error != ERROR_SUCCESS)
+					{
+						continue;
+					}
+				}
+
+				mse->ProcessState(this->getCurrentState());
+				m->ProcessActionDetails(t->ProcessState(this->getCurrentState()));
+				//mse->ProcessState(local_state);
+				//m->ProcessActionDetails( t->ProcessState(local_state) );
 				Sleep(THREAD_DELAY);
 			}
 			this->isThreadRunning = false;

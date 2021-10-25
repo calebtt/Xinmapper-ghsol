@@ -53,9 +53,9 @@ namespace sds
 	private:
 		std::atomic<MouseMap> stickMapInfo;
 		INPUT data;
-		volatile SHORT threadX, threadY;
-		volatile LONG step;
-		volatile int SENSITIVITY;
+		std::atomic<SHORT> threadX, threadY;
+		std::atomic<LONG> step;
+		std::atomic<int> SENSITIVITY;
 
 		static const int MOVE_THREAD_SLEEP = 10;//10 ms
 	public:
@@ -121,6 +121,8 @@ namespace sds
 		/// Setter for sensitivity value
 		/// </summary>
 		/// <param name="new_sens"></param>
+		/// <returns> returns a std::string containing an error message
+		/// if there is an error, empty string otherwise. </returns>
 		std::string SetSensitivity(int new_sens)
 		{
 			if (new_sens <= 0)
@@ -136,7 +138,8 @@ namespace sds
 		/// <returns></returns>
 		int GetSensitivity()
 		{
-			return SENSITIVITY;
+			int tempSens = SENSITIVITY;
+			return tempSens;
 		}
 	private:
 		/// <summary>
@@ -156,8 +159,8 @@ namespace sds
 		}
 
 		/// <summary>
-		/// Worker thread, protected visibility, gets updated data from ProcessState() function to use.
-		/// Accesses the volatile threadX and threadY members.
+		/// Worker thread, private visibility, gets updated data from ProcessState() function to use.
+		/// Accesses the std::atomic threadX and threadY members.
 		/// </summary>
 		virtual void workThread()
 		{

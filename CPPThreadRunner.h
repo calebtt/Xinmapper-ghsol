@@ -18,9 +18,12 @@ namespace sds
 
 	template <class InternalData> class CPPThreadRunner
 	{
-		using lock = std::lock_guard<std::mutex>;
+		
 
 	protected:
+		//Interestingly, accessibility modifiers (public/private/etc.) work on "using" typedefs!
+		using lock = std::lock_guard<std::mutex>;
+
 		std::shared_ptr<std::thread> thread;
 
 		std::atomic<bool> isThreadRunning;
@@ -42,16 +45,23 @@ namespace sds
 		{
 			if( ! this->isThreadRunning )
 			{
-				this->isStopRequested = false;
-				this->isThreadRunning = true;
 				if (this->thread == nullptr)
 				{
+					this->isStopRequested = false;
+					this->isThreadRunning = true;
 					this->thread = std::shared_ptr<std::thread>
 						(new std::thread(std::bind(&CPPThreadRunner::workThread, this)));
 				}
 				else
 				{
+					if (this->thread->joinable())
+					{
+						this->isStopRequested = true;
+						this->thread->join();
+					}
 					this->thread.reset();
+					this->isStopRequested = false;
+					this->isThreadRunning = true;
 					this->thread = std::shared_ptr<std::thread>(new std::thread(std::bind(&CPPThreadRunner::workThread, this)));
 				}
 			}
