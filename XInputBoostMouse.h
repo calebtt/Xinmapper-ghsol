@@ -39,8 +39,6 @@ namespace sds
 	/// </summary>
 	class XInputBoostMouse : public CPPThreadRunner<XINPUT_STATE>
 	{
-		//small typedef for locking the mutex
-		using lock = std::lock_guard<std::mutex>;
 
 	public:
 		enum class MouseMap : int
