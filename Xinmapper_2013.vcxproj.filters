@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\Base Classes">
+      <UniqueIdentifier>{7825c27a-d8a5-4b6d-80a3-35caf9ee3bf3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -30,9 +33,6 @@
     <ClInclude Include="Globals.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="InputPoller.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Mapper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -45,16 +45,28 @@
     <ClInclude Include="SendKey.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="XInputBoostMouse.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="XInputTranslater.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CPPThreadRunner.h">
+    <ClInclude Include="ButtonStateDown.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ButtonStateDown.h">
+    <ClInclude Include="XInputPoller.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="InputPollerBase.h">
+      <Filter>Header Files\Base Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="InputTranslaterBase.h">
+      <Filter>Header Files\Base Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="CPPThreadRunner.h">
+      <Filter>Header Files\Base Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="InputMouseBase.h">
+      <Filter>Header Files\Base Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="XInputMouse.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

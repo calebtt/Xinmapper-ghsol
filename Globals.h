@@ -5,6 +5,17 @@
 
 namespace sds
 {
+
+	/// <summary>
+	/// Specifies which joystick (if any) is used for controlling the mouse.
+	/// </summary>
+	enum class MouseMap : int
+	{
+		NEITHER_STICK,
+		RIGHT_STICK,
+		LEFT_STICK
+	};
+
 	/// <summary>
 	/// Used as a global data structure to hold player information, includes
 	/// thumbstick and trigger deadzone information.
@@ -52,5 +63,8 @@ namespace sds
 	/// They are of the form: {btn/trigr/thumb}:{moreinfo}:{input sim type}:{value mapped to}
 	/// </summary>
 	using MapInformation = std::string;
+
+
+
 
 }

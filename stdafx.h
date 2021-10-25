@@ -9,8 +9,8 @@
 #include "targetver.h"
 #include <windows.h>
 #include <Xinput.h>
-#include <process.h>
-#include <tchar.h>
+//#include <process.h>
+//#include <tchar.h>
 //#include <intrin.h>
 
 #include <iostream>
@@ -34,6 +34,7 @@
 #include <tuple>
 #include <locale>
 #include <format>
+#include <numeric>
 
 
 

@@ -1,9 +1,11 @@
 #pragma once
 
-#include "InputPoller.h"
+#include "XInputPoller.h"
 #include "Mapper.h"
 #include "XInputTranslater.h"
-#include "XInputBoostMouse.h"
+#include "XInputMouse.h"
+#include "InputTranslaterBase.h"
+#include "InputPollerBase.h"
 
 namespace sds
 {
@@ -16,14 +18,14 @@ namespace sds
 		/// Pointer to XInputTranslater, responsible for producing an ActionDetails from an XInputState for use
 		/// by the rest of the code.
 		/// </summary>
-		XInputTranslater* transl;
+		InputTranslaterBase<XINPUT_STATE> *transl;
 	public:
 		/// <summary>
 		/// Pointer to InputPoller instance, continuously polls for input to send for processing.
 		/// Check controller connected status with IsControllerConnected() and begin polling with 
 		/// Start(), when finished stop with Stop()
 		/// </summary>
-		InputPoller *poller;
+		InputPollerBase<XINPUT_STATE> *poller;
 		/// <summary>
 		/// Pointer to Mapper instance, remember to set the map info with the
 		/// SetMapInfo() member
@@ -36,14 +38,14 @@ namespace sds
 		/// the public member MouseMap enum holds this information.
 		/// Includes a public member function for changing the sensitivity as well.
 		/// </summary>
-		XInputBoostMouse *mouse;
+		InputMouseBase<XINPUT_STATE> *mouse;
 	public:
 		GamepadUser()
 		{
 			mapper = new Mapper();
 			transl = new XInputTranslater();
-			mouse = new XInputBoostMouse();
-			poller = new InputPoller(mapper,transl,mouse);
+			mouse = new XInputMouse();
+			poller = new XInputPoller(mapper,transl,mouse);
 		}
 		~GamepadUser()
 		{

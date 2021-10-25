@@ -15,7 +15,8 @@ namespace sds
 	class SendKey
 	{
 		INPUT keyInput;
-		INPUT mouseInput;
+		INPUT mouseClickInput;
+		INPUT mouseMoveInput;
 	public:
 		/// <summary>
 		/// Default Constructor
@@ -23,13 +24,31 @@ namespace sds
 		SendKey()
 		{
 			memset(&keyInput,0,sizeof(INPUT));
-			memset(&mouseInput,0,sizeof(INPUT));
+			memset(&mouseClickInput,0,sizeof(INPUT));
+			memset(&mouseMoveInput, 0, sizeof(INPUT));
 			keyInput.type = INPUT_KEYBOARD;
-			mouseInput.type = INPUT_MOUSE;
+			mouseClickInput.type = INPUT_MOUSE;
+			mouseMoveInput.type = INPUT_MOUSE;
+			mouseMoveInput.mi.dwFlags = MOUSEEVENTF_MOVE;
+		}
+		/// <summary>
+		/// Sends mouse movement specified by X and Y number of pixels to move.
+		/// </summary>
+		/// <param name="x">number of pixels in X</param>
+		/// <param name="y">number of pixels in Y</param>
+		void SendMouseMove(const int x, const int y)
+		{
+			mouseMoveInput.mi.dx = x;
+			mouseMoveInput.mi.dy = y;
+			mouseMoveInput.mi.dwExtraInfo = GetMessageExtraInfo();
+
+			//Finally, send the input
+			SendInput(1, &mouseMoveInput, sizeof(INPUT));
 		}
 		/// <summary>
 		/// Sends input, if a VK Virtual Keycode of 0 is used, it is assumed to
 		/// be mouse input, and keyboard input otherwise.
+		/// Sends mouse "click" type events, and keyboard events.
 		/// </summary>
 		/// <param name="vk"> is the Virtual Keycode of the keystroke you wish to emulate, use 0 for mouse input</param>
 		/// <param name="down"> is a boolean denoting if the keypress event is KEYDOWN or KEYUP</param>
@@ -49,30 +68,30 @@ namespace sds
 				{
 				case VK_LBUTTON:
 					if(down)
-						mouseInput.mi.dwFlags = MOUSEEVENTF_LEFTDOWN;
+						mouseClickInput.mi.dwFlags = MOUSEEVENTF_LEFTDOWN;
 					else
-						mouseInput.mi.dwFlags = MOUSEEVENTF_LEFTUP;
+						mouseClickInput.mi.dwFlags = MOUSEEVENTF_LEFTUP;
 					break;
 				case VK_RBUTTON:
 					if(down)
-						mouseInput.mi.dwFlags = MOUSEEVENTF_RIGHTDOWN;
+						mouseClickInput.mi.dwFlags = MOUSEEVENTF_RIGHTDOWN;
 					else
-						mouseInput.mi.dwFlags = MOUSEEVENTF_RIGHTUP;
+						mouseClickInput.mi.dwFlags = MOUSEEVENTF_RIGHTUP;
 					break;
 				case VK_MBUTTON:
 					if(down)
-						mouseInput.mi.dwFlags = MOUSEEVENTF_MIDDLEDOWN;
+						mouseClickInput.mi.dwFlags = MOUSEEVENTF_MIDDLEDOWN;
 					else
-						mouseInput.mi.dwFlags = MOUSEEVENTF_MIDDLEUP;
+						mouseClickInput.mi.dwFlags = MOUSEEVENTF_MIDDLEUP;
 					break;
 				default:
 					break;
 				}
 			}
 		
-			mouseInput.mi.dwExtraInfo = GetMessageExtraInfo();
+			mouseClickInput.mi.dwExtraInfo = GetMessageExtraInfo();
 			keyInput.ki.dwExtraInfo = GetMessageExtraInfo();
-			UINT ret = SendInput(1,(scanCode != 0 ? &keyInput : &mouseInput),sizeof(INPUT));
+			UINT ret = SendInput(1,(scanCode != 0 ? &keyInput : &mouseClickInput),sizeof(INPUT));
 			assert(ret != 0);
 		}
 		/// <summary>

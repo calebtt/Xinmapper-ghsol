@@ -5,6 +5,7 @@ an XINPUT_STATE for consumption by the rest of the code.
 #pragma once
 #include "stdafx.h"
 #include "ButtonStateDown.h"
+#include "InputTranslaterBase.h"
 
 namespace sds
 {
@@ -16,7 +17,7 @@ namespace sds
 	/// and another part of the code can use that information to simulate the input mapped to those.
 	/// </example>
 	/// </summary>
-	class XInputTranslater
+	class XInputTranslater : public InputTranslaterBase<XINPUT_STATE>
 	{
 		//Utility class with functions that test button/thumbstick/trigger for depressed or "down" status
 		ButtonStateDown *bsd;

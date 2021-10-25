@@ -8,7 +8,7 @@
 #include <WinUser.h>
 #include "GamepadUser.h"
 
-int _tmain(int argc, _TCHAR* argv[])
+int main(int argc, const char *argv[])
 {
 	using namespace sds;
 	auto errInfo = [](const std::string e, int retVal)
@@ -34,7 +34,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	{
 		return errInfo("Error in setting the mouse sensitivity. Exiting.\n" + err, 2);
 	}
-	gamepadUser.mouse->EnableProcessing(XInputBoostMouse::MouseMap::RIGHT_STICK);
+	gamepadUser.mouse->EnableProcessing(sds::MouseMap::RIGHT_STICK);
 	
 	std::cout << "Xbox 360 controller polling started..." << std::endl;
 	std::cout << "Controller reported as: " << (gamepadUser.poller->IsControllerConnected() ? "Connected." : "Disconnected.") << std::endl;
