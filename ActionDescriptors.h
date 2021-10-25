@@ -17,30 +17,32 @@ namespace sds
 	/// </summary>
 	struct ActionDescriptors
 	{
-		const std::string x = "X",
-			y = "Y",
-			a = "A",
-			b = "B",
-			lThumb = "LTHUMB",
-			rThumb = "RTHUMB",
-			lTrigger = "LTRIGGER",
-			rTrigger = "RTRIGGER",
-			lShoulder = "LSHOULDER",
-			rShoulder = "RSHOULDER",
-			dpad = "DPAD",
-			left = "LEFT",
-			down = "DOWN",
-			up = "UP",
-			right = "RIGHT",
-			none = "NONE",
-			start = "START",
-			back = "BACK",
-			vk = "VK",
-			mappedTo = "=",
-			norm = "NORM",
-			toggle = "TOGGLE",
-			rapid = "RAPID";
-		const char moreInfo = ':';
+		//using this declaration syntax gives intellisense the comments per variable.
+		const std::string x = "X"; // the string "X"
+		const std::string y = "Y"; // the string "Y"
+		const std::string a = "A"; // the string "A"
+		const std::string b = "B"; // the string "B"
+		const std::string lThumb = "LTHUMB"; // the string "LTHUMB"
+		const std::string rThumb = "RTHUMB"; // the string "RTHUMB"
+		const std::string lTrigger = "LTRIGGER"; // the string "LTRIGGER"
+		const std::string rTrigger = "RTRIGGER"; // the string "RTRIGGER"
+		const std::string lShoulder = "LSHOULDER"; // the string "LSHOULDER"
+		const std::string rShoulder = "RSHOULDER"; // the string "RSHOULDER"
+		const std::string dpad = "DPAD"; // the string "DPAD"
+		const std::string left = "LEFT"; // the string "LEFT"
+		const std::string down = "DOWN"; // the string "DOWN"
+		const std::string up = "UP"; // the string "UP"
+		const std::string right = "RIGHT"; // the string "RIGHT"
+		const std::string none = "NONE"; // the string "NONE"
+		const std::string start = "START"; // the string "START"
+		const std::string back = "BACK"; // the string "BACK"
+		const std::string vk = "VK"; // the string "VK"
+		const std::string mappedTo = "="; // the string "="
+		const std::string norm = "NORM"; // the string "NORM"
+		const std::string toggle = "TOGGLE"; // the string "TOGGLE"
+		const std::string rapid = "RAPID"; // the string "RAPID"
+
+		const char moreInfo = ':'; // the char ':'
 		const char delimiter = ' ';//spacebar space
 
 		//Maps the tokens above to XINPUT library #defines
