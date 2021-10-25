@@ -24,7 +24,7 @@ namespace sds
 	/// Meaning an ActionDetails string will have something like "X B LTRIGGER RTRIGGER LTHUMB:UP RTHUMB:DOWN"
 	/// that will be processed into simulated input. The string is generated in XInputTranslater.
 	/// </summary>
-	typedef std::string ActionDetails;
+	using ActionDetails = std::string;
 
 	/// <summary>
 	/// Created with input from the user (of the classes), it will likely
@@ -51,6 +51,6 @@ namespace sds
 	/// <br/>
 	/// They are of the form: {btn/trigr/thumb}:{moreinfo}:{input sim type}:{value mapped to}
 	/// </summary>
-	typedef std::string MapInformation;
+	using MapInformation = std::string;
 
 }
