@@ -27,12 +27,12 @@ int _tmain(int argc, _TCHAR* argv[])
 	if (err.size())
 	{
 		//Error in setting the map information.
-		return errInfo("Error in setting the map information. Exiting.", 1);
+		return errInfo("Error in setting the map information. Exiting.\n" + err, 1);
 	}
 	err = gamepadUser.mouse->SetSensitivity(35);
 	if (err.size())
 	{
-		return errInfo("Error in setting the mouse sensitivity. Exiting.", 2);
+		return errInfo("Error in setting the mouse sensitivity. Exiting.\n" + err, 2);
 	}
 	gamepadUser.mouse->EnableProcessing(XInputBoostMouse::MouseMap::RIGHT_STICK);
 	
