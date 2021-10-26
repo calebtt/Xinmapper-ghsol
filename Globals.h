@@ -24,7 +24,7 @@ namespace sds
 
 	/// <summary>
 	/// ActionDescriptors is a struct containing string tokens used to build a string describing how controller
-	/// buttons are mapped to Keyboard & Mouse buttons. It also has a std::map xin_buttons mapping some string tokens
+	/// buttons are mapped to Keyboard and Mouse buttons. It also has a map xin_buttons mapping some string tokens
 	/// to XINPUT lib defines.
 	/// </summary>
 	static ActionDescriptors sdsActionDescriptors;
@@ -33,6 +33,7 @@ namespace sds
 	/// ActionDetails is a std::string specifically used to transmit state information
 	/// about input from the controller to the various classes that will process the information.
 	/// Meaning an ActionDetails string will have something like "X B LTRIGGER RTRIGGER LTHUMB:UP RTHUMB:DOWN"
+	/// A thumbstick click event is just "LTHUMB" etc.
 	/// that will be processed into simulated input. The string is generated in XInputTranslater.
 	/// </summary>
 	using ActionDetails = std::string;

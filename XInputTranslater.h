@@ -21,6 +21,18 @@ namespace sds
 	{
 		//Utility class with functions that test button/thumbstick/trigger for depressed or "down" status
 		ButtonStateDown *bsd;
+		static const int NumTokens = 10;
+		const std::string thumbDirectionList[NumTokens] =
+		{
+			(sds::sdsActionDescriptors.lThumb + sds::sdsActionDescriptors.moreInfo + sds::sdsActionDescriptors.up),
+			(sds::sdsActionDescriptors.lThumb + sds::sdsActionDescriptors.moreInfo + sds::sdsActionDescriptors.down),
+			(sds::sdsActionDescriptors.lThumb + sds::sdsActionDescriptors.moreInfo + sds::sdsActionDescriptors.left),
+			(sds::sdsActionDescriptors.lThumb + sds::sdsActionDescriptors.moreInfo + sds::sdsActionDescriptors.right),
+			(sds::sdsActionDescriptors.rThumb + sds::sdsActionDescriptors.moreInfo + sds::sdsActionDescriptors.up),
+			(sds::sdsActionDescriptors.rThumb + sds::sdsActionDescriptors.moreInfo + sds::sdsActionDescriptors.down),
+			(sds::sdsActionDescriptors.rThumb + sds::sdsActionDescriptors.moreInfo + sds::sdsActionDescriptors.left),
+			(sds::sdsActionDescriptors.rThumb + sds::sdsActionDescriptors.moreInfo + sds::sdsActionDescriptors.right)
+		};
 	public:
 		XInputTranslater()
 		{
@@ -60,42 +72,12 @@ namespace sds
 				details += sds::sdsActionDescriptors.rTrigger + sds::sdsActionDescriptors.delimiter;
 			}
 			//Thumbsticks
-			std::string thumb = sds::sdsActionDescriptors.lThumb + sds::sdsActionDescriptors.moreInfo;
-			//lThumb
-			if( bsd->ThumbstickDown(state,thumb + sds::sdsActionDescriptors.up) )
+			for (int i = 0; i < NumTokens; i++)
 			{
-				details += thumb + sds::sdsActionDescriptors.up + sds::sdsActionDescriptors.delimiter;
-			}
-			if( bsd->ThumbstickDown(state,thumb + sds::sdsActionDescriptors.down) )
-			{
-				details += thumb + sds::sdsActionDescriptors.down + sds::sdsActionDescriptors.delimiter;
-			}
-			if( bsd->ThumbstickDown(state, thumb + sds::sdsActionDescriptors.left) )
-			{
-				details += thumb + sds::sdsActionDescriptors.left + sds::sdsActionDescriptors.delimiter;
-			}
-			if( bsd->ThumbstickDown(state, thumb + sds::sdsActionDescriptors.right) )
-			{
-				details += thumb + sds::sdsActionDescriptors.right + sds::sdsActionDescriptors.delimiter;
-			}
-
-			//rThumb
-			thumb = sds::sdsActionDescriptors.rThumb + sds::sdsActionDescriptors.moreInfo;
-			if( bsd->ThumbstickDown(state,thumb + sds::sdsActionDescriptors.up) )
-			{
-				details += thumb + sds::sdsActionDescriptors.up + sds::sdsActionDescriptors.delimiter;
-			}
-			if( bsd->ThumbstickDown(state,thumb + sds::sdsActionDescriptors.down) )
-			{
-				details += thumb + sds::sdsActionDescriptors.down + sds::sdsActionDescriptors.delimiter;
-			}
-			if( bsd->ThumbstickDown(state, thumb + sds::sdsActionDescriptors.left) )
-			{
-				details += thumb + sds::sdsActionDescriptors.left + sds::sdsActionDescriptors.delimiter;
-			}
-			if( bsd->ThumbstickDown(state, thumb + sds::sdsActionDescriptors.right) )
-			{
-				details += thumb + sds::sdsActionDescriptors.right + sds::sdsActionDescriptors.delimiter;
+				if (bsd->ThumbstickDown(state, thumbDirectionList[i]))
+				{
+					details += thumbDirectionList[i] + sds::sdsActionDescriptors.delimiter;
+				}
 			}
 			return details;
 		}

@@ -30,7 +30,7 @@ namespace sds
 		const std::string down = "DOWN"; // the string "DOWN"
 		const std::string up = "UP"; // the string "UP"
 		const std::string right = "RIGHT"; // the string "RIGHT"
-		const std::string dpadClick = "CLICK"; // the string "CLICK"
+		//const std::string dpadClick = "CLICK"; // the string "CLICK" // not used, will just be "LTHUMB"/"RTHUMB" for a click event.
 		const std::string none = "NONE"; // the string "NONE"
 		const std::string start = "START"; // the string "START"
 		const std::string back = "BACK"; // the string "BACK"

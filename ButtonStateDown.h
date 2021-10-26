@@ -13,11 +13,13 @@ namespace sds
 	public:
 		/// <summary>
 		/// Utility function that aids in determining if the button is pressed in the XINPUT_STATE
+		/// Uses the xin_buttons map in ActionDescriptors.h to find the bitmask in the map
+		/// and compares it to the wButtons member of XINPUT_STATE
 		/// </summary>
 		/// <param name="state"> an XINPUT_STATE with current input from the controller</param>
 		/// <param name="token"> a string specifying the button info for comparison</param>
 		/// <returns>true if the button is depressed, false otherwise</returns>
-		bool ButtonDown(const XINPUT_STATE& state, std::string token)
+		bool ButtonDown(const XINPUT_STATE &state, std::string token)
 		{
 			//std::const_iterator used for access
 			for (auto it = sds::sdsActionDescriptors.xin_buttons.cbegin(); it != sds::sdsActionDescriptors.xin_buttons.cend(); ++it)
@@ -94,7 +96,7 @@ namespace sds
 			//Right thumbstick.
 			if (token == temp + sds::sdsActionDescriptors.left)
 			{
-				//Test lThumb left.
+				//Test rThumb left.
 				if (state.Gamepad.sThumbRX < (-sds::sdsPlayerOne.left_dz))
 					return true;
 			}
