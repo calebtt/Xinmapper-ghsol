@@ -103,6 +103,8 @@
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="ButtonStateDown.h" />
+    <ClInclude Include="XInputKeystrokePoller.h" />
+    <ClInclude Include="XInputKeystrokeTranslater.h" />
     <ClInclude Include="XInputMouse.h" />
     <ClInclude Include="XInputPoller.h" />
     <ClInclude Include="XInputTranslater.h" />

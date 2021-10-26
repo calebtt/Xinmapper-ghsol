@@ -16,6 +16,12 @@
     <Filter Include="Header Files\Base Classes">
       <UniqueIdentifier>{7825c27a-d8a5-4b6d-80a3-35caf9ee3bf3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\XInputKeystroke">
+      <UniqueIdentifier>{db2ba876-672e-4d97-ae6a-d9f6a65f8149}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\XInput">
+      <UniqueIdentifier>{8ef12297-48aa-4435-8307-a35d3f413211}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -45,13 +51,7 @@
     <ClInclude Include="SendKey.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="XInputTranslater.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ButtonStateDown.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="XInputPoller.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="InputPollerBase.h">
@@ -66,8 +66,20 @@
     <ClInclude Include="InputMouseBase.h">
       <Filter>Header Files\Base Classes</Filter>
     </ClInclude>
+    <ClInclude Include="XInputKeystrokePoller.h">
+      <Filter>Header Files\XInputKeystroke</Filter>
+    </ClInclude>
     <ClInclude Include="XInputMouse.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\XInput</Filter>
+    </ClInclude>
+    <ClInclude Include="XInputPoller.h">
+      <Filter>Header Files\XInput</Filter>
+    </ClInclude>
+    <ClInclude Include="XInputTranslater.h">
+      <Filter>Header Files\XInput</Filter>
+    </ClInclude>
+    <ClInclude Include="XInputKeystrokeTranslater.h">
+      <Filter>Header Files\XInputKeystroke</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
