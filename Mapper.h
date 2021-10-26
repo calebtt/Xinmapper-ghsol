@@ -1,5 +1,6 @@
 #pragma once
 #include "stdafx.h"
+#include "Globals.h"
 #include "MultiBool.h"
 #include "SendKey.h"
 

@@ -9,9 +9,6 @@
 #include "targetver.h"
 #include <windows.h>
 #include <Xinput.h>
-//#include <process.h>
-//#include <tchar.h>
-//#include <intrin.h>
 
 #include <iostream>
 #include <string>
@@ -39,4 +36,4 @@
 
 
 // Include some commonly used global stuff.
-#include "Globals.h"
+//#include "Globals.h"

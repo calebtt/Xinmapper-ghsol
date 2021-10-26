@@ -1,11 +1,3 @@
-/*
-Responsible for tokens used in an ActionDetails
-string.
-Inevitably tokens must be mapped to values (some of them).
-*/
-//TODO 10-26-21 add new tokens for the XINPUT_KEYSTROKE functionality, and perhaps map them to XINPUT_KEYSTROKE defines.
-
-
 #pragma once
 #include "stdafx.h"
 
@@ -19,6 +11,9 @@ namespace sds
 	/// </summary>
 	struct ActionDescriptors
 	{
+		const char moreInfo = ':'; // the char ':'
+		const char delimiter = ' ';//spacebar space
+
 		//using this declaration syntax gives intellisense the comments per variable.
 		const std::string x = "X"; // the string "X"
 		const std::string y = "Y"; // the string "Y"
@@ -35,6 +30,7 @@ namespace sds
 		const std::string down = "DOWN"; // the string "DOWN"
 		const std::string up = "UP"; // the string "UP"
 		const std::string right = "RIGHT"; // the string "RIGHT"
+		const std::string dpadClick = "CLICK"; // the string "CLICK"
 		const std::string none = "NONE"; // the string "NONE"
 		const std::string start = "START"; // the string "START"
 		const std::string back = "BACK"; // the string "BACK"
@@ -44,8 +40,7 @@ namespace sds
 		const std::string toggle = "TOGGLE"; // the string "TOGGLE"
 		const std::string rapid = "RAPID"; // the string "RAPID"
 
-		const char moreInfo = ':'; // the char ':'
-		const char delimiter = ' ';//spacebar space
+
 
 		//Maps the tokens above to XINPUT library #defines
 		//Because the XINPUT lib doesn't send a "down" signal 
@@ -69,6 +64,27 @@ namespace sds
 			{back, XINPUT_GAMEPAD_BACK},
 			{lThumb, XINPUT_GAMEPAD_LEFT_THUMB},
 			{rThumb, XINPUT_GAMEPAD_RIGHT_THUMB}
+		};
+
+		const std::map<const std::string, int> xink_buttons =
+		{
+			{x,VK_PAD_X},
+			{y,VK_PAD_Y},
+			{a,VK_PAD_A},
+			{b,VK_PAD_B},
+			{lShoulder,VK_PAD_LSHOULDER},
+			{rShoulder,VK_PAD_RSHOULDER},
+			{lTrigger, VK_PAD_LTRIGGER},
+			{rTrigger, VK_PAD_RTRIGGER},
+			{dpad + moreInfo + left, VK_PAD_DPAD_LEFT},
+			{dpad + moreInfo + right, VK_PAD_DPAD_RIGHT},
+			{dpad + moreInfo + up, VK_PAD_DPAD_UP},
+			{dpad + moreInfo + down, VK_PAD_DPAD_DOWN},
+			//{dpad + moreInfo + dpadClick, VK_PAD_LTHUMB_PRESS},
+			{start, VK_PAD_START},
+			{back, VK_PAD_BACK},
+			{lThumb, VK_PAD_LTHUMB_PRESS},
+			{rThumb, VK_PAD_RTHUMB_PRESS}
 		};
 	};
 
