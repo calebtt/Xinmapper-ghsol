@@ -3,6 +3,8 @@ Responsible for tokens used in an ActionDetails
 string.
 Inevitably tokens must be mapped to values (some of them).
 */
+//TODO 10-26-21 add new tokens for the XINPUT_KEYSTROKE functionality, and perhaps map them to XINPUT_KEYSTROKE defines.
+
 
 #pragma once
 #include "stdafx.h"
