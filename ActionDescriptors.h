@@ -42,12 +42,15 @@ namespace sds
 
 
 
-		//Maps the tokens above to XINPUT library #defines
-		//Because the XINPUT lib doesn't send a "down" signal 
-		//to be tested against with a define bitmask, it
-		//isn't mapped to an xinput lib define bitmask here.
-		//instead lTrigger, rTrigger are tested against the current value
-		//in BYTE bLeftTrigger and bRightTrigger in the XINPUT_GAMEPAD struct
+		/// <summary>
+		/// Maps the tokens above to XINPUT library macro defines.
+		/// Because the XINPUT lib doesn't send a "down" signal
+		/// to be tested against with a define bitmask, it isn't
+		/// mapped to an xinput lib define bitmask here.
+		/// instead, lTrigger, rTrigger are tested against the current value
+		/// in BYTE bLeftTrigger and bRightTrigger in the XINPUT_GAMEPAD struct.
+		/// XInputGetKeyState() cannot be used for Xbox360 controller keyboard keys.
+		/// </summary>
 		const std::map<const std::string, int> xin_buttons = 
 		{
 			{x,XINPUT_GAMEPAD_X},
@@ -66,6 +69,16 @@ namespace sds
 			{rThumb, XINPUT_GAMEPAD_RIGHT_THUMB}
 		};
 
+		/// <summary>
+		/// Map for the named macro defines in the XInputGetKeystroke() lib.
+		/// Key presses (from the xbox360 controller keyboard) do not have
+		/// separate macro defines, but instead report a virtual keycode.
+		/// Also note that the thumbstick directions are not handled here,
+		/// though they do have macro defines. They report only the direction
+		/// that the stick is moved, and not a magnitude value as if by the
+		/// older XINPUT GetKeyState functions. XInputGetKeyState() is used
+		/// by the XInputMouse class for managing mouse movement and sensitivity.
+		/// </summary>
 		const std::map<const std::string, int> xink_buttons =
 		{
 			{x,VK_PAD_X},
@@ -80,7 +93,6 @@ namespace sds
 			{dpad + moreInfo + right, VK_PAD_DPAD_RIGHT},
 			{dpad + moreInfo + up, VK_PAD_DPAD_UP},
 			{dpad + moreInfo + down, VK_PAD_DPAD_DOWN},
-			//{dpad + moreInfo + dpadClick, VK_PAD_LTHUMB_PRESS},
 			{start, VK_PAD_START},
 			{back, VK_PAD_BACK},
 			{lThumb, VK_PAD_LTHUMB_PRESS},
