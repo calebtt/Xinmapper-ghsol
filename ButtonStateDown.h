@@ -19,7 +19,7 @@ namespace sds
 		/// <param name="state"> an XINPUT_STATE with current input from the controller</param>
 		/// <param name="token"> a string specifying the button info for comparison</param>
 		/// <returns>true if the button is depressed, false otherwise</returns>
-		bool ButtonDown(const XINPUT_STATE &state, std::string token)
+		bool ButtonDown(const XINPUT_STATE &state, const std::string token)
 		{
 			//std::const_iterator used for access
 			for (auto it = sds::sdsActionDescriptors.xin_buttons.cbegin(); it != sds::sdsActionDescriptors.xin_buttons.cend(); ++it)
@@ -32,6 +32,30 @@ namespace sds
 			}
 			return false;
 		}
+
+
+		/// <summary>
+		/// Utility function that aids in determining if the button is pressed in the XINPUT_KEYSTROKE
+		/// Uses the xink_buttons map in ActionDescriptors.h to find the bitmask in the map
+		/// and compares it to the VirtualKey member of XINPUT_KEYSTROKE
+		/// </summary>
+		/// <param name="state"> an XINPUT_KEYSTROKE with current input from the controller</param>
+		/// <param name="token"> a string specifying the button info for comparison</param>
+		/// <returns>true if the button is depressed, false otherwise</returns>
+		bool ButtonDown(const XINPUT_KEYSTROKE &state, const std::string token)
+		{
+			//std::const_iterator used for access
+			for (auto it = sds::sdsActionDescriptors.xin_buttons.cbegin(); it != sds::sdsActionDescriptors.xin_buttons.cend(); ++it)
+			{
+				if (it->first == token)
+				{
+					if (state.VirtualKey & it->second)
+						return true;
+				}
+			}
+			return false;
+		}
+
 
 		/// <summary>
 		/// Utility function that returns true if the trigger "token" is reported as depressed

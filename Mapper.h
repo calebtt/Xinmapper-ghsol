@@ -19,13 +19,13 @@ namespace sds
 		/// </summary>
 		struct WordData
 		{
-			std::string control, //LTHUMB
-				info, //LEFT
-				sim_type, //NORM
-				value; //'a'
-			//char value;
+			std::string control; //LTHUMB
+			std::string info; //LEFT
+			std::string sim_type; //NORM
+			std::string value; //'a'
+
 			sds::MultiBool fsm;
-			bool down;
+			bool down; // is key pressed?
 			WordData() : down(false) {}
 		};
 
@@ -100,13 +100,13 @@ namespace sds
 		/// <param name="detail">(std::vector&lt;std::string&gt;) is a ref to vector of strings containing ActionDetails style tokens</param>
 		void ProcessTokens(std::vector<std::string> &detail)
 		{
-			//using wit_type = std::vector<WordData>::iterator;
-			//using sit_type = std::vector<std::string>::iterator;
 			using std::string;
 
 			//set all worddata "down" fields to false, the "down" member denotes that the button is currently being pressed
 			//according to the current info from the XINPUT lib, translated and sent here. A finite state machine type is used
 			//to keep track of the state of the key press
+			//we must do this because mapTokenInfo may be filled with states from a previous
+			//run of the function. The FSM MultiBool member should be left alone.
 			std::for_each(mapTokenInfo.begin(), mapTokenInfo.end(), [](WordData& d) 
 				{
 					d.down = false;
