@@ -49,7 +49,7 @@ namespace sds
 			{
 				if (it->first == token)
 				{
-					if (state.VirtualKey & it->second)
+					if (state.VirtualKey == it->second)
 						return true;
 				}
 			}

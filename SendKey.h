@@ -18,6 +18,17 @@ namespace sds
 		INPUT mouseClickInput;
 		INPUT mouseMoveInput;
 	public:
+		//enum class MouseEventType
+		//{
+		//	LEFT_DOWN = MOUSEEVENTF_LEFTDOWN,
+		//	LEFT_UP = MOUSEEVENTF_LEFTUP,
+		//	RIGHT_DOWN = MOUSEEVENTF_RIGHTDOWN,
+		//	RIGHT_UP = MOUSEEVENTF_RIGHTUP,
+		//	MIDDLE_DOWN = MOUSEEVENTF_MIDDLEDOWN,
+		//	MIDDLE_UP = MOUSEEVENTF_MIDDLEUP,
+		//	MOUSE_MOVE = MOUSEEVENTF_MOVE
+
+		//};
 		/// <summary>
 		/// Default Constructor
 		/// </summary>
@@ -52,7 +63,7 @@ namespace sds
 		/// </summary>
 		/// <param name="vk"> is the Virtual Keycode of the keystroke you wish to emulate, use 0 for mouse input</param>
 		/// <param name="down"> is a boolean denoting if the keypress event is KEYDOWN or KEYUP</param>
-		void Send(int vk, bool down)
+		void Send(const int vk, const bool down)
 		{
 			if( down )
 				keyInput.ki.dwFlags = KEYEVENTF_SCANCODE;
@@ -99,9 +110,9 @@ namespace sds
 		/// </summary>
 		/// <param name="str"> a string of input to be sent</param>
 		/// <param name="down"> denotes a keyup or keydown event</param>
-		void Send(std::string str, bool down)
+		void Send(const std::string str, const bool down)
 		{
-			for(auto it = str.begin(); it != str.end(); ++it)
+			for(auto it = str.cbegin(); it != str.cend(); ++it)
 				Send(*it,down);
 		}
 	private:
@@ -110,7 +121,7 @@ namespace sds
 		/// </summary>
 		/// <param name="vk"> integer virtual keycode</param>
 		/// <returns></returns>
-		WORD GetScanCode(int vk)
+		WORD GetScanCode(const int vk)
 		{
 			WORD ret =
 				(MapVirtualKeyExA(VkKeyScanA(isalpha(vk) ? tolower(vk) : vk), MAPVK_VK_TO_VSC,GetKeyboardLayout(0)));

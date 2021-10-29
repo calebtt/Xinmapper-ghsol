@@ -27,10 +27,15 @@ namespace sds
 		const std::string rShoulder = "RSHOULDER"; // the string "RSHOULDER"
 		const std::string dpad = "DPAD"; // the string "DPAD"
 		const std::string left = "LEFT"; // the string "LEFT"
-		const std::string down = "DOWN"; // the string "DOWN"
-		const std::string up = "UP"; // the string "UP"
 		const std::string right = "RIGHT"; // the string "RIGHT"
-		//const std::string dpadClick = "CLICK"; // the string "CLICK" // not used, will just be "LTHUMB"/"RTHUMB" for a click event.
+		const std::string up = "UP"; // the string "UP"
+		const std::string down = "DOWN"; // the string "DOWN"
+
+		const std::string upleft = "UPLEFT"; // the string "UPLEFT"
+		const std::string upright = "UPRIGHT"; // the string "UPRIGHT"
+		const std::string downright = "DOWNRIGHT"; // the string "DOWNRIGHT"
+		const std::string downleft = "DOWNLEFT"; // the string "DOWNLEFT"
+
 		const std::string none = "NONE"; // the string "NONE"
 		const std::string start = "START"; // the string "START"
 		const std::string back = "BACK"; // the string "BACK"
@@ -95,8 +100,27 @@ namespace sds
 			{dpad + moreInfo + down, VK_PAD_DPAD_DOWN},
 			{start, VK_PAD_START},
 			{back, VK_PAD_BACK},
+
 			{lThumb, VK_PAD_LTHUMB_PRESS},
-			{rThumb, VK_PAD_RTHUMB_PRESS}
+			{rThumb, VK_PAD_RTHUMB_PRESS},
+
+			{lThumb + moreInfo + left, VK_PAD_LTHUMB_LEFT},
+			{lThumb + moreInfo + right, VK_PAD_LTHUMB_RIGHT},
+			{lThumb + moreInfo + up, VK_PAD_LTHUMB_UP},
+			{lThumb + moreInfo + down, VK_PAD_LTHUMB_DOWN},
+			{lThumb + moreInfo + upleft, VK_PAD_LTHUMB_UPLEFT},
+			{lThumb + moreInfo + upright, VK_PAD_LTHUMB_UPRIGHT},
+			{lThumb + moreInfo + downleft, VK_PAD_LTHUMB_DOWNLEFT},
+			{lThumb + moreInfo + downright, VK_PAD_LTHUMB_DOWNRIGHT},
+
+			{rThumb + moreInfo + left, VK_PAD_RTHUMB_LEFT},
+			{rThumb + moreInfo + right, VK_PAD_RTHUMB_RIGHT},
+			{rThumb + moreInfo + up, VK_PAD_RTHUMB_UP},
+			{rThumb + moreInfo + down, VK_PAD_RTHUMB_DOWN},
+			{rThumb + moreInfo + upleft, VK_PAD_RTHUMB_UPLEFT},
+			{rThumb + moreInfo + upright, VK_PAD_RTHUMB_UPRIGHT},
+			{rThumb + moreInfo + downleft, VK_PAD_RTHUMB_DOWNLEFT},
+			{rThumb + moreInfo + downright, VK_PAD_RTHUMB_DOWNRIGHT}
 		};
 	};
 
