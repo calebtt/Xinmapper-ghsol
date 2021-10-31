@@ -122,7 +122,7 @@ namespace XNMTest
 			//the distribution uses the generator engine to get the value
 			for (int i = 0; i < count; i++)
 			{
-				const int tLength = distLengthPossibility(stringGenerator);
+				int tLength = distLengthPossibility(stringGenerator);
 				std::string currentBuiltString(tLength, ' ');
 				std::generate(currentBuiltString.begin(), currentBuiltString.end(), getRandomChar);
 				ret.push_back(currentBuiltString);
