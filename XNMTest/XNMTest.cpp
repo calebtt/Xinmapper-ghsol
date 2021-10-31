@@ -84,26 +84,26 @@ namespace XNMTest
 				st.Gamepad.wButtons = static_cast<WORD>(gen());
 				ret.push_back(st);
 			}
-			
+
 			return ret;
 		}
-		
+
 		/// <summary>
 		/// Returns a vector of std::string with randomized content.
 		/// count is the number of entries in the returned vector, length is the max length of the strings.
 		/// </summary>
 		/// <returns> a vector of std::string with randomized content. Empty vector on error. </returns>
-		std::vector<std::string> BuildRandomStringVector(const int count, const int length, const int minLength = 3)
+		auto BuildRandomStringVector(const int count, const int length, const int minLength = 3)
 		{
 			//arg error checking, returns empty vector as per description
-			if (minLength >= length || (length <= 0) || (count <=0) || (minLength <=0))
+			if (minLength >= length || (length <= 0) || (count <= 0) || (minLength <= 0))
 			{
 				return std::vector<std::string>();
 			}
 
 			//Test all kinds of random character possibilities.
 			std::uniform_int_distribution<int> distCharPossibility
-			(std::numeric_limits<char>::min(), 
+			(std::numeric_limits<char>::min(),
 				std::numeric_limits<char>::max());
 
 			std::uniform_int_distribution<int> distLengthPossibility(minLength, length);
@@ -112,16 +112,19 @@ namespace XNMTest
 			std::mt19937 stringGenerator(rd());
 			std::vector<std::string> ret;
 
+
+			//lambda used with std::generate to fill the string with chars of randomized content.
+			auto getRandomChar = [&distCharPossibility, &stringGenerator]()
+			{
+				return static_cast<char>(distCharPossibility(stringGenerator));
+			};
+
 			//the distribution uses the generator engine to get the value
 			for (int i = 0; i < count; i++)
 			{
-				const int tLength = distLengthPossibility(stringGenerator);
-				std::string currentBuiltString = "";
-				for (int j = 0; j < tLength; j++)
-				{
-					char currentBuiltChar = distCharPossibility(stringGenerator);
-					currentBuiltString += currentBuiltChar;
-				}
+				int tLength = distLengthPossibility(stringGenerator);
+				std::string currentBuiltString(tLength, ' ');
+				std::generate(currentBuiltString.begin(), currentBuiltString.end(), getRandomChar);
 				ret.push_back(currentBuiltString);
 			}
 
@@ -136,14 +139,14 @@ namespace XNMTest
 			using namespace std;
 			Logger::WriteMessage("Begin TestButtonActionReturns()");
 
-			
+
 			//Change these here to increase/decrease the test data size.
 			//Some const variables affecting the size of the random	test data. 
-			const int RandomStringCount = 1000000;
+			const int RandomStringCount = 30000000;
 			const int RandomStringLength = 8;
-			const int RandomStateCount = 1000;
+			const int RandomStateCount = 100000;
 
-			
+
 			//Xinput lib struct
 			XINPUT_STATE testState;
 			//zero it
@@ -153,18 +156,20 @@ namespace XNMTest
 
 			//Test every valid string token in vector<string> testTokens against a zeroed XINPUT_STATE
 			//(Test the equivalence class with a zeroed XINPUT_STATE)
-			auto tf = [&testState, &ba](string& st) { Assert::IsFalse(ba.ButtonDown(testState, st)); };
+			auto tf = [&testState, &ba](string &st) { Assert::IsFalse(ba.ButtonDown(testState, st)); };
 			for_each(testTokens.begin(), testTokens.end(), tf);
 
 
 			//Test 1000 randomized XINPUT_STATE objects with a sample token
 			//assert that the result ONLY is true with the correct token and state.
 			//(Test boundary values against the tokens)
-			vector<XINPUT_STATE> tempVector = BuildRandomTestStates(RandomStateCount);
+			vector<XINPUT_STATE> &&tempVector = BuildRandomTestStates(RandomStateCount);
 			const map<const string, int> &r = testMap;
+			//assert the map size is greater than 0
+			Assert::IsTrue(r.size());
 
 			//Lambda helper function to Assert test "testState" and a token
-			auto tsv = [&ba, &r, &testState](const string& st)
+			auto tsv = [&ba, &r, &testState](const string &st)
 			{
 				if (ba.ButtonDown(testState, st))
 				{
@@ -188,13 +193,13 @@ namespace XNMTest
 			//generate [RandomStringCount] strings up to [RandomStringLength] characters in length
 			//(Test boundary values for the string tokens, 
 			// the token is mapped to a value in the map which makes this easier)
-			vector<string> randomTestTokens = BuildRandomStringVector(RandomStringCount, RandomStringLength);
+			vector<string> &&randomTestTokens = BuildRandomStringVector(RandomStringCount, RandomStringLength);
 			for_each(randomTestTokens.begin(), randomTestTokens.end(), tsv);
 
 			Logger::WriteMessage("End TestButtonActionReturns()");
 
 		}
-		
+
 
 
 		/// <summary>
@@ -205,7 +210,7 @@ namespace XNMTest
 			//Static member sds::sdsActionDescriptors tested here.
 			Logger::WriteMessage("Begin TestActionDescriptorsInit()");
 			//Test strings for size > 0
-			std::for_each(testTokens.begin(), testTokens.end(), [](std::string& tr) { Assert::IsTrue(tr.size()>0); });
+			std::for_each(testTokens.begin(), testTokens.end(), [](std::string &tr) { Assert::IsTrue(tr.size() > 0); });
 
 			//Test 'char' for value > 0
 			Assert::IsTrue(sds::sdsActionDescriptors.delimiter);
