@@ -48,14 +48,8 @@ namespace sds
 		/// <param name="transl"></param>
 		/// <param name="mouse"></param>
 		InputPollerBase(Mapper* mapper, InputTranslaterBase<InputLibType> *transl, InputMouseBase<InputLibType> *mouse)
-			: CPPThreadRunner(), m(mapper), t(transl), mse(mouse)
+			: CPPThreadRunner<InputLibType>(), m(mapper), t(transl), mse(mouse)
 		{
-			if (mapper == nullptr || transl == nullptr || mouse == nullptr)
-			{
-				//At present this new exception type is only available in the preview features "C++ latest" setting.
-				//throw std::format_error("NULL POINTERS in InputPoller::InputPoller() constructor.");
-				throw std::string("NULL POINTERS in InputPoller::InputPoller() constructor.");
-			}
 		}
 
 		/// <summary>

@@ -10,7 +10,7 @@ namespace sds
 {
 	/// <summary>
 	/// Polls for input from the XInput library in it's worker thread function,
-	/// sends them to XInputBoostMouse and Mapper for processing.
+	/// sends them to Mapper for processing.
 	/// </summary>
 	class XInputKeystrokePoller : public InputPollerBase<XINPUT_KEYSTROKE>
 	{
@@ -40,7 +40,6 @@ namespace sds
 					}
 				}
 
-				mse->ProcessState(this->getCurrentState());
 				m->ProcessActionDetails(t->ProcessState(this->getCurrentState()));
 
 				Sleep(THREAD_DELAY);
@@ -50,15 +49,14 @@ namespace sds
 
 	public:
 		/// <summary>
-		/// Constructor, requires pointer to: Mapper, XInputTranslater, XInputBoostMouse
+		/// Constructor, requires pointer to: Mapper, XInputTranslater
 		/// Base throws std::string with error message if nullptr given.
 		/// </summary>
 		/// 
 		/// <param name="mapper"></param>
 		/// <param name="transl"></param>
-		/// <param name="mouse"></param>
-		XInputKeystrokePoller(Mapper *mapper, InputTranslaterBase<XINPUT_KEYSTROKE> *transl, InputMouseBase<XINPUT_KEYSTROKE> *mouse)
-			: InputPollerBase(mapper, transl, mouse)
+		XInputKeystrokePoller(Mapper *mapper, InputTranslaterBase<XINPUT_KEYSTROKE> *transl)
+			: InputPollerBase(mapper, transl, nullptr)
 		{
 		}
 

@@ -61,6 +61,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -91,6 +92,7 @@
   <ItemGroup>
     <ClInclude Include="ActionDescriptors.h" />
     <ClInclude Include="CPPThreadRunner.h" />
+    <ClInclude Include="GamepadKeyboardUser.h" />
     <ClInclude Include="GamepadUser.h" />
     <ClInclude Include="Globals.h" />
     <ClInclude Include="InputMouseBase.h" />

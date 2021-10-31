@@ -6,6 +6,7 @@ an XINPUT_STATE for consumption by the rest of the code.
 #include "stdafx.h"
 #include "ButtonStateDown.h"
 #include "InputTranslaterBase.h"
+#include "SendKey.h"
 
 namespace sds
 {
@@ -21,14 +22,17 @@ namespace sds
 	{
 		//Utility class with functions that test button/thumbstick/trigger for depressed or "down" status
 		ButtonStateDown *bsd;
+		SendKey *sk;
 	public:
 		XInputKeystrokeTranslater()
 		{
 			bsd = new ButtonStateDown();
+			sk = new SendKey();
 		}
 		~XInputKeystrokeTranslater()
 		{
 			delete bsd;
+			delete sk;
 		}
 		/// <summary>
 		/// Produces an ActionDetails string from an XINPUT_KEYSTROKE struct representing the current state
@@ -41,7 +45,8 @@ namespace sds
 		ActionDetails ProcessState(const XINPUT_KEYSTROKE &state)
 		{
 			ActionDetails details;
-
+			std::string vkPart = sds::sdsActionDescriptors.vk + sds::sdsActionDescriptors.mappedTo; // "VK="
+			int ivk = 0;
 			//Buttons
 			for (auto it = sds::sdsActionDescriptors.xin_buttons.cbegin(); it != sds::sdsActionDescriptors.xin_buttons.cend(); ++it)
 			{
@@ -49,6 +54,11 @@ namespace sds
 				{
 					details += it->first + sds::sdsActionDescriptors.delimiter;
 				}
+			}
+			//Xbox360 controller keyboard virtual keys
+			if ((ivk=sk->GetScanCode(state.VirtualKey)))
+			{
+				details += vkPart + std::to_string(state.VirtualKey);
 			}
 			return details;
 		}

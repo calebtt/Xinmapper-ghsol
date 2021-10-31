@@ -7,7 +7,11 @@
 #include "stdafx.h"
 #include <WinUser.h>
 #include "GamepadUser.h"
+#include "GamepadKeyboardUser.h"
 
+/* The xbox 360 controller keyboard keys are forwarded by default. XInputGetState stuff is used for mouse processing
+and optionally, the thumbstick processing because they allow you to have deadzone information instead of only activating
+when the thumbstick is pressed ALL THE WAY to the edge.*/
 int main(int argc, const char *argv[])
 {
 	using namespace sds;
@@ -18,11 +22,13 @@ int main(int argc, const char *argv[])
 	};
 	MapInformation mapInfo;
 	GamepadUser gamepadUser;
+	GamepadKeyboardUser keyboard;
+
 	mapInfo = "LTHUMB:LEFT:NORM:a LTHUMB:RIGHT:NORM:d LTHUMB:UP:NORM:w LTHUMB:DOWN:NORM:s X:NONE:NORM:r A:NONE:NORM:VK32 Y:NONE:NORM:VK164 B:NONE:NORM:VK160";
 	mapInfo += " LSHOULDER:NONE:NORM:v RSHOULDER:NONE:NORM:Q LTHUMB:NONE:NORM:c RTHUMB:NONE:NORM:e START:NONE:NORM:VK27 BACK:NONE:NORM:VK8 LTRIGGER:NONE:NORM:VK2";
 	mapInfo += " RTRIGGER:NONE:NORM:VK1 DPAD:LEFT:NORM:c DPAD:DOWN:NORM:x DPAD:UP:NORM:f DPAD:RIGHT:RAPID:VK1";
 	
-	std::string err = gamepadUser.mapper->SetMapInfo(mapInfo);
+	std::string err = keyboard.mapper->SetMapInfo(mapInfo);
 	//If the string returned has a size, it is an error message.
 	if (err.size())
 	{
@@ -44,11 +50,13 @@ int main(int argc, const char *argv[])
 		{
 			std::cout << "Controller reported as: " << "Connected." << std::endl;
 			gamepadUser.poller->Start();
+			keyboard.poller->Start();
 		}
 		if((!gamepadUser.poller->IsControllerConnected()) && gamepadUser.poller->IsRunning())
 		{
 			std::cout << "Controller reported as: " << "Disconnected." << std::endl;
 			gamepadUser.poller->Stop();
+			keyboard.poller->Stop();
 		}
 		Sleep(10);
 	}

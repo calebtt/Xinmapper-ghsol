@@ -93,7 +93,7 @@ namespace XNMTest
 		/// count is the number of entries in the returned vector, length is the max length of the strings.
 		/// </summary>
 		/// <returns> a vector of std::string with randomized content. Empty vector on error. </returns>
-		std::vector<std::string> BuildRandomStringVector(const int count, const int length, const int minLength = 3)
+		auto BuildRandomStringVector(const int count, const int length, const int minLength = 3)
 		{
 			//arg error checking, returns empty vector as per description
 			if (minLength >= length || (length <= 0) || (count <=0) || (minLength <=0))
@@ -112,16 +112,19 @@ namespace XNMTest
 			std::mt19937 stringGenerator(rd());
 			std::vector<std::string> ret;
 
+
+			//lambda used with std::generate to fill the string with chars of randomized content.
+			auto getRandomChar = [&distCharPossibility, &stringGenerator]() 
+			{
+				return static_cast<char>(distCharPossibility(stringGenerator));
+			};
+
 			//the distribution uses the generator engine to get the value
 			for (int i = 0; i < count; i++)
 			{
 				const int tLength = distLengthPossibility(stringGenerator);
-				std::string currentBuiltString = "";
-				for (int j = 0; j < tLength; j++)
-				{
-					char currentBuiltChar = distCharPossibility(stringGenerator);
-					currentBuiltString += currentBuiltChar;
-				}
+				std::string currentBuiltString(tLength, ' ');
+				std::generate(currentBuiltString.begin(), currentBuiltString.end(), getRandomChar);
 				ret.push_back(currentBuiltString);
 			}
 
@@ -139,9 +142,9 @@ namespace XNMTest
 			
 			//Change these here to increase/decrease the test data size.
 			//Some const variables affecting the size of the random	test data. 
-			const int RandomStringCount = 1000000;
+			const int RandomStringCount = 30000000;
 			const int RandomStringLength = 8;
-			const int RandomStateCount = 1000;
+			const int RandomStateCount = 100000;
 
 			
 			//Xinput lib struct
@@ -160,7 +163,7 @@ namespace XNMTest
 			//Test 1000 randomized XINPUT_STATE objects with a sample token
 			//assert that the result ONLY is true with the correct token and state.
 			//(Test boundary values against the tokens)
-			vector<XINPUT_STATE> tempVector = BuildRandomTestStates(RandomStateCount);
+			vector<XINPUT_STATE> &&tempVector = BuildRandomTestStates(RandomStateCount);
 			const map<const string, int> &r = testMap;
 
 			//Lambda helper function to Assert test "testState" and a token
@@ -188,7 +191,7 @@ namespace XNMTest
 			//generate [RandomStringCount] strings up to [RandomStringLength] characters in length
 			//(Test boundary values for the string tokens, 
 			// the token is mapped to a value in the map which makes this easier)
-			vector<string> randomTestTokens = BuildRandomStringVector(RandomStringCount, RandomStringLength);
+			vector<string> &&randomTestTokens = BuildRandomStringVector(RandomStringCount, RandomStringLength);
 			for_each(randomTestTokens.begin(), randomTestTokens.end(), tsv);
 
 			Logger::WriteMessage("End TestButtonActionReturns()");

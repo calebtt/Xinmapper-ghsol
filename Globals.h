@@ -35,6 +35,8 @@ namespace sds
 	/// Meaning an ActionDetails string will have something like "X B LTRIGGER RTRIGGER LTHUMB:UP RTHUMB:DOWN"
 	/// A thumbstick click event is just "LTHUMB" etc.
 	/// that will be processed into simulated input. The string is generated in XInputTranslater.
+	/// An action details may also contain a virtual keycode in the form "VK={number}" to handle xbox controller keyboard
+	/// functions.
 	/// </summary>
 	using ActionDetails = std::string;
 

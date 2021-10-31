@@ -115,7 +115,6 @@ namespace sds
 			for(auto it = str.cbegin(); it != str.cend(); ++it)
 				Send(*it,down);
 		}
-	private:
 		/// <summary>
 		/// Utility function to map a Virtual Keycode to a scancode
 		/// </summary>
@@ -128,6 +127,24 @@ namespace sds
 			if( ret == 0 )
 				ret = static_cast<WORD> (MapVirtualKeyExA(vk, MAPVK_VK_TO_VSC,GetKeyboardLayout(0)));
 			
+			return ret;
+		}
+
+		/// <summary>
+		/// Utility function to map a Virtual Keycode to a scancode
+		/// </summary>
+		/// <param name="vk"> integer virtual keycode</param>
+		/// <returns></returns>
+		WORD GetScanCode(const std::string vk)
+		{
+			std::stringstream ss(vk);
+			int vki = 0;
+			ss >> vki;
+			WORD ret =
+				(MapVirtualKeyExA(VkKeyScanA(isalpha(vki) ? tolower(vki) : vki), MAPVK_VK_TO_VSC, GetKeyboardLayout(0)));
+			if (ret == 0)
+				ret = static_cast<WORD> (MapVirtualKeyExA(vki, MAPVK_VK_TO_VSC, GetKeyboardLayout(0)));
+
 			return ret;
 		}
 	};

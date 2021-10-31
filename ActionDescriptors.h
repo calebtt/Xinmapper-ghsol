@@ -8,6 +8,8 @@ namespace sds
 	/// processing of an sds::ActionDetails string into meaningful information for the program.
 	/// It has a map&lt;string,int&gt; named "xin_buttons" that is very useful for mapping the string into XINPUT #defines
 	/// 
+	/// The Xbox 360 controller keyboard's keys are mapped by default when using GamepadKeyboardUser,
+	/// even if they are not in the map string!
 	/// </summary>
 	struct ActionDescriptors
 	{

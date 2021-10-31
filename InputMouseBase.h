@@ -49,7 +49,7 @@ namespace sds
 
 	public:
 		InputMouseBase()
-			: CPPThreadRunner(),
+			: CPPThreadRunner<InputLibType>(),
 			SENSITIVITY(30),
 			stickMapInfo(MouseMap::NEITHER_STICK)
 		{

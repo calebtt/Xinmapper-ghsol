@@ -119,6 +119,33 @@ namespace sds
 			//iterate the vector<string> containing map tokens
 			for(auto it = detail.begin(); it != detail.end(); ++it)
 			{
+				//Check for "VK=" case, the xbox360 controller keyboard's presses
+				//are mapped by default, even if they're not in the map string!
+				if (it->size() > 3)
+				{
+					//the VK= case will be first 
+					string sub = it->substr(0, 3);
+					//if the substring equals "VK="
+					if (sub == (sds::sdsActionDescriptors.vk + sds::sdsActionDescriptors.mappedTo))
+					{
+						//test if the value converts to an int..
+						//std::stringstream svk(it->substr(3, it->size()));
+						int vkk = this->GetVkFromTokenString(*it);
+						//svk >> vkk;
+						if (vkk > 0)
+						{
+							//if so, build a WordData and add it to the mapTokenInfo vector
+							//so it can be processed properly.
+							WordData twd;
+							twd.sim_type = sds::sdsActionDescriptors.vk;
+							twd.value = std::to_string(vkk);
+							twd.down = true;
+							this->mapTokenInfo.push_back(twd);
+						}
+
+					}
+				}
+
 				//replace the "moreInfo" character (which is separating values) with whitespace in the string.
 				std::replace(it->begin(), it->end(), sds::sdsActionDescriptors.moreInfo, ' ');
 				//grab two tokens from the input string "detail", i.e., "LTHUMB" and "LEFT"
@@ -147,15 +174,17 @@ namespace sds
 		/// <param name="states">is a ref to a vector of WordData used to finally simulate the input contained within</param>
 		void ProcessStates(std::vector<WordData> &states)
 		{
-			for(auto it = states.begin(); it != states.end(); ++it)
+			for (auto it = states.begin(); it != states.end(); ++it)
 			{
 				//Update this if more sim types are added.
-				if( it->sim_type == sds::sdsActionDescriptors.norm )
+				if (it->sim_type == sds::sdsActionDescriptors.norm)
 					Normal(*it);
-				if( it->sim_type == sds::sdsActionDescriptors.toggle )
+				if (it->sim_type == sds::sdsActionDescriptors.toggle)
 					Toggle(*it);
-				if( it->sim_type == sds::sdsActionDescriptors.rapid )
+				if (it->sim_type == sds::sdsActionDescriptors.rapid)
 					Rapid(*it);
+				if (it->sim_type == sds::sdsActionDescriptors.vk)
+					Normal(*it);
 			}
 		}
 
@@ -296,7 +325,8 @@ namespace sds
 			if( in.find(sds::sdsActionDescriptors.vk) != std::string::npos )
 			{
 				std::string strVal;
-				strVal = in.substr(sds::sdsActionDescriptors.vk.size());
+				// zero indexed, so this grabs everything after "VK="
+				strVal = in.substr(sds::sdsActionDescriptors.vk.size()); 
 				std::stringstream(strVal) >> keyCode;
 			}
 			return keyCode;
