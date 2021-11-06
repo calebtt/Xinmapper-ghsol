@@ -34,7 +34,8 @@ namespace XNMTest
 			std::for_each(codesList.cbegin(), codesList.cend(), testScancode);
 
 			//test char version
-			const std::string InputAlphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789`[];\'";
+			const std::string InputAlphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-=,./`[];\'"
+				+ std::string("!@#$%^&*()_+?{}~");
 
 			std::for_each(InputAlphabet.cbegin(), InputAlphabet.cend(), testScancode);
 

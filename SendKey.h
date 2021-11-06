@@ -131,20 +131,24 @@ namespace sds
 		WORD GetScanCode(const char vk)
 		{
 			char someCharacter = vk;
-			bool isSomeCharacter = static_cast<bool>(isprint(vk));
+			bool isSomeCharacter = static_cast<bool>(std::isprint(vk));
 			if (isSomeCharacter)
-				someCharacter = tolower(vk);
+				someCharacter = static_cast<char>(std::tolower(vk));
 
 			WORD ret = 0;
 			if (isSomeCharacter)
 			{
-				ret = MapVirtualKeyExA(VkKeyScanA(someCharacter), MAPVK_VK_TO_VSC, GetKeyboardLayout(0));
-				return ret;
+				return someCharacter;
+				//ret = MapVirtualKeyExA(VkKeyScanA(someCharacter), MAPVK_VK_TO_VSC, GetKeyboardLayout(0));
+				//if (ret == 0)
+				//{
+				//	return MapVirtualKeyExA(someCharacter, MAPVK_VK_TO_VSC, GetKeyboardLayout(0));
+				//}
+				//else
+				//	return ret;
 			}
 			else
-			{
-				return 0;
-			}
+				return MapVirtualKeyExA(VkKeyScanA(someCharacter), MAPVK_VK_TO_VSC, GetKeyboardLayout(0));
 		}
 
 		/// <summary>
@@ -165,7 +169,7 @@ namespace sds
 				return 0;
 			}
 			WORD ret =
-				(MapVirtualKeyExA(VkKeyScanA(isalpha(vki) ? tolower(vki) : vki), MAPVK_VK_TO_VSC, GetKeyboardLayout(0)));
+				(MapVirtualKeyExA(VkKeyScanA(std::isalpha(vki) ? std::tolower(vki) : vki), MAPVK_VK_TO_VSC, GetKeyboardLayout(0)));
 			if (ret == 0)
 				ret = static_cast<WORD> (MapVirtualKeyExA(vki, MAPVK_VK_TO_VSC, GetKeyboardLayout(0)));
 
