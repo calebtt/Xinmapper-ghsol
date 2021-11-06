@@ -1,10 +1,12 @@
 #include "pch.h"
 #include "CppUnitTest.h"
+#include "TestSendKey.h"
 #include <string>
 #include <vector>
 #include <algorithm>
 #include <random>
 #include <limits>
+
 #include "..\stdafx.h"
 #include "..\ButtonStateDown.h"
 //#include "..\Xinmapper-gh\ActionDescriptors.h"
@@ -16,6 +18,7 @@ namespace XNMTest
 {
 	TEST_CLASS(XNMTest)
 	{
+		//TestSendKey tsk;
 		//List of tokens in an "ActionDetails"
 		std::vector<std::string> testTokens;
 		//Internal copy of the action descriptors map, mapping string tokens to int value representation of XINPUT defines
@@ -142,9 +145,9 @@ namespace XNMTest
 
 			//Change these here to increase/decrease the test data size.
 			//Some const variables affecting the size of the random	test data. 
-			const int RandomStringCount = 30000000;
+			const int RandomStringCount = 100000;
 			const int RandomStringLength = 8;
-			const int RandomStateCount = 100000;
+			const int RandomStateCount = 10000;
 
 
 			//Xinput lib struct
@@ -160,14 +163,11 @@ namespace XNMTest
 			for_each(testTokens.begin(), testTokens.end(), tf);
 
 
-			//Test 1000 randomized XINPUT_STATE objects with a sample token
-			//assert that the result ONLY is true with the correct token and state.
-			//(Test boundary values against the tokens)
-			vector<XINPUT_STATE> &&tempVector = BuildRandomTestStates(RandomStateCount);
+			//Copy map to a local const
 			const map<const string, int> &r = testMap;
 			//assert the map size is greater than 0
 			Assert::IsTrue(r.size());
-
+			
 			//Lambda helper function to Assert test "testState" and a token
 			auto tsv = [&ba, &r, &testState](const string &st)
 			{
@@ -180,22 +180,43 @@ namespace XNMTest
 				}
 			};
 
-			//Warning: Potentially lengthy run-time! O(N^2)
-			//iterate vector of randomized XINPUT_STATE values
-			for (auto it = tempVector.begin(); it != tempVector.end(); ++it)
+			try
 			{
-				testState = *it;
-				//nested loop to test each string token in the map against the current XINPUT_STATE
-				for_each(testTokens.begin(), testTokens.end(), tsv);
+				//Test 1000 randomized XINPUT_STATE objects with a sample token
+				//assert that the result ONLY is true with the correct token and state.
+				//(Test boundary values against the tokens)
+				vector<XINPUT_STATE> &&tempVector = BuildRandomTestStates(RandomStateCount);
+
+				//Warning: Potentially lengthy run-time! O(N^2)
+				//iterate vector of randomized XINPUT_STATE values
+				for (auto it = tempVector.begin(); it != tempVector.end(); ++it)
+				{
+					testState = *it;
+					//nested loop to test each string token in the map against the current XINPUT_STATE
+					for_each(testTokens.begin(), testTokens.end(), tsv);
+				}
+
+			}
+			catch (std::exception &e)
+			{
+				Logger::WriteMessage(e.what());
 			}
 
-			//Random strings (tokens) test
-			//generate [RandomStringCount] strings up to [RandomStringLength] characters in length
-			//(Test boundary values for the string tokens, 
-			// the token is mapped to a value in the map which makes this easier)
-			vector<string> &&randomTestTokens = BuildRandomStringVector(RandomStringCount, RandomStringLength);
-			for_each(randomTestTokens.begin(), randomTestTokens.end(), tsv);
 
+
+			try
+			{
+				//Random strings (tokens) test
+				//generate [RandomStringCount] strings up to [RandomStringLength] characters in length
+				//(Test boundary values for the string tokens, 
+				// the token is mapped to a value in the map which makes this easier)
+				vector<string> &&randomTestTokens = BuildRandomStringVector(RandomStringCount, RandomStringLength);
+				for_each(randomTestTokens.begin(), randomTestTokens.end(), tsv);
+			}
+			catch (std::exception &e)
+			{
+				Logger::WriteMessage(e.what());
+			}
 			Logger::WriteMessage("End TestButtonActionReturns()");
 
 		}
