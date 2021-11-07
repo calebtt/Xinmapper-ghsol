@@ -10,8 +10,6 @@ namespace XNMTest
 {
 	TEST_CLASS(TestSendKey)
 	{
-		const int VKMax = 254; // max value a virtual keycode can have.
-		const int VKMin = 1; // min value a virtual keycode can have.
 	public:
 		TEST_METHOD(TestGetVK)
 		{
