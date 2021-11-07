@@ -60,6 +60,17 @@ namespace XNMTest
 			std::string testStr = "lthumb:left:norm:a dpad:down:norm:x dpad:up:norm:vk" + std::to_string(curType);
 			testMapFunctionFalse(testStr);
 
+			//test each character from the inputalphabet
+			for (auto it = InputAlphabet.cbegin(); it != InputAlphabet.cend(); ++it)
+			{
+				std::string mess = "\nTesting char: ";
+				mess += *it;
+				Logger::WriteMessage(mess.c_str());
+				std::string currentBuilt = "lthumb:up:norm:a dpad:down:norm:x dpad:up:norm:";
+				currentBuilt += *it;
+				testMapFunctionTrue(currentBuilt);
+			}
+
 			Logger::WriteMessage("End TestSetMapInfo()");
 		}
 	};

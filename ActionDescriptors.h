@@ -174,15 +174,6 @@ namespace sds
 						return false;
 					}
 
-					//int vki = std::to_integer(val);
-					//std::stringstream ss(val);
-					//int vki = 0;
-					//ss >> vki;
-					//if (ss)
-					//{
-					//	//stringstream is reporting no error condition
-					//	return true;
-					//}
 				}
 			}
 
