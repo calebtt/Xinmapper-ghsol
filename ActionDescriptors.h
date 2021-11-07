@@ -95,10 +95,12 @@ namespace sds
 		/// a member const keyword included in this struct.
 		/// </summary>
 		/// <param name="s"></param>
-		/// <returns></returns>
+		/// <returns>returns true if string s is in the valid first field keywords list</returns>
 		bool IsFirstFieldKeyword(const std::string &s)
 		{
-			return (std::find(FirstFieldValidKeywords.cbegin(), FirstFieldValidKeywords.cend(), s) != FirstFieldValidKeywords.cend());
+			std::string ups = s;
+			std::for_each(ups.begin(), ups.end(), [](char &c) { c = static_cast<char>(std::toupper(c)); });
+			return (std::find(FirstFieldValidKeywords.cbegin(), FirstFieldValidKeywords.cend(), ups) != FirstFieldValidKeywords.cend());
 		}
 
 		/// <summary>
@@ -106,10 +108,12 @@ namespace sds
 		/// a member const keyword included in this struct.
 		/// </summary>
 		/// <param name="s"></param>
-		/// <returns></returns>
+		/// <returns>returns true if string s is in the valid second field keywords list</returns>
 		bool IsSecondFieldKeyword(const std::string &s)
 		{
-			return (std::find(SecondFieldValidKeywords.cbegin(), SecondFieldValidKeywords.cend(), s) != SecondFieldValidKeywords.cend());
+			std::string ups = s;
+			std::for_each(ups.begin(), ups.end(), [](char &c) { c = static_cast<char>(std::toupper(c)); });
+			return (std::find(SecondFieldValidKeywords.cbegin(), SecondFieldValidKeywords.cend(), ups) != SecondFieldValidKeywords.cend());
 		}
 
 		/// <summary>
@@ -117,18 +121,22 @@ namespace sds
 		/// a member const keyword included in this struct.
 		/// </summary>
 		/// <param name="s"></param>
-		/// <returns></returns>
+		/// <returns>returns true if string s is in the valid third field keywords list</returns>
 		bool IsThirdFieldKeyword(const std::string &s)
 		{
-			return (std::find(ThirdFieldValidKeywords.cbegin(), ThirdFieldValidKeywords.cend(), s) != ThirdFieldValidKeywords.cend());
+			std::string ups = s;
+			std::for_each(ups.begin(), ups.end(), [](char &c) { c = static_cast<char>(std::toupper(c)); });
+			return (std::find(ThirdFieldValidKeywords.cbegin(), ThirdFieldValidKeywords.cend(), ups) != ThirdFieldValidKeywords.cend());
 		}
 
 		/// <summary>
 		/// This member function can be used to verify that a string is
 		/// a member const keyword included in this struct.
+		/// For the fourth field, if it contains one character it returns true.
+		/// If it starts with VK and also contains an integer number after, it returns true.
 		/// </summary>
 		/// <param name="s"></param>
-		/// <returns></returns>
+		/// <returns>returns true if valid field, false otherwise</returns>
 		bool IsFourthFieldKeyword(const std::string &s)
 		{
 			//single character case, good
@@ -139,26 +147,42 @@ namespace sds
 			//check for starting with "VK" but also has a decimal value after
 			if (s.size() > 2)
 			{
-				std::string theFirst = s.substr(0, 2);
-				std::for_each(theFirst.begin(), theFirst.end(), [](char &c) { c = std::toupper(c); });
+				std::string theFirst = s.substr(0, vk.size());
+				std::for_each(theFirst.begin(), theFirst.end(), [](char &c)
+					{
+						if(!std::isupper(c))
+							c = static_cast<char>(std::toupper(c));
+					});
 				//if first two characters are "VK"
 				if (theFirst == vk)
 				{
 					//grab everything after "VK"
-					std::string val;
-					auto it = s.find(vk);
-					if (it != std::string::npos)
+					std::string val = s.substr(vk.size());//everything after "VK"
+					int vki = 0;
+					//be sure to catch the "out of range exception" if some massive value is attempted
+					try
 					{
-						val = s.substr(it + 2);
-						std::stringstream ss(val);
-						int vki = 0;
-						ss >> vki;
-						if (ss)
-						{
-							//stringstream is reporting no error condition
+						vki = std::stoi(val);
+						// virtual keycodes fit in a character.
+						if (vki > std::numeric_limits<unsigned char>::max() || vki < std::numeric_limits<unsigned char>::min())
+							return false;
+						else
 							return true;
-						}
 					}
+					catch (...)
+					{
+						return false;
+					}
+
+					//int vki = std::to_integer(val);
+					//std::stringstream ss(val);
+					//int vki = 0;
+					//ss >> vki;
+					//if (ss)
+					//{
+					//	//stringstream is reporting no error condition
+					//	return true;
+					//}
 				}
 			}
 

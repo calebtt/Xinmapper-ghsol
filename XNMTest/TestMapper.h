@@ -50,6 +50,16 @@ namespace XNMTest
 			//test some edge cases and malformed input
 			testMapFunctionFalse("LTHUMB:UP:NORM:a DPAD:DWN:NORM:x DPAD:UP:NORM:vk1");
 			testMapFunctionFalse("LTHUMB::NORM:a DPAD:DWN:NORM:x DPAD:UP:NORM:vk0");
+			testMapFunctionFalse("LTHUMB::NORM:a DPAD:DWN:NORM:x DPAD:UP:NORM:vk");
+			testMapFunctionFalse("lThumb:left:nORM:a dPAD:DoWN:nORM:x DPAd:uP:NoRM:vK3333"); // 3333 is far too large to be a virtual keycode
+			//test some good cases with lower case
+			testMapFunctionTrue("lthumb:left:NORM:a DPAD:DoWN:NORM:x DPAD:UP:NORM:vk33");
+			
+
+			constexpr long long curType = static_cast<long long>(std::numeric_limits<int>::max()) + 1;
+			std::string testStr = "lthumb:left:norm:a dpad:down:norm:x dpad:up:norm:vk" + std::to_string(curType);
+			testMapFunctionFalse(testStr);
+
 			Logger::WriteMessage("End TestSetMapInfo()");
 		}
 	};
