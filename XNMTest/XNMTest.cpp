@@ -2,6 +2,7 @@
 #include "CppUnitTest.h"
 #include "TestSendKey.h"
 #include "TestMapper.h"
+#include "BuildRandomStrings.h"
 #include <string>
 #include <vector>
 #include <algorithm>
@@ -23,6 +24,7 @@ namespace XNMTest
 		const std::map<const std::string, int> testMap = sds::sdsActionDescriptors.xin_buttons;
 		//mt19937 is a standard mersenne_twister_engine
 		std::mt19937 mersenneEngine;
+		BuildRandomStrings rsb;
 
 	public:
 		/// <summary>
@@ -76,49 +78,6 @@ namespace XNMTest
 				st.Gamepad.sThumbRY = static_cast<SHORT>(mersenneEngine());
 				st.Gamepad.wButtons = static_cast<WORD>(mersenneEngine());
 				ret.push_back(st);
-			}
-
-			return ret;
-		}
-
-		/// <summary>
-		/// Returns a vector of std::string with randomized content.
-		/// count is the number of entries in the returned vector, length is the max length of the strings.
-		/// </summary>
-		/// <returns> a vector of std::string with randomized content. Empty vector on error. </returns>
-		auto BuildRandomStringVector(const int count, const int length, const int minLength = 3)
-		{
-			//arg error checking, returns empty vector as per description
-			if (minLength >= length || (length <= 0) || (count <= 0) || (minLength <= 0))
-			{
-				return std::vector<std::string>();
-			}
-
-			//Test all kinds of random character possibilities.
-			std::uniform_int_distribution<int> distCharPossibility
-			(std::numeric_limits<char>::min(),
-				std::numeric_limits<char>::max());
-
-			std::uniform_int_distribution<int> distLengthPossibility(minLength, length);
-
-			std::random_device rd;
-			std::mt19937 stringGenerator(rd());
-			std::vector<std::string> ret;
-
-
-			//lambda used with std::generate to fill the string with chars of randomized content.
-			auto getRandomChar = [&distCharPossibility, &stringGenerator]()
-			{
-				return static_cast<char>(distCharPossibility(stringGenerator));
-			};
-
-			//the distribution uses the generator engine to get the value
-			for (int i = 0; i < count; i++)
-			{
-				int tLength = distLengthPossibility(stringGenerator);
-				std::string currentBuiltString(tLength, ' ');
-				std::generate(currentBuiltString.begin(), currentBuiltString.end(), getRandomChar);
-				ret.push_back(currentBuiltString);
 			}
 
 			return ret;
@@ -199,7 +158,7 @@ namespace XNMTest
 				//generate [RandomStringCount] strings up to [RandomStringLength] characters in length
 				//(Test boundary values for the string tokens, 
 				// the token is mapped to a value in the map which makes this easier)
-				vector<string> &&randomTestTokens = BuildRandomStringVector(RandomStringCount, RandomStringLength);
+				vector<string> &&randomTestTokens = rsb.BuildRandomStringVector(RandomStringCount, RandomStringLength);
 				for_each(randomTestTokens.begin(), randomTestTokens.end(), tsv);
 			}
 			catch (std::exception &e)

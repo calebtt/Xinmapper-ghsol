@@ -108,7 +108,7 @@ namespace sds
 		/// <returns></returns>
 		WORD GetScanCode(const int vk)
 		{
-			if (vk > std::numeric_limits<SHORT>::max() || vk < std::numeric_limits<SHORT>::min())
+			if (vk > std::numeric_limits<unsigned char>::max() || vk < std::numeric_limits<unsigned char>::min())
 				return 0;
 			WORD ret =
 				(MapVirtualKeyExA(VkKeyScanA(isalpha(vk) ? tolower(vk) : vk), MAPVK_VK_TO_VSC, GetKeyboardLayout(0)));
@@ -127,17 +127,16 @@ namespace sds
 		WORD GetScanCode(const char vk)
 		{
 			char someCharacter = vk;
+			WORD ret = 0;
 			bool isSomeCharacter = static_cast<bool>(std::isprint(vk));
 			if (isSomeCharacter)
-				someCharacter = static_cast<char>(std::tolower(vk));
-
-			WORD ret = 0;
-			if (isSomeCharacter)
 			{
-				return someCharacter;
+				return static_cast<char>(std::tolower(vk));
 			}
 			else
+			{
 				return MapVirtualKeyExA(VkKeyScanA(someCharacter), MAPVK_VK_TO_VSC, GetKeyboardLayout(0));
+			}
 		}
 
 		/// <summary>
@@ -152,17 +151,12 @@ namespace sds
 			std::stringstream ss(vk);
 			int vki = 0;
 			ss >> vki;
-			if (!ss)
+			if (!ss || !ss.eof())
 			{
 				//stringstream is reporting an error condition, failure to translate.
 				return 0;
 			}
-			WORD ret =
-				(MapVirtualKeyExA(VkKeyScanA(std::isalpha(vki) ? std::tolower(vki) : vki), MAPVK_VK_TO_VSC, GetKeyboardLayout(0)));
-			if (ret == 0)
-				ret = static_cast<WORD> (MapVirtualKeyExA(vki, MAPVK_VK_TO_VSC, GetKeyboardLayout(0)));
-
-			return ret;
+			return GetScanCode(vki);
 		}
 	};
 }

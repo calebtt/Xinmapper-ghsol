@@ -28,6 +28,9 @@ struct BuildVKList
 
 	/// <summary>
 	/// Builds and returns a list of valid keyboard virtual key codes as a vector of int.
+	/// Some virtual keycodes documented as "undefined" or "reserved" in the Windows documentation
+	/// actually do return a scancode value, some are added in here at the end.
+	/// I hope that this is not system dependent.
 	/// </summary>
 	/// <returns>a vector of integers representing valid keyboard virtual key codes.</returns>
 	std::vector<int> GetKeyboardVirtualKeys()
@@ -76,7 +79,7 @@ struct BuildVKList
 			vkList.push_back(i);
 		}
 
-		for (int i = VK_SUBTRACT; i < VK_F12 + 1; i++)
+		for (int i = VK_SUBTRACT; i < VK_F20 + 1; i++)
 		{
 			vkList.push_back(i);
 		}
@@ -101,38 +104,23 @@ struct BuildVKList
 			vkList.push_back(i);
 		}
 
-		// Keycodes hex: 0xC1-0xD7 are reserved
-		// Keycodes hex: 0xD8-0xDA are unassigned
-
-		//for (int i = VK_OEM_4; i < VK_OEM_8 + 1; i++)
-		//{
-		//	vkList.push_back(i);
-		//}
-
-		// Keycode hex: 0xE0 is reserved.
-		// Keycode hex: 0xE1 is OEM specific.
+		for (int i = VK_OEM_1; i < VK_OEM_3 + 1; i++)
+		{
+			vkList.push_back(i);
+		}
 
 		vkList.push_back(VK_OEM_102);
 
-		// Keycodes 0xE3-0xE4 are OEM specific.
-		//vkList.push_back(VK_PROCESSKEY);
+		//undefined but still returns a scancode...
+		vkList.push_back(0x3B);
+		vkList.push_back(0x3D);
+		//reserved but still returns a scancode...
+		vkList.push_back(0xC);
+		vkList.push_back(0xDD);
 
-		// Keycode 0xE6 is OEM specific.
+		//vkList.push_back(VK_OEM_8);
+		
 
-		//vkList.push_back(VK_PACKET);
-
-		// Keycode 0xE8 is unassigned.
-		// Keycodes 0xE9-0xF5 are OEM specific.
-
-		//for (int i = VK_ATTN; i < VK_ZOOM + 1; i++)
-		//{
-		//	vkList.push_back(i);
-		//}
-
-		// Keycode 0xFC is reserved but has a name "VK_NONAME"
-
-		//vkList.push_back(VK_PA1);
-		//vkList.push_back(VK_OEM_CLEAR);
 		return vkList;
 	}
 };

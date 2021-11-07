@@ -35,5 +35,8 @@
     <ClInclude Include="TestMapper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="BuildRandomStrings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
