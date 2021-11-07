@@ -1,7 +1,3 @@
-/*
-Small helper class for simulating input.
-*/
-
 #pragma once
 #include "stdafx.h"
 
@@ -92,7 +88,7 @@ namespace sds
 			mouseClickInput.mi.dwExtraInfo = GetMessageExtraInfo();
 			keyInput.ki.dwExtraInfo = GetMessageExtraInfo();
 			UINT ret = SendInput(1, (scanCode != 0 ? &keyInput : &mouseClickInput), sizeof(INPUT));
-			assert(ret != 0);
+			//assert(ret != 0);
 		}
 		/// <summary>
 		/// Sends a whole string of characters at a time, keydown or keyup.
@@ -139,13 +135,6 @@ namespace sds
 			if (isSomeCharacter)
 			{
 				return someCharacter;
-				//ret = MapVirtualKeyExA(VkKeyScanA(someCharacter), MAPVK_VK_TO_VSC, GetKeyboardLayout(0));
-				//if (ret == 0)
-				//{
-				//	return MapVirtualKeyExA(someCharacter, MAPVK_VK_TO_VSC, GetKeyboardLayout(0));
-				//}
-				//else
-				//	return ret;
 			}
 			else
 				return MapVirtualKeyExA(VkKeyScanA(someCharacter), MAPVK_VK_TO_VSC, GetKeyboardLayout(0));

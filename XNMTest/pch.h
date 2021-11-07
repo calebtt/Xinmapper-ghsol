@@ -8,6 +8,11 @@
 #define PCH_H
 
 // add headers that you want to pre-compile here
-#include "targetver.h"
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
 
 #endif //PCH_H

@@ -1,16 +1,15 @@
 #include "pch.h"
 #include "CppUnitTest.h"
 #include "TestSendKey.h"
+#include "TestMapper.h"
 #include <string>
 #include <vector>
 #include <algorithm>
 #include <random>
 #include <limits>
 
-#include "..\stdafx.h"
+
 #include "..\ButtonStateDown.h"
-//#include "..\Xinmapper-gh\ActionDescriptors.h"
-//#include "..\Xinmapper-gh\Globals.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
@@ -46,7 +45,7 @@ namespace XNMTest
 			testTokens.push_back(sds::sdsActionDescriptors.lShoulder);
 			testTokens.push_back(sds::sdsActionDescriptors.lThumb);
 			testTokens.push_back(sds::sdsActionDescriptors.lTrigger);
-			testTokens.push_back(sds::sdsActionDescriptors.mappedTo);
+			//testTokens.push_back(sds::sdsActionDescriptors.mappedTo);
 			testTokens.push_back(sds::sdsActionDescriptors.none);
 			testTokens.push_back(sds::sdsActionDescriptors.norm);
 			testTokens.push_back(sds::sdsActionDescriptors.rapid);

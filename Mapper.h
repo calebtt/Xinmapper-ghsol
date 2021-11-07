@@ -1,7 +1,7 @@
 #pragma once
 #include "stdafx.h"
 #include "MultiBool.h"
-#include "SendKey.h"
+//#include "SendKey.h"
 
 namespace sds
 {
@@ -18,11 +18,11 @@ namespace sds
 		/// </summary>
 		struct WordData
 		{
-			std::string control, //LTHUMB
-				info, //LEFT
-				sim_type, //NORM
-				value; //'a'
-			//char value;
+			std::string control; //LTHUMB
+			std::string info; //LEFT
+			std::string sim_type; //NORM
+			std::string value; //'a'
+
 			sds::MultiBool fsm;
 			bool down;
 			WordData() : down(false) {}
@@ -57,41 +57,71 @@ namespace sds
 		/// <summary>
 		/// Takes a "MapInformation" string and internalizes (copies) it to adjust how controller input is mapped
 		/// to keyboard and mouse input.
+		/// An empty map string is acceptable. If an error is detected while parsing the tokens, the
+		/// internal state will not be altered and it will return an error message.
 		/// </summary>
 		/// <param name="newMap">MapInformation string containing info on how to map controller input to kbd/mouse.</param>
 		/// <returns>A std::string indicating the presence of an error, and the error message.</returns>
 		std::string SetMapInfo(const MapInformation &newMap)
 		{
+			auto errText = [](const std::string &s)
+			{
+				return "Error in sds::Mapper::SetMapInfo()\n" + s;
+			};
 			if (newMap.size() == 0)
 			{
-				return "Error in sds::Mapper::SetMapInfo(), MapInformation newMap size() is 0.";
+				return errText("MapInformation newMap size() is 0.");
 			}
-			//Reset map token info.
-			mapTokenInfo.clear();
-			//Set MapInformation
-			map = newMap;
+
 			//Set WordData vector.
+			std::vector<WordData> tempVec;
 			std::string previousToken;
 			std::string t;
 			std::stringstream ss(newMap);
 			while( ss >> t )
 			{
-				if (t.size() == 0)
-				{
-					std::string errorInfo = ("Error in sds::Mapper::SetMapInfo(), a MapInformation token could not be parsed, t.size() == 0" +
-						std::string(" last token parsed was: ") + previousToken);
-					return errorInfo;
-				}
+				std::string aToken = t;//copy
+
 				WordData data;
 				std::replace(t.begin(), t.end(), sds::sdsActionDescriptors.moreInfo, ' ');
 				std::stringstream(t) >> data.control >> data.info >> data.sim_type >> data.value;
-				mapTokenInfo.push_back(data);
-				previousToken = t;
+				//if all of those pieces don't have something in them
+				if (!(data.control.size() && data.info.size() && data.sim_type.size() && data.value.size()))
+				{
+					//return error message
+					return errText("[1]Failed to parse a token.\n Previous token: " + previousToken + "\n");
+				}
+				//validate token pieces
+				bool goodToken = ValidateTokenPieces(data);
+				if (goodToken)
+				{
+					tempVec.push_back(data);
+					previousToken = aToken;
+				}
+				else
+				{
+					return errText("[2]Failed to parse a token.\n Previous token: " + previousToken + "\n");
+				}
 			}
+			//Reset map token info.
+			mapTokenInfo = tempVec;
+			//Set MapInformation
+			map = newMap;
+
 			return "";
 		}
 	private:
+		bool ValidateTokenPieces(WordData &data)
+		{
+			bool testArray[4] = { false,false,false,false };
+			
+			testArray[0] = sdsActionDescriptors.IsFirstFieldKeyword(data.control);
+			testArray[1] = sdsActionDescriptors.IsSecondFieldKeyword(data.info);
+			testArray[2] = sdsActionDescriptors.IsThirdFieldKeyword(data.sim_type);
+			testArray[3] = sdsActionDescriptors.IsFourthFieldKeyword(data.value);
 
+			return (testArray[0] && testArray[1] && testArray[2] && testArray[3]);
+		}
 		/// <summary>
 		/// Process ActionDetails type string tokens into WordData internal utility data structures.
 		/// The string tokens are in the form of btn / trigr / thumb : more info : input sim type : value mapped to

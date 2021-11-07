@@ -1,8 +1,8 @@
 #pragma once
 #include "pch.h"
 #include "CppUnitTest.h"
-#include "..\SendKey.h"
 #include "BuildVKList.h"
+#include "..\SendKey.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 

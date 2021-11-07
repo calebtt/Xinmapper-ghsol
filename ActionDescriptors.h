@@ -1,22 +1,27 @@
+#pragma once
+#include "stdafx.h"
+#include "SendKey.h"
+
 /*
 Responsible for tokens used in an ActionDetails
 string.
 Inevitably tokens must be mapped to values (some of them).
 */
 
-#pragma once
-#include "stdafx.h"
+
 
 namespace sds
 {
+
 	/// <summary>
 	/// ActionDescriptors is a big structure full of keywords that are used by other classes to enable
 	/// processing of an sds::ActionDetails string into meaningful information for the program.
-	/// It has a map&lt;string,int&gt; named "xin_buttons" that is very useful for mapping the string into XINPUT #defines
+	/// It has a map&lt;string,int&gt; named "xin_buttons" that is very useful for mapping the string into XINPUT defines
 	/// 
 	/// </summary>
-	struct ActionDescriptors
+	class ActionDescriptors
 	{
+	public:
 		//using this declaration syntax gives intellisense the comments per variable.
 		const std::string x = "X"; // the string "X"
 		const std::string y = "Y"; // the string "Y"
@@ -37,13 +42,29 @@ namespace sds
 		const std::string start = "START"; // the string "START"
 		const std::string back = "BACK"; // the string "BACK"
 		const std::string vk = "VK"; // the string "VK"
-		const std::string mappedTo = "="; // the string "="
+		//const std::string mappedTo = "="; // the string "=" [DEPRECATED,no longer used]
 		const std::string norm = "NORM"; // the string "NORM"
 		const std::string toggle = "TOGGLE"; // the string "TOGGLE"
 		const std::string rapid = "RAPID"; // the string "RAPID"
 
 		const char moreInfo = ':'; // the char ':'
 		const char delimiter = ' ';//spacebar space
+
+		const std::vector<std::string> FirstFieldValidKeywords
+		{
+			x,y,a,b,lThumb,rThumb,lTrigger,rTrigger,lShoulder,rShoulder,dpad,start,back
+		};
+
+		const std::vector<std::string> SecondFieldValidKeywords
+		{
+			left,down,up,right,none
+		};
+
+		const std::vector<std::string> ThirdFieldValidKeywords
+		{
+			norm,toggle, rapid
+		};
+
 
 		//Maps the tokens above to XINPUT library #defines
 		//Because the XINPUT lib doesn't send a "down" signal 
@@ -68,6 +89,81 @@ namespace sds
 			{lThumb, XINPUT_GAMEPAD_LEFT_THUMB},
 			{rThumb, XINPUT_GAMEPAD_RIGHT_THUMB}
 		};
+
+		/// <summary>
+		/// This member function can be used to verify that a string is
+		/// a member const keyword included in this struct.
+		/// </summary>
+		/// <param name="s"></param>
+		/// <returns></returns>
+		bool IsFirstFieldKeyword(const std::string &s)
+		{
+			return (std::find(FirstFieldValidKeywords.cbegin(), FirstFieldValidKeywords.cend(), s) != FirstFieldValidKeywords.cend());
+		}
+
+		/// <summary>
+		/// This member function can be used to verify that a string is
+		/// a member const keyword included in this struct.
+		/// </summary>
+		/// <param name="s"></param>
+		/// <returns></returns>
+		bool IsSecondFieldKeyword(const std::string &s)
+		{
+			return (std::find(SecondFieldValidKeywords.cbegin(), SecondFieldValidKeywords.cend(), s) != SecondFieldValidKeywords.cend());
+		}
+
+		/// <summary>
+		/// This member function can be used to verify that a string is
+		/// a member const keyword included in this struct.
+		/// </summary>
+		/// <param name="s"></param>
+		/// <returns></returns>
+		bool IsThirdFieldKeyword(const std::string &s)
+		{
+			return (std::find(ThirdFieldValidKeywords.cbegin(), ThirdFieldValidKeywords.cend(), s) != ThirdFieldValidKeywords.cend());
+		}
+
+		/// <summary>
+		/// This member function can be used to verify that a string is
+		/// a member const keyword included in this struct.
+		/// </summary>
+		/// <param name="s"></param>
+		/// <returns></returns>
+		bool IsFourthFieldKeyword(const std::string &s)
+		{
+			//single character case, good
+			if (s.size() == 1)
+				return true;
+			
+
+			//check for starting with "VK" but also has a decimal value after
+			if (s.size() > 2)
+			{
+				std::string theFirst = s.substr(0, 2);
+				std::for_each(theFirst.begin(), theFirst.end(), [](char &c) { c = std::toupper(c); });
+				//if first two characters are "VK"
+				if (theFirst == vk)
+				{
+					//grab everything after "VK"
+					std::string val;
+					auto it = s.find(vk);
+					if (it != std::string::npos)
+					{
+						val = s.substr(it + 2);
+						std::stringstream ss(val);
+						int vki = 0;
+						ss >> vki;
+						if (ss)
+						{
+							//stringstream is reporting no error condition
+							return true;
+						}
+					}
+				}
+			}
+
+			return false;
+		}
 	};
 
 }

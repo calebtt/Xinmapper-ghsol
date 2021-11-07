@@ -5,13 +5,17 @@
 
 #pragma once
 
+#ifndef NOMINMAX
 #define NOMINMAX
+#endif
+#ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
+#endif
 
-#include "targetver.h"
+
 #include <windows.h>
 #include <Xinput.h>
-#include <process.h>
+//#include <process.h>
 #include <tchar.h>
 //#include <intrin.h>
 
@@ -40,4 +44,6 @@
 
 
 // Include some commonly used global stuff.
+#include "ActionDescriptors.h"
 #include "Globals.h"
+//#include "SendKey.h"
