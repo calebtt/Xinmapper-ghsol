@@ -17,7 +17,7 @@ namespace sds
 	/// ActionDescriptors is a big structure full of keywords that are used by other classes to enable
 	/// processing of an sds::ActionDetails string into meaningful information for the program.
 	/// It has a map&lt;string,int&gt; named "xin_buttons" that is very useful for mapping the string into XINPUT defines
-	/// 
+	/// It also has member functions for validating each field of a properly formed token.
 	/// </summary>
 	struct ActionDescriptors
 	{
@@ -41,7 +41,6 @@ namespace sds
 		const std::string start = "START"; // the string "START"
 		const std::string back = "BACK"; // the string "BACK"
 		const std::string vk = "VK"; // the string "VK"
-		//const std::string mappedTo = "="; // the string "=" [DEPRECATED,no longer used]
 		const std::string norm = "NORM"; // the string "NORM"
 		const std::string toggle = "TOGGLE"; // the string "TOGGLE"
 		const std::string rapid = "RAPID"; // the string "RAPID"

@@ -17,48 +17,39 @@ namespace XNMTest
 {
 	TEST_CLASS(XNMTest)
 	{
-		//TestSendKey tsk;
 		//List of tokens in an "ActionDetails"
 		std::vector<std::string> testTokens;
 		//Internal copy of the action descriptors map, mapping string tokens to int value representation of XINPUT defines
 		const std::map<const std::string, int> testMap = sds::sdsActionDescriptors.xin_buttons;
 		//mt19937 is a standard mersenne_twister_engine
-		std::mt19937 gen;
+		std::mt19937 mersenneEngine;
 
 	public:
 		/// <summary>
-		/// Constructor, initializes some useful stuff.
+		/// Constructor, initializes some useful stuff like testTokens.
 		/// </summary>
 		XNMTest()
 		{
 			//seed random generator
 			std::random_device rd;
-			gen.seed(rd());
+			mersenneEngine.seed(rd());
 
-			//Add all std::string members of the ActionDetails struct global static instance
-			testTokens.push_back(sds::sdsActionDescriptors.a);
-			testTokens.push_back(sds::sdsActionDescriptors.b);
-			testTokens.push_back(sds::sdsActionDescriptors.back);
-			testTokens.push_back(sds::sdsActionDescriptors.down);
-			testTokens.push_back(sds::sdsActionDescriptors.dpad);
-			testTokens.push_back(sds::sdsActionDescriptors.left);
-			testTokens.push_back(sds::sdsActionDescriptors.lShoulder);
-			testTokens.push_back(sds::sdsActionDescriptors.lThumb);
-			testTokens.push_back(sds::sdsActionDescriptors.lTrigger);
-			//testTokens.push_back(sds::sdsActionDescriptors.mappedTo);
-			testTokens.push_back(sds::sdsActionDescriptors.none);
-			testTokens.push_back(sds::sdsActionDescriptors.norm);
-			testTokens.push_back(sds::sdsActionDescriptors.rapid);
-			testTokens.push_back(sds::sdsActionDescriptors.right);
-			testTokens.push_back(sds::sdsActionDescriptors.rShoulder);
-			testTokens.push_back(sds::sdsActionDescriptors.rThumb);
-			testTokens.push_back(sds::sdsActionDescriptors.rTrigger);
-			testTokens.push_back(sds::sdsActionDescriptors.start);
-			testTokens.push_back(sds::sdsActionDescriptors.toggle);
-			testTokens.push_back(sds::sdsActionDescriptors.up);
-			testTokens.push_back(sds::sdsActionDescriptors.vk);
-			testTokens.push_back(sds::sdsActionDescriptors.x);
-			testTokens.push_back(sds::sdsActionDescriptors.y);
+			std::vector<std::string> initVector;
+			auto fillVector = [&initVector](const std::vector<std::string> &currentVec)
+			{
+				auto addTokens = [&initVector](const std::string &currentString)
+				{
+					initVector.push_back(currentString);
+				};
+				std::for_each(currentVec.cbegin(), currentVec.cend(), addTokens);
+			};
+
+			fillVector(sds::sdsActionDescriptors.FirstFieldValidKeywords);
+			fillVector(sds::sdsActionDescriptors.SecondFieldValidKeywords);
+			fillVector(sds::sdsActionDescriptors.ThirdFieldValidKeywords);
+			initVector.push_back(sds::sdsActionDescriptors.vk);
+
+			testTokens = initVector;
 		}
 		/// <summary>
 		/// Returns a vector of XINPUT_STATE structs with randomized content.
@@ -76,14 +67,14 @@ namespace XNMTest
 			{
 				memset(&st, 0, sizeof(XINPUT_STATE));
 
-				st.dwPacketNumber = static_cast<DWORD>(gen());
-				st.Gamepad.bLeftTrigger = static_cast<BYTE>(gen());
-				st.Gamepad.bRightTrigger = static_cast<BYTE>(gen());
-				st.Gamepad.sThumbLX = static_cast<SHORT>(gen());
-				st.Gamepad.sThumbLY = static_cast<SHORT>(gen());
-				st.Gamepad.sThumbRX = static_cast<SHORT>(gen());
-				st.Gamepad.sThumbRY = static_cast<SHORT>(gen());
-				st.Gamepad.wButtons = static_cast<WORD>(gen());
+				st.dwPacketNumber = static_cast<DWORD>(mersenneEngine());
+				st.Gamepad.bLeftTrigger = static_cast<BYTE>(mersenneEngine());
+				st.Gamepad.bRightTrigger = static_cast<BYTE>(mersenneEngine());
+				st.Gamepad.sThumbLX = static_cast<SHORT>(mersenneEngine());
+				st.Gamepad.sThumbLY = static_cast<SHORT>(mersenneEngine());
+				st.Gamepad.sThumbRX = static_cast<SHORT>(mersenneEngine());
+				st.Gamepad.sThumbRY = static_cast<SHORT>(mersenneEngine());
+				st.Gamepad.wButtons = static_cast<WORD>(mersenneEngine());
 				ret.push_back(st);
 			}
 
@@ -134,7 +125,9 @@ namespace XNMTest
 		}
 
 		/// <summary>
-		/// Test that the "Down()" member function returns the expected values.
+		/// Test that the "Down()" member function behaves as expected
+		/// by generating input and throwing it at it, along with some edge 
+		/// cases and known good cases.
 		/// </summary>
 		TEST_METHOD(TestButtonActionReturns)
 		{
@@ -181,7 +174,7 @@ namespace XNMTest
 
 			try
 			{
-				//Test 1000 randomized XINPUT_STATE objects with a sample token
+				//Test [RandomStateCount] randomized XINPUT_STATE objects with a sample token
 				//assert that the result ONLY is true with the correct token and state.
 				//(Test boundary values against the tokens)
 				vector<XINPUT_STATE> &&tempVector = BuildRandomTestStates(RandomStateCount);
@@ -194,14 +187,11 @@ namespace XNMTest
 					//nested loop to test each string token in the map against the current XINPUT_STATE
 					for_each(testTokens.begin(), testTokens.end(), tsv);
 				}
-
 			}
 			catch (std::exception &e)
 			{
 				Logger::WriteMessage(e.what());
 			}
-
-
 
 			try
 			{
