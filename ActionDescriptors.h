@@ -19,9 +19,8 @@ namespace sds
 	/// It has a map&lt;string,int&gt; named "xin_buttons" that is very useful for mapping the string into XINPUT defines
 	/// 
 	/// </summary>
-	class ActionDescriptors
+	struct ActionDescriptors
 	{
-	public:
 		//using this declaration syntax gives intellisense the comments per variable.
 		const std::string x = "X"; // the string "X"
 		const std::string y = "Y"; // the string "Y"
@@ -62,7 +61,7 @@ namespace sds
 
 		const std::vector<std::string> ThirdFieldValidKeywords
 		{
-			norm,toggle, rapid
+			norm,toggle,rapid
 		};
 
 
@@ -94,39 +93,36 @@ namespace sds
 		/// This member function can be used to verify that a string is
 		/// a member const keyword included in this struct.
 		/// </summary>
-		/// <param name="s"></param>
+		/// <param name="s">std::string s, the token you would test for acceptability in the first field.</param>
 		/// <returns>returns true if string s is in the valid first field keywords list</returns>
-		bool IsFirstFieldKeyword(const std::string &s)
+		bool IsFirstFieldKeyword(std::string s)
 		{
-			std::string ups = s;
-			std::for_each(ups.begin(), ups.end(), [](char &c) { c = static_cast<char>(std::toupper(c)); });
-			return (std::find(FirstFieldValidKeywords.cbegin(), FirstFieldValidKeywords.cend(), ups) != FirstFieldValidKeywords.cend());
+			std::for_each(s.begin(), s.end(), [](char &c) { c = static_cast<char>(std::toupper(c)); });
+			return (std::find(FirstFieldValidKeywords.cbegin(), FirstFieldValidKeywords.cend(), s) != FirstFieldValidKeywords.cend());
 		}
 
 		/// <summary>
 		/// This member function can be used to verify that a string is
 		/// a member const keyword included in this struct.
 		/// </summary>
-		/// <param name="s"></param>
+		/// <param name="s">std::string s, the token you would test for acceptability in the second field.</param>
 		/// <returns>returns true if string s is in the valid second field keywords list</returns>
-		bool IsSecondFieldKeyword(const std::string &s)
+		bool IsSecondFieldKeyword(std::string s)
 		{
-			std::string ups = s;
-			std::for_each(ups.begin(), ups.end(), [](char &c) { c = static_cast<char>(std::toupper(c)); });
-			return (std::find(SecondFieldValidKeywords.cbegin(), SecondFieldValidKeywords.cend(), ups) != SecondFieldValidKeywords.cend());
+			std::for_each(s.begin(), s.end(), [](char &c) { c = static_cast<char>(std::toupper(c)); });
+			return (std::find(SecondFieldValidKeywords.cbegin(), SecondFieldValidKeywords.cend(), s) != SecondFieldValidKeywords.cend());
 		}
 
 		/// <summary>
 		/// This member function can be used to verify that a string is
 		/// a member const keyword included in this struct.
 		/// </summary>
-		/// <param name="s"></param>
+		/// <param name="s">std::string s, the token you would test for acceptability in the third field.</param>
 		/// <returns>returns true if string s is in the valid third field keywords list</returns>
-		bool IsThirdFieldKeyword(const std::string &s)
+		bool IsThirdFieldKeyword(std::string s)
 		{
-			std::string ups = s;
-			std::for_each(ups.begin(), ups.end(), [](char &c) { c = static_cast<char>(std::toupper(c)); });
-			return (std::find(ThirdFieldValidKeywords.cbegin(), ThirdFieldValidKeywords.cend(), ups) != ThirdFieldValidKeywords.cend());
+			std::for_each(s.begin(), s.end(), [](char &c) { c = static_cast<char>(std::toupper(c)); });
+			return (std::find(ThirdFieldValidKeywords.cbegin(), ThirdFieldValidKeywords.cend(), s) != ThirdFieldValidKeywords.cend());
 		}
 
 		/// <summary>
@@ -135,9 +131,9 @@ namespace sds
 		/// For the fourth field, if it contains one character it returns true.
 		/// If it starts with VK and also contains an integer number after, it returns true.
 		/// </summary>
-		/// <param name="s"></param>
+		/// <param name="s">std::string s, the token you would test for acceptability in the fourth field.</param>
 		/// <returns>returns true if valid field, false otherwise</returns>
-		bool IsFourthFieldKeyword(const std::string &s)
+		bool IsFourthFieldKeyword(const std::string s)
 		{
 			//single character case, good
 			if (s.size() == 1)
@@ -145,7 +141,7 @@ namespace sds
 			
 
 			//check for starting with "VK" but also has a decimal value after
-			if (s.size() > 2)
+			if (s.size() > vk.size())
 			{
 				std::string theFirst = s.substr(0, vk.size());
 				std::for_each(theFirst.begin(), theFirst.end(), [](char &c)
