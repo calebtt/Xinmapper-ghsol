@@ -162,7 +162,7 @@ namespace sds
 					//be sure to catch the "out of range exception" if some massive value is attempted
 					try
 					{
-						vki = std::stoi(val);
+						vki = std::stoi(val); // can throw an exception
 						// virtual keycodes fit in a character.
 						if (vki > std::numeric_limits<unsigned char>::max() || vki < std::numeric_limits<unsigned char>::min())
 							return false;
