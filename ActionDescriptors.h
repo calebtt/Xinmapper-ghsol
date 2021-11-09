@@ -94,7 +94,7 @@ namespace sds
 		/// </summary>
 		/// <param name="s">std::string s, the token you would test for acceptability in the first field.</param>
 		/// <returns>returns true if string s is in the valid first field keywords list</returns>
-		bool IsFirstFieldKeyword(std::string s)
+		constexpr bool IsFirstFieldKeyword(std::string s) const
 		{
 			std::for_each(s.begin(), s.end(), [](char &c) { c = static_cast<char>(std::toupper(c)); });
 			return (std::find(FirstFieldValidKeywords.cbegin(), FirstFieldValidKeywords.cend(), s) != FirstFieldValidKeywords.cend());
@@ -106,7 +106,7 @@ namespace sds
 		/// </summary>
 		/// <param name="s">std::string s, the token you would test for acceptability in the second field.</param>
 		/// <returns>returns true if string s is in the valid second field keywords list</returns>
-		bool IsSecondFieldKeyword(std::string s)
+		constexpr bool IsSecondFieldKeyword(std::string s) const
 		{
 			std::for_each(s.begin(), s.end(), [](char &c) { c = static_cast<char>(std::toupper(c)); });
 			return (std::find(SecondFieldValidKeywords.cbegin(), SecondFieldValidKeywords.cend(), s) != SecondFieldValidKeywords.cend());
@@ -118,7 +118,7 @@ namespace sds
 		/// </summary>
 		/// <param name="s">std::string s, the token you would test for acceptability in the third field.</param>
 		/// <returns>returns true if string s is in the valid third field keywords list</returns>
-		bool IsThirdFieldKeyword(std::string s)
+		constexpr bool IsThirdFieldKeyword(std::string s) const
 		{
 			std::for_each(s.begin(), s.end(), [](char &c) { c = static_cast<char>(std::toupper(c)); });
 			return (std::find(ThirdFieldValidKeywords.cbegin(), ThirdFieldValidKeywords.cend(), s) != ThirdFieldValidKeywords.cend());
@@ -132,7 +132,7 @@ namespace sds
 		/// </summary>
 		/// <param name="s">std::string s, the token you would test for acceptability in the fourth field.</param>
 		/// <returns>returns true if valid field, false otherwise</returns>
-		bool IsFourthFieldKeyword(const std::string s)
+		constexpr bool IsFourthFieldKeyword(const std::string s) const
 		{
 			//single character case, good
 			if (s.size() == 1)
