@@ -317,6 +317,7 @@ namespace sds
 		/// <summary>
 		/// Searches the input string "std::string in" and returns the Virtual Keycode as an integer.
 		/// Note that it only extracts the VK code from the string, it doesn't translate to a scancode!
+		/// The input string is of the form "VK2"
 		/// </summary>
 		/// <param name="in">std::string in is a token containing a Virtual Keycode in string form</param>
 		/// <returns>Returns the virtual keycode in decimal integer form, or -1 for error.</returns>
