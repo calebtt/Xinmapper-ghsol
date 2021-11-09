@@ -16,12 +16,6 @@
 /// </summary>
 struct BuildVKList
 {
-	
-
-	/// <summary>
-	/// Stupidly long constructor that builds a list of virtual keycodes available in Winuser.h
-	/// that should have scancode translations available.
-	/// </summary>
 	BuildVKList()
 	{
 	}
