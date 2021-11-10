@@ -6,11 +6,6 @@ Which would mean updating ActionDescriptors to include the new
 tokens, and updating this class to interpret an ActionString,
 and finally update GamepadUser.
 
-More importantly a better measure of sensitivity should
-be used rather than an arbitrary value.  One may get the 
-impression Microsoft hath done the same and used a "slider"
-for their sensitivity to hide this fact.
-
 Finally, the ability to modify the sensitivity function
 is of utmost importance, which may require a math expression
 parser.  The class currently uses the graph of [ y = (x^2) / mouseSensitivity + 1 ]
@@ -331,7 +326,6 @@ namespace sds
 		}
 
 		/// <summary>
-		/// Precondition: state mutex is locked.
 		/// Runs through the gamut of utility functions to get the number of pixels to move
 		/// before moving the mouse.
 		/// </summary>
