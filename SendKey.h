@@ -34,8 +34,8 @@ namespace sds
 		/// <param name="y">number of pixels in Y</param>
 		void SendMouseMove(const int x, const int y)
 		{
-			mouseMoveInput.mi.dx = x;
-			mouseMoveInput.mi.dy = y;
+			mouseMoveInput.mi.dx = static_cast<LONG>(x);
+			mouseMoveInput.mi.dy = static_cast<LONG>(y);
 			mouseMoveInput.mi.dwExtraInfo = GetMessageExtraInfo();
 
 			//Finally, send the input

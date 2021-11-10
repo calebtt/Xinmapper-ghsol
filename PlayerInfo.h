@@ -11,11 +11,11 @@ namespace sds
 	/// </summary>
 	struct PlayerInfo
 	{
-		int left_dz;
-		int right_dz;
-		int left_trigger_dz;
-		int right_trigger_dz;
-		int player_id;
+		std::atomic<int> left_dz;
+		std::atomic<int> right_dz;
+		std::atomic<int> left_trigger_dz;
+		std::atomic<int> right_trigger_dz;
+		std::atomic<int> player_id;
 		PlayerInfo() 
 			: left_dz(XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE),
 			right_dz(XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE),

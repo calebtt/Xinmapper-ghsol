@@ -36,10 +36,13 @@ namespace sds
 	/// Handles achieving smooth, expected mouse movements.
 	/// The class holds info on which mouse stick (if any) is to be used for controlling the mouse,
 	/// the MouseMap enum holds this info.
+	/// This class starts a running thread that is used only to process the XINPUT_STATE structure
+	/// and use those values to determine if it should move the mouse cursor, and if so how much.
+	/// Another thread calls ProcessState(XINPUT_STATE) to update the internal XINPUT_STATE struct.
+	/// It also has public functions for getting and setting the sensitivity.
 	/// </summary>
 	class XInputBoostMouse : public CPPThreadRunner<XINPUT_STATE>
 	{
-
 	public:
 		enum class MouseMap : int
 		{
@@ -49,8 +52,8 @@ namespace sds
 		};
 
 	private:
+		SendKey keySend;
 		std::atomic<MouseMap> stickMapInfo;
-		INPUT data;
 		std::atomic<SHORT> threadX, threadY;
 		std::atomic<LONG> step;
 		std::atomic<int> mouseSensitivity;
@@ -64,8 +67,6 @@ namespace sds
 			mouseSensitivity(30),
 			stickMapInfo(MouseMap::NEITHER_STICK)
 		{
-			memset((LPVOID)&data,0, sizeof(INPUT));
-			data.mi.dwFlags = MOUSEEVENTF_MOVE;
 		}
 		~XInputBoostMouse()
 		{ 
@@ -136,10 +137,9 @@ namespace sds
 		/// Getter for sensitivity value
 		/// </summary>
 		/// <returns></returns>
-		int GetSensitivity()
+		int GetSensitivity() const
 		{
-			int tempSens = mouseSensitivity;
-			return tempSens;
+			return mouseSensitivity;
 		}
 	private:
 		/// <summary>
@@ -151,6 +151,9 @@ namespace sds
 		/// <returns>true if requires moving the mouse, false otherwise</returns>
 		bool doesRequireMove(int x, int y)
 		{
+			if (stickMapInfo == MouseMap::NEITHER_STICK)
+				return false;
+
 			int DEADZONE = stickMapInfo == MouseMap::LEFT_STICK ? sds::sdsPlayerOne.left_dz : sds::sdsPlayerOne.right_dz;
 			return ( (x > DEADZONE
 				|| x < -DEADZONE)
@@ -192,15 +195,33 @@ namespace sds
 
 			if( x > 0 )
 			{
-					x -= XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE;
-					x = NormalizeRange( 0, SHRT_MAX,
-						(LONG)t_sens, x );
+				if (this->stickMapInfo == MouseMap::LEFT_STICK)
+				{
+					x -= sdsPlayerOne.left_dz;
+					x = NormalizeRange(0, std::numeric_limits<SHORT>::max(),
+						static_cast<LONG>(t_sens), x);
+				}
+				else
+				{
+					x -= sdsPlayerOne.right_dz;
+					x = NormalizeRange(0, std::numeric_limits<SHORT>::max(),
+						static_cast<LONG>(t_sens), x);
+				}
 			}
 			else
 			{
-					x += XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE;
-					x = -NormalizeRange( 0, SHRT_MAX,
-						(LONG)t_sens, -x );
+				if (this->stickMapInfo == MouseMap::LEFT_STICK)
+				{
+					x += sdsPlayerOne.left_dz;
+					x = -NormalizeRange(0, std::numeric_limits<SHORT>::max(),
+						static_cast<LONG>(t_sens), -x);
+				}
+				else
+				{
+					x += sdsPlayerOne.right_dz;
+					x = -NormalizeRange(0, std::numeric_limits<SHORT>::max(),
+						static_cast<LONG>(t_sens), -x);
+				}
 			}
 			return x;
 		}
@@ -254,34 +275,30 @@ namespace sds
 		/// <param name="y"></param>
 		void doInput(LONG x, LONG y)
 		{
-			data.mi.dx = 0;
-			data.mi.dy = 0;
-			data.mi.dwExtraInfo = GetMessageExtraInfo();
-			
-			LONG x_value;
-			LONG y_value;
-			x_value = NormalizeAxis(x);
+			//NormalizeAxis will subtract (or add) the deadzone value from the numbers.
+			LONG x_value = NormalizeAxis(x);
+			LONG y_value = 0;
 
 			//Have to be careful inverting signs,
 			//can overflow easily!
-			if( y <= SHRT_MIN )
+			if( y <= std::numeric_limits<SHORT>::min() )
 			{
-				y=SHRT_MIN+1;
+				y = std::numeric_limits<SHORT>::min() + 1;
 			}
+
 			//here y is inverted, to invert the y axis.
+			//this is because the coordinate plane for pixels starts at the top-left on windows
 			y_value = NormalizeAxis(-y);
-	
+
 			if( x_value != 0 )
 			{
 				if( x_value > 0 )
 				{
-					//data.mi.dx = 1;//+t_sens;
-					data.mi.dx = getFunctionalValue(x_value);
+					x_value = getFunctionalValue(x_value);
 				}
 				else
 				{
-					//data.mi.dx = -1;//-t_sens;
-					data.mi.dx = -(LONG)getFunctionalValue(abs(x_value));
+					x_value = -(LONG)getFunctionalValue(abs(x_value));
 				}
 			}
 
@@ -289,20 +306,16 @@ namespace sds
 			{
 				if( y_value > 0 )
 				{
-					//data.mi.dy = 1;//+t_sens;
-					data.mi.dy = getFunctionalValue(y_value);
+					y_value = getFunctionalValue(y_value);
 				}
 				else
 				{
-					//data.mi.dy = -1;//-t_sens;
-					data.mi.dy = -(LONG)getFunctionalValue(abs(y_value));
+					y_value = -(LONG)getFunctionalValue(abs(y_value));
 				}
 			}
-			x_value = abs(x_value);
-			y_value = abs(y_value);
 
 			//Finally, send the input
-			SendInput(1, &data, sizeof(INPUT));
+			keySend.SendMouseMove(x_value, y_value);
 		}
 
 
