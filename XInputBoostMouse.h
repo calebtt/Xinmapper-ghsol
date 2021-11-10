@@ -123,7 +123,7 @@ namespace sds
 		/// if there is an error, empty string otherwise. </returns>
 		std::string SetSensitivity(int new_sens)
 		{
-			if (new_sens <= 0)
+			if (new_sens <= 0 || new_sens > 100)
 			{
 				return "Error in sds::XInputBoostMouse::SetSensitivity(), int new_sens less than or equal to 0.";
 			}

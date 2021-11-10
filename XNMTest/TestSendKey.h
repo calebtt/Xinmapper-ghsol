@@ -23,8 +23,16 @@ namespace XNMTest
 			const int MinimumRandomStringLength = 1;
 
 			sds::SendKey sk;
+			// 
+			// WARNING:
+			// 
+			// Some virtual keycodes documented as "undefined" or "reserved" in the Windows documentation
+			// actually do return a scancode value.
+			// I hope that this is not system dependent.
 			BuildVKList vkl;
-			std::vector<int> &&codesList = vkl.GetKeyboardVirtualKeys();
+			//std::vector<int> &&codesList = vkl.GetKeyboardVirtualKeys();
+			std::vector<int> &&codesList = vkl.GetSystemVirtualKeys();
+
 
 			//lambda to test a scan code, works for int, string, char
 			auto testScancode = [&sk](auto i)
@@ -74,6 +82,7 @@ namespace XNMTest
 					{
 						bool testCond = sk.GetScanCode(s) > 0;
 						bool isFoundInKnownGoodList = (std::find(std::cbegin(codesList), std::cend(codesList), i) != std::cend(codesList));
+						std::string msgg;
 
 						//if it returns true, then assert is must also be in the known good list
 						if (isFoundInKnownGoodList && testCond)
@@ -82,9 +91,24 @@ namespace XNMTest
 						}
 						else if((!isFoundInKnownGoodList) && testCond)
 						{
-							std::string msgg = "Found a true result not in the known good list: " + s + "\n";
-							Logger::WriteMessage(msgg.c_str());
-							Assert::IsTrue(isFoundInKnownGoodList);
+							if (std::isprint(i))
+							{
+								//printable characters are also acceptable input to SendKey::GetScanCode()
+								//so if the integer is ALSO translatable to an ASCII keycode, it would still return true.
+								msgg = "Found a true result interpretable as a printable character: ";
+								msgg += i;
+								msgg += "\n";
+								Logger::WriteMessage(msgg.c_str());
+							}
+							else
+							{
+								msgg = "Found a true result not in the known good list: " + s;
+								msgg += " translated to int in TestGetVK as: ";
+								msgg += std::to_string(i);
+								Logger::WriteMessage(msgg.c_str());
+								Assert::IsTrue(isFoundInKnownGoodList);
+							}
+
 						}
 					}
 				}

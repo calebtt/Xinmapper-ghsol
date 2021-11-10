@@ -2,6 +2,7 @@
 #include "CppUnitTest.h"
 #include "TestSendKey.h"
 #include "TestMapper.h"
+#include "TestMouse.h"
 #include "BuildRandomStrings.h"
 #include <string>
 #include <vector>

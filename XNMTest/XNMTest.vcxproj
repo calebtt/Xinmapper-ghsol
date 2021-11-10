@@ -172,6 +172,7 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="BuildRandomStrings.h" />
     <ClInclude Include="TestMapper.h" />
+    <ClInclude Include="TestMouse.h" />
     <ClInclude Include="TestSendKey.h" />
   </ItemGroup>
   <ItemGroup>

@@ -10,16 +10,30 @@
 #include <Windows.h>
 #include <vector>
 
-/// <summary>
-/// A class like this could save someone a lot of typing.
-/// ..Someone..
-/// </summary>
+
 struct BuildVKList
 {
 	BuildVKList()
 	{
 	}
 
+	/// <summary>
+	/// This intends to build the list of virtual keycodes that return a scancode from a call to
+	/// MapVirtualKeyExA(...) from the Windows API. It is possible these will be system specific.
+	/// </summary>
+	/// <returns></returns>
+	std::vector<int> GetSystemVirtualKeys()
+	{
+		std::vector<int> vkList;
+		for (UINT i = std::numeric_limits<unsigned char>::min(); i < std::numeric_limits<unsigned char>::max(); i++)
+		{
+			UINT ret = static_cast<int> (MapVirtualKeyExA(i, MAPVK_VK_TO_VSC, GetKeyboardLayout(0)));
+			if(ret != 0)
+				vkList.push_back(static_cast<int>(i));
+		}
+		
+		return vkList;
+	}
 	/// <summary>
 	/// Builds and returns a list of valid keyboard virtual key codes as a vector of int.
 	/// Some virtual keycodes documented as "undefined" or "reserved" in the Windows documentation
@@ -110,10 +124,25 @@ struct BuildVKList
 		vkList.push_back(0x3D);
 		//reserved but still returns a scancode...
 		vkList.push_back(0xC);
+		vkList.push_back(0xC1);
 		vkList.push_back(0xDD);
-
-		//vkList.push_back(VK_OEM_8);
 		
+		//OEM but still returns a scancode...
+		vkList.push_back(0xEB);
+		vkList.push_back(0xEE);
+		vkList.push_back(0xED);
+		vkList.push_back(0xF1);
+		vkList.push_back(0xF3);
+		vkList.push_back(0xF5);
+		vkList.push_back(VK_F21);
+		vkList.push_back(VK_F22);
+		vkList.push_back(VK_F23);
+		vkList.push_back(VK_F24);
+		vkList.push_back(VK_EREOF);
+		vkList.push_back(VK_ZOOM);
+		vkList.push_back(VK_OEM_4);
+		vkList.push_back(VK_OEM_5);
+		vkList.push_back(VK_OEM_7);
 
 		return vkList;
 	}
