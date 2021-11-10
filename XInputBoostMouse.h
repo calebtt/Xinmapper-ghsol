@@ -57,15 +57,22 @@ namespace sds
 		std::atomic<SHORT> threadX, threadY;
 		std::atomic<LONG> step;
 		std::atomic<int> mouseSensitivity;
+		std::atomic<bool> isDeadzoneActivated;
+		std::atomic<bool> altDeadzoneConfig;
+		std::atomic<float> altDeadzoneMultiplier;
 
-		static const int MOVE_THREAD_SLEEP = 10;//10 ms
-		static const int SENSITIVITY_MIN = 0;
-		static const int SENSITIVITY_MAX = 100;
+		const int MOVE_THREAD_SLEEP = 10;//10 ms
+		const int SENSITIVITY_MIN = 0;
+		const int SENSITIVITY_MAX = 100;
 	public:
+		/// <summary>
+		/// Ctor Initializes some configuration variables like the alternate deadzone config multiplier
+		/// </summary>
 		XInputBoostMouse() 
 			: CPPThreadRunner(),
 			mouseSensitivity(30),
-			stickMapInfo(MouseMap::NEITHER_STICK)
+			stickMapInfo(MouseMap::NEITHER_STICK),
+			isDeadzoneActivated(false), altDeadzoneConfig(true), altDeadzoneMultiplier(0.5f)
 		{
 		}
 		~XInputBoostMouse()
@@ -118,6 +125,47 @@ namespace sds
 					this->startThread();
 			}
 		}
+
+		/// <summary>
+		/// Setter for telling the processing to use the alternate deadzone processing config.
+		/// </summary>
+		/// <param name="useAlt"></param>
+		void SetUseAltDeadzone(bool useAlt)
+		{
+			altDeadzoneConfig = useAlt;
+		}
+		/// <summary>
+		/// Getter for current status of using the alternate deadzone processing config.
+		/// </summary>
+		/// <returns></returns>
+		bool GetUseAltDeadzone() const
+		{
+			return altDeadzoneConfig;
+		}
+		/// <summary>
+		/// Sets the value of the alternate deadzone multiplier.
+		/// For the behavior of the alternate deadzone configuration,
+		/// the multiplier is used to lower the deadzone when one is already activated.
+		/// </summary>
+		/// <param name="newValue"></param>
+		/// <returns></returns>
+		std::string SetAltDeadzoneMultiplier(float newValue)
+		{
+			if (newValue > 1.0f || newValue <= 0.0f)
+				return "Failed to set new deadzone value, out of range.";
+			altDeadzoneMultiplier = newValue;
+			return "";
+		}
+
+		/// <summary>
+		/// Gets the current alternate deadzone multiplier.
+		/// </summary>
+		/// <returns></returns>
+		float GetAltDeadzoneMultiplier() const
+		{
+			float r = altDeadzoneMultiplier;
+			return r;
+		}
 		/// <summary>
 		/// Setter for sensitivity value
 		/// </summary>
@@ -155,10 +203,19 @@ namespace sds
 				return false;
 
 			int DEADZONE = stickMapInfo == MouseMap::LEFT_STICK ? sds::sdsPlayerOne.left_dz : sds::sdsPlayerOne.right_dz;
-			return ( (x > DEADZONE
-				|| x < -DEADZONE)
-				|| (y > DEADZONE
-				|| y < -DEADZONE) );
+			bool xMove = (x > DEADZONE || x < -DEADZONE);
+			bool yMove = (y > DEADZONE || y < -DEADZONE);
+
+			if (!xMove && !yMove)
+			{
+				isDeadzoneActivated = false;
+				return false;
+			}
+			else
+			{
+				isDeadzoneActivated = true;
+				return true;
+			}
 		}
 
 		/// <summary>
@@ -197,13 +254,21 @@ namespace sds
 			{
 				if (this->stickMapInfo == MouseMap::LEFT_STICK)
 				{
-					x -= sdsPlayerOne.left_dz;
+					if (this->altDeadzoneConfig && this->isDeadzoneActivated)
+						x -= static_cast<LONG>(sdsPlayerOne.left_dz * altDeadzoneMultiplier);
+					else
+						x -= sdsPlayerOne.left_dz;
+
 					x = NormalizeRange(0, std::numeric_limits<SHORT>::max(),
 						static_cast<LONG>(t_sens), x);
 				}
 				else
 				{
-					x -= sdsPlayerOne.right_dz;
+					if (this->altDeadzoneConfig && this->isDeadzoneActivated)
+						x -= static_cast<LONG>(sdsPlayerOne.right_dz * altDeadzoneMultiplier);
+					else
+						x -= sdsPlayerOne.right_dz;
+					
 					x = NormalizeRange(0, std::numeric_limits<SHORT>::max(),
 						static_cast<LONG>(t_sens), x);
 				}
@@ -212,13 +277,19 @@ namespace sds
 			{
 				if (this->stickMapInfo == MouseMap::LEFT_STICK)
 				{
-					x += sdsPlayerOne.left_dz;
+					if (this->altDeadzoneConfig && this->isDeadzoneActivated)
+						x += static_cast<LONG>(sdsPlayerOne.left_dz * altDeadzoneMultiplier);
+					else
+						x += sdsPlayerOne.left_dz;
 					x = -NormalizeRange(0, std::numeric_limits<SHORT>::max(),
 						static_cast<LONG>(t_sens), -x);
 				}
 				else
 				{
-					x += sdsPlayerOne.right_dz;
+					if (this->altDeadzoneConfig && this->isDeadzoneActivated)
+						x += static_cast<LONG>(sdsPlayerOne.right_dz * altDeadzoneMultiplier);
+					else
+						x += sdsPlayerOne.right_dz;
 					x = -NormalizeRange(0, std::numeric_limits<SHORT>::max(),
 						static_cast<LONG>(t_sens), -x);
 				}
@@ -260,7 +331,7 @@ namespace sds
 		/// </summary>
 		/// <param name="x">normalized value to adjust for sensitivity</param>
 		/// <returns> a sensitivity normalized value or 1 if the result is 0</returns>
-		size_t getFunctionalValue(size_t x)
+		size_t getFunctionalValue(size_t x) const
 		{
 			x = static_cast<size_t>((x * x) / mouseSensitivity + 1);
 			return (x == 0) ? 1 : x;
