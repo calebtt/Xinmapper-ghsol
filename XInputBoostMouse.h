@@ -19,13 +19,6 @@ it is the nearly (or exactly) the size of the viewing window--the mouseSensitivi
 Also need sensitivity for both X and Y axis.
 */
 
-/*
-* 10/18/21
-TODO add an option that lowers the deadzone for the perpindicular axis when the current axis
-is above a certain percentage of usage, this should give more granular control when
-one axis is moving at a high rate of speed.
-*/
-
 #pragma once
 #include "stdafx.h"
 #include "CPPThreadRunner.h"
