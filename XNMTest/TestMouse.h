@@ -13,6 +13,7 @@ namespace XNMTest
 {
 	TEST_CLASS(TestMouse)
 	{
+
 		sds::XInputBoostMouse mouse;
 	public:
 		TEST_METHOD(TestSetSensitivity)

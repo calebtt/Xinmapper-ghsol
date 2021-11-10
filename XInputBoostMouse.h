@@ -13,9 +13,9 @@ for their sensitivity to hide this fact.
 
 Finally, the ability to modify the sensitivity function
 is of utmost importance, which may require a math expression
-parser.  The class currently uses the graph of [ y = (x^2) / SENSITIVITY ]
+parser.  The class currently uses the graph of [ y = (x^2) / mouseSensitivity + 1 ]
 which is a parabola with the quality that at the curve's highest points
-it is the nearly (or exactly) the size of the viewing window--the SENSITIVITY.
+it is the nearly (or exactly) the size of the viewing window--the mouseSensitivity.
 Also need sensitivity for both X and Y axis.
 */
 
@@ -46,20 +46,22 @@ namespace sds
 			NEITHER_STICK,
 			RIGHT_STICK,
 			LEFT_STICK
-		};// std::atomic<MouseMap> stickMapInfo;
+		};
 
 	private:
 		std::atomic<MouseMap> stickMapInfo;
 		INPUT data;
 		std::atomic<SHORT> threadX, threadY;
 		std::atomic<LONG> step;
-		std::atomic<int> SENSITIVITY;
+		std::atomic<int> mouseSensitivity;
 
 		static const int MOVE_THREAD_SLEEP = 10;//10 ms
+		static const int SENSITIVITY_MIN = 0;
+		static const int SENSITIVITY_MAX = 100;
 	public:
 		XInputBoostMouse() 
 			: CPPThreadRunner(),
-			SENSITIVITY(30),
+			mouseSensitivity(30),
 			stickMapInfo(MouseMap::NEITHER_STICK)
 		{
 			memset((LPVOID)&data,0, sizeof(INPUT));
@@ -123,11 +125,11 @@ namespace sds
 		/// if there is an error, empty string otherwise. </returns>
 		std::string SetSensitivity(int new_sens)
 		{
-			if (new_sens <= 0 || new_sens > 100)
+			if (new_sens <= SENSITIVITY_MIN || new_sens > SENSITIVITY_MAX)
 			{
-				return "Error in sds::XInputBoostMouse::SetSensitivity(), int new_sens less than or equal to 0.";
+				return "Error in sds::XInputBoostMouse::SetSensitivity(), int new_sens less than or equal to 0 or greater than 100.";
 			}
-			SENSITIVITY = new_sens;
+			mouseSensitivity = new_sens;
 			return "";
 		}
 		/// <summary>
@@ -136,7 +138,7 @@ namespace sds
 		/// <returns></returns>
 		int GetSensitivity()
 		{
-			int tempSens = SENSITIVITY;
+			int tempSens = mouseSensitivity;
 			return tempSens;
 		}
 	private:
@@ -186,7 +188,7 @@ namespace sds
 		/// sensitivity function.</returns>
 		LONG NormalizeAxis( LONG x )
 		{
-			int t_sens = SENSITIVITY;
+			int t_sens = mouseSensitivity;
 
 			if( x > 0 )
 			{
@@ -232,16 +234,14 @@ namespace sds
 		}
 
 		/// <summary>
-		/// Sensitivity function is the graph of x*x/SENSITIVITY + 1
+		/// Sensitivity function is the graph of x*x/mouseSensitivity + 1
 		/// returns a sensitivity normalized value; or 1 if the result is 0
 		/// </summary>
 		/// <param name="x">normalized value to adjust for sensitivity</param>
 		/// <returns> a sensitivity normalized value or 1 if the result is 0</returns>
 		size_t getFunctionalValue(size_t x)
 		{
-			//x = static_cast<size_t>(4*x / SENSITIVITY +1);
-			x = static_cast<size_t>((x * x) / SENSITIVITY + 1);
-			//x = (size_t)ceil(((1.0/8.0)*pow((double)x,2))/2.0);
+			x = static_cast<size_t>((x * x) / mouseSensitivity + 1);
 			return (x == 0) ? 1 : x;
 		}
 
