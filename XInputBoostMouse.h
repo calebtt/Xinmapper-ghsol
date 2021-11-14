@@ -203,8 +203,7 @@ namespace sds
 			ThumbstickToMovement mover(this->mouseSensitivity, dzz, this->altDeadzoneMultiplier);
 			std::vector<std::tuple<int, int>> inputList;
 			SHORT tx, ty;
-			std::chrono::time_point< std::chrono::system_clock > now = std::chrono::system_clock::now();
-			auto duration = now.time_since_epoch();
+
 			while(!isStopRequested)//<--Danger! From the base class.
 			{
 
