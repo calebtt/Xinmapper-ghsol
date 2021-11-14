@@ -353,37 +353,36 @@ namespace XNMTest
 			};
 
 			//test lambda calls
-			//inputBuf = mover.GetFinalInput(SMax, SMax);
-			//assertTheSize();
-			//testInputBuf(true, false, false, false, "[1]");
-			//testBothNotZero("[2]");
+			inputBuf = mover.GetFinalInput(SMax, SMax);
+			assertTheSize();
+			testInputBuf(true, false, false, false, "[1]");
+			testBothNotZero("[2]");
 
-			//inputBuf = mover.GetFinalInput(SMin, SMin);
-			//assertTheSize();
-			//testInputBuf(false, true, false, false, "[3]");
-			//testBothNotZero("[4]");
+			inputBuf = mover.GetFinalInput(SMin, SMin);
+			assertTheSize();
+			testInputBuf(false, true, false, false, "[3]");
+			testBothNotZero("[4]");
 
-			//inputBuf = mover.GetFinalInput(SMin, SMax);
-			//assertTheSize();
-			//testInputBuf(false, false, false, false, "[5]");
-			//testBothNotZero("[6]");
+			inputBuf = mover.GetFinalInput(SMin, SMax);
+			assertTheSize();
+			testInputBuf(false, false, false, false, "[5]");
+			testBothNotZero("[6]");
 
-			//inputBuf = mover.GetFinalInput(SMax, SMin);
-			//assertTheSize();
-			//testInputBuf(true, true, false, false, "[7]");
-			//testBothNotZero("[8]");
+			inputBuf = mover.GetFinalInput(SMax, SMin);
+			assertTheSize();
+			testInputBuf(true, true, false, false, "[7]");
+			testBothNotZero("[8]");
 
 			//test many in a loop
 			Logger::WriteMessage("Starting loop testing.");
-			//for (int i = SMax, j = SMin; i > 0 && j < SMax; i--, j++)
-			//{
-			//	std::string curVal = "[TestGetFinalInput]:[9]= ";
-			//	curVal += std::to_string(i) + " : " + std::to_string(j);
-			//	inputBuf = mover.GetFinalInput(i, j);
-			//	testInputBuf(true, true, false, false, curVal);
-			//}
-				//inputBuf = mover.GetFinalInput(24753, -24754);
-			inputBuf = mover.GetFinalInput(32488, -32489);
+			for (int i = SMax, j = SMin; i > 0 && j < SMax; i--, j++)
+			{
+				std::string curVal = "[TestGetFinalInput]:[9]= ";
+				curVal += std::to_string(i) + " : " + std::to_string(j);
+				inputBuf = mover.GetFinalInput(i, j);
+				testInputBuf(true, true, true, true, curVal);
+			}
+
 			Logger::WriteMessage("Finished loop testing.");
 			Logger::WriteMessage("End TestGetFinalInput()");
 		}
