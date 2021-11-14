@@ -13,7 +13,7 @@ namespace sds
 	/// </summary>
 	class InputPoller : public CPPThreadRunner<XINPUT_STATE>
 	{
-		const int THREAD_DELAY = 10;
+		const int THREAD_DELAY = 4; //4ms
 		Mapper *m;
 		XInputTranslater *t;
 		XInputBoostMouse *mse;
@@ -34,7 +34,8 @@ namespace sds
 			}
 
 			while( ! this->isStopRequested )
-			{
+			{	
+
 				{
 					lock l2(this->stateMutex);
 					DWORD error = XInputGetState(sds::sdsPlayerOne.player_id, &local_state);
@@ -46,8 +47,7 @@ namespace sds
 
 				mse->ProcessState(this->getCurrentState());
 				m->ProcessActionDetails(t->ProcessState(this->getCurrentState()));
-				//mse->ProcessState(local_state);
-				//m->ProcessActionDetails( t->ProcessState(local_state) );
+
 				Sleep(THREAD_DELAY);
 			}
 			this->isThreadRunning = false;

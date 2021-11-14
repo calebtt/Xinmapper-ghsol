@@ -34,8 +34,9 @@ int _tmain(int argc, _TCHAR* argv[])
 	{
 		return errInfo("Error in setting the mouse sensitivity. Exiting.\n" + err, 2);
 	}
-	gamepadUser.mouse->EnableProcessing(XInputBoostMouse::MouseMap::RIGHT_STICK);
+	gamepadUser.mouse->EnableProcessing(MouseMap::RIGHT_STICK);
 	gamepadUser.mouse->SetUseAltDeadzone(true);
+	gamepadUser.mouse->SetAltDeadzoneMultiplier(0.1f);
 	
 	std::cout << "Xbox 360 controller polling started..." << std::endl;
 	std::cout << "Controller reported as: " << (gamepadUser.poller->IsControllerConnected() ? "Connected." : "Disconnected.") << std::endl;

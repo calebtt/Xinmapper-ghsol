@@ -41,6 +41,29 @@ namespace sds
 			//Finally, send the input
 			SendInput(1, &mouseMoveInput, sizeof(INPUT));
 		}
+
+		/// <summary>
+		/// Sends mouse movement specified by vector of tuple(int,int) X and Y number of pixels to move.
+		/// </summary>
+		void SendMouseMove(const std::vector<std::tuple<int,int>> &t)
+		{
+			std::vector<INPUT> inputVec;
+			std::for_each(t.cbegin(), t.cend(), [&inputVec](const std::tuple<int, int> &t)
+				{
+					INPUT i;
+					memset(&i, 0, sizeof(INPUT));
+					i.type = INPUT_MOUSE;
+					i.mi.dwFlags = MOUSEEVENTF_MOVE;
+					i.mi.dx = static_cast<LONG>(std::get<0>(t));
+					i.mi.dy = static_cast<LONG>(std::get<1>(t));
+					i.mi.dwExtraInfo = GetMessageExtraInfo();
+					inputVec.push_back(i);
+				});
+
+			//Finally, send the input
+			SendInput(inputVec.size(), inputVec.data(), sizeof(INPUT));
+		}
+
 		/// <summary>
 		/// Sends input, if a VK Virtual Keycode of 0 is used, it is assumed to
 		/// be mouse input, and keyboard input otherwise.

@@ -23,5 +23,23 @@ namespace sds
 			left_trigger_dz(XINPUT_GAMEPAD_TRIGGER_THRESHOLD),
 			right_trigger_dz(XINPUT_GAMEPAD_TRIGGER_THRESHOLD)
 		{}
+		PlayerInfo &operator=(const PlayerInfo &sp)
+		{
+			//temporary copies must be made to copy atomic to atomic
+			int ldz, rdz, ltdz, rtdz, pid;
+			ldz = sp.left_dz;
+			rdz = sp.right_dz;
+			ltdz = sp.left_trigger_dz;
+			rtdz = sp.right_trigger_dz;
+			pid = sp.player_id;
+			
+			left_dz = ldz;
+			right_dz = rdz;
+			left_trigger_dz = ltdz;
+			right_trigger_dz = rtdz;
+			player_id = pid;
+
+			return *this;
+		}
 	};
 }

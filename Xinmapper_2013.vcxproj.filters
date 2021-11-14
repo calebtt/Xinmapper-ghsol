@@ -54,6 +54,12 @@
     <ClInclude Include="ButtonStateDown.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ThumbstickToMovement.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MouseMap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

@@ -17,6 +17,7 @@ Also need sensitivity for both X and Y axis.
 #pragma once
 #include "stdafx.h"
 #include "CPPThreadRunner.h"
+#include "ThumbstickToMovement.h"
 
 namespace sds
 {
@@ -31,37 +32,47 @@ namespace sds
 	/// </summary>
 	class XInputBoostMouse : public CPPThreadRunner<XINPUT_STATE>
 	{
-	public:
-		enum class MouseMap : int
-		{
-			NEITHER_STICK,
-			RIGHT_STICK,
-			LEFT_STICK
-		};
-
 	private:
-		SendKey keySend;
 		std::atomic<MouseMap> stickMapInfo;
 		std::atomic<SHORT> threadX, threadY;
-		std::atomic<LONG> step;
 		std::atomic<int> mouseSensitivity;
 		std::atomic<bool> isDeadzoneActivated;
 		std::atomic<bool> altDeadzoneConfig;
 		std::atomic<float> altDeadzoneMultiplier;
 
-		const int MOVE_THREAD_SLEEP = 10;//10 ms
+		int playerLeftDeadzone;
+		int playerRightDeadzone;
+
+		const int MOVE_THREAD_SLEEP = 4;//4 ms
+		const int MOVE_THREAD_SLEEP_MOVE = 2;//2 ms
 		const int SENSITIVITY_MIN = 0;
 		const int SENSITIVITY_MAX = 100;
+		const float MULTIPLIER_MIN = 0.01f;
+		const float MULTIPLIER_MAX = 1.0F;
 	public:
 		/// <summary>
 		/// Ctor Initializes some configuration variables like the alternate deadzone config multiplier
 		/// </summary>
-		XInputBoostMouse() 
+		XInputBoostMouse()
+			: CPPThreadRunner(),
+			mouseSensitivity(30),
+			stickMapInfo(MouseMap::NEITHER_STICK),
+			isDeadzoneActivated(false), altDeadzoneConfig(true), altDeadzoneMultiplier(0.5f),
+			playerLeftDeadzone(sds::sdsPlayerOne.left_dz), playerRightDeadzone(sds::sdsPlayerOne.right_dz)
+		{
+		}
+		/// <summary>
+		/// Ctor Initializes some configuration variables like the alternate deadzone config multiplier
+		/// and allows setting a custom PlayerInfo
+		/// </summary>
+		XInputBoostMouse(const sds::PlayerInfo &player)
 			: CPPThreadRunner(),
 			mouseSensitivity(30),
 			stickMapInfo(MouseMap::NEITHER_STICK),
 			isDeadzoneActivated(false), altDeadzoneConfig(true), altDeadzoneMultiplier(0.5f)
 		{
+			playerLeftDeadzone = player.left_dz;
+			playerRightDeadzone = player.right_dz;
 		}
 		~XInputBoostMouse()
 		{ 
@@ -103,7 +114,10 @@ namespace sds
 			threadX = tsx;
 			threadY = tsy;
 
-			if( doesRequireMove(tsx,tsy) )
+			int tdz = stickMapInfo == MouseMap::RIGHT_STICK ? sdsPlayerOne.right_dz : sdsPlayerOne.left_dz;
+			ThumbstickToMovement moveDetermine(this->mouseSensitivity, tdz, this->altDeadzoneMultiplier);
+
+			if( moveDetermine.DoesRequireMove(tsx,tsy) )
 			{
 				//update state.
 				this->updateState(state);
@@ -139,7 +153,7 @@ namespace sds
 		/// <returns></returns>
 		std::string SetAltDeadzoneMultiplier(float newValue)
 		{
-			if (newValue > 1.0f || newValue <= 0.0f)
+			if (newValue > MULTIPLIER_MAX|| newValue < MULTIPLIER_MIN)
 				return "Failed to set new deadzone value, out of range.";
 			altDeadzoneMultiplier = newValue;
 			return "";
@@ -179,204 +193,39 @@ namespace sds
 		}
 	private:
 		/// <summary>
-		/// Determines if the X or Y values are greater than the deadzone values and would
-		/// thus require movement from the mouse.
-		/// </summary>
-		/// <param name="x">X value</param>
-		/// <param name="y">Y value</param>
-		/// <returns>true if requires moving the mouse, false otherwise</returns>
-		bool doesRequireMove(int x, int y)
-		{
-			if (stickMapInfo == MouseMap::NEITHER_STICK)
-				return false;
-
-			int DEADZONE = stickMapInfo == MouseMap::LEFT_STICK ? sds::sdsPlayerOne.left_dz : sds::sdsPlayerOne.right_dz;
-			bool xMove = (x > DEADZONE || x < -DEADZONE);
-			bool yMove = (y > DEADZONE || y < -DEADZONE);
-
-			if (!xMove && !yMove)
-			{
-				isDeadzoneActivated = false;
-				return false;
-			}
-			else
-			{
-				isDeadzoneActivated = true;
-				return true;
-			}
-		}
-
-		/// <summary>
 		/// Worker thread, private visibility, gets updated data from ProcessState() function to use.
 		/// Accesses the std::atomic threadX and threadY members.
 		/// </summary>
 		virtual void workThread()
 		{
+			SendKey keySend;
+			int dzz = this->stickMapInfo == MouseMap::RIGHT_STICK ? sdsPlayerOne.right_dz : sdsPlayerOne.left_dz;
+			ThumbstickToMovement mover(this->mouseSensitivity, dzz, this->altDeadzoneMultiplier);
+			std::vector<std::tuple<int, int>> inputList;
 			SHORT tx, ty;
+			std::chrono::time_point< std::chrono::system_clock > now = std::chrono::system_clock::now();
+			auto duration = now.time_since_epoch();
 			while(!isStopRequested)//<--Danger! From the base class.
 			{
+
 				//attempt do input.
 				tx = threadX;
 				ty = threadY;
-				doInput(tx, ty);
-
-				Sleep(MOVE_THREAD_SLEEP);
+				if (mover.DoesRequireMove(tx, ty))
+				{
+					inputList = mover.GetFinalInput(tx, ty);
+					keySend.SendMouseMove(inputList);
+					Sleep(MOVE_THREAD_SLEEP_MOVE);
+				}
+				else
+				{
+					Sleep(MOVE_THREAD_SLEEP);
+				}
 			}
 		
 			//mark thread status as not running.
 			isThreadRunning = false;
 		}
-
-		/// <summary>
-		/// Normalize a thumbstick value to eventually be translated into a number
-		/// of pixels to move the mouse.
-		/// </summary>
-		/// <param name="x"></param>
-		/// <returns>An adjusted number of pixels to move, to be used with the getFunctionalValue
-		/// sensitivity function.</returns>
-		LONG NormalizeAxis( LONG x )
-		{
-			int t_sens = mouseSensitivity;
-
-			if( x > 0 )
-			{
-				if (this->stickMapInfo == MouseMap::LEFT_STICK)
-				{
-					if (this->altDeadzoneConfig && this->isDeadzoneActivated)
-						x -= static_cast<LONG>(sdsPlayerOne.left_dz * altDeadzoneMultiplier);
-					else
-						x -= sdsPlayerOne.left_dz;
-
-					x = NormalizeRange(0, std::numeric_limits<SHORT>::max(),
-						static_cast<LONG>(t_sens), x);
-				}
-				else
-				{
-					if (this->altDeadzoneConfig && this->isDeadzoneActivated)
-						x -= static_cast<LONG>(sdsPlayerOne.right_dz * altDeadzoneMultiplier);
-					else
-						x -= sdsPlayerOne.right_dz;
-					
-					x = NormalizeRange(0, std::numeric_limits<SHORT>::max(),
-						static_cast<LONG>(t_sens), x);
-				}
-			}
-			else
-			{
-				if (this->stickMapInfo == MouseMap::LEFT_STICK)
-				{
-					if (this->altDeadzoneConfig && this->isDeadzoneActivated)
-						x += static_cast<LONG>(sdsPlayerOne.left_dz * altDeadzoneMultiplier);
-					else
-						x += sdsPlayerOne.left_dz;
-					x = -NormalizeRange(0, std::numeric_limits<SHORT>::max(),
-						static_cast<LONG>(t_sens), -x);
-				}
-				else
-				{
-					if (this->altDeadzoneConfig && this->isDeadzoneActivated)
-						x += static_cast<LONG>(sdsPlayerOne.right_dz * altDeadzoneMultiplier);
-					else
-						x += sdsPlayerOne.right_dz;
-					x = -NormalizeRange(0, std::numeric_limits<SHORT>::max(),
-						static_cast<LONG>(t_sens), -x);
-				}
-			}
-			return x;
-		}
-		 
-		/// <summary>
-		/// WARNING: Function only works with positive values!
-		/// If you need a negative value, pass a positive value and negate the result.
-		/// This function takes two range values (begin, end) and a sensitivity value (rp),
-		/// it also accepts the current value that the thumbstick is reporting (val) minus the deadzone value.
-		/// It returns a sensitivity "normalized" value that is eventually translated into the number of
-		/// pixels to move the mouse pointer after a "functional value" is obtained via "getFunctionalValue".
-		/// </summary>
-		/// <param name="begin"> is the range begin</param>
-		/// <param name="end"> is the range end</param>
-		/// <param name="rp"> is the sensitivity value to use in the calculation</param>
-		/// <param name="val"> is the thumbstick value</param>
-		/// <returns> a value which becomes a number of pixels to move, based on the sensitivity</returns>
-		LONG NormalizeRange( LONG begin, LONG end, LONG rp, LONG val )
-		{
-			step = (end-begin)/rp;
-			for(LONG i = begin,j=1; i <= end; i+=step,++j)
-			{
-				if( val >= i && val < i+step )
-				{
-					if(val == end)
-						return j-1;
-					return j;
-				}
-			}
-			return 0;
-		}
-
-		/// <summary>
-		/// Sensitivity function is the graph of x*x/mouseSensitivity + 1
-		/// returns a sensitivity normalized value; or 1 if the result is 0
-		/// </summary>
-		/// <param name="x">normalized value to adjust for sensitivity</param>
-		/// <returns> a sensitivity normalized value or 1 if the result is 0</returns>
-		size_t getFunctionalValue(size_t x) const
-		{
-			x = static_cast<size_t>((x * x) / mouseSensitivity + 1);
-			return (x == 0) ? 1 : x;
-		}
-
-		/// <summary>
-		/// Runs through the gamut of utility functions to get the number of pixels to move
-		/// before moving the mouse.
-		/// </summary>
-		/// <param name="x"></param>
-		/// <param name="y"></param>
-		void doInput(LONG x, LONG y)
-		{
-			//NormalizeAxis will subtract (or add) the deadzone value from the numbers.
-			LONG x_value = NormalizeAxis(x);
-			LONG y_value = 0;
-
-			//Have to be careful inverting signs,
-			//can overflow easily!
-			if( y <= std::numeric_limits<SHORT>::min() )
-			{
-				y = std::numeric_limits<SHORT>::min() + 1;
-			}
-
-			//here y is inverted, to invert the y axis.
-			//this is because the coordinate plane for pixels starts at the top-left on windows
-			y_value = NormalizeAxis(-y);
-
-			if( x_value != 0 )
-			{
-				if( x_value > 0 )
-				{
-					x_value = getFunctionalValue(x_value);
-				}
-				else
-				{
-					x_value = -(LONG)getFunctionalValue(abs(x_value));
-				}
-			}
-
-			if( y_value != 0 )
-			{
-				if( y_value > 0 )
-				{
-					y_value = getFunctionalValue(y_value);
-				}
-				else
-				{
-					y_value = -(LONG)getFunctionalValue(abs(y_value));
-				}
-			}
-
-			//Finally, send the input
-			keySend.SendMouseMove(x_value, y_value);
-		}
-
-
 
 	};
 }

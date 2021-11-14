@@ -95,11 +95,13 @@
     <ClInclude Include="Globals.h" />
     <ClInclude Include="InputPoller.h" />
     <ClInclude Include="Mapper.h" />
+    <ClInclude Include="MouseMap.h" />
     <ClInclude Include="MultiBool.h" />
     <ClInclude Include="PlayerInfo.h" />
     <ClInclude Include="SendKey.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="ButtonStateDown.h" />
+    <ClInclude Include="ThumbstickToMovement.h" />
     <ClInclude Include="XInputBoostMouse.h" />
     <ClInclude Include="XInputTranslater.h" />
   </ItemGroup>

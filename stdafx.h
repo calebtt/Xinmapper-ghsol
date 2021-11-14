@@ -40,10 +40,13 @@
 #include <tuple>
 #include <locale>
 #include <format>
+#include <chrono>
 
 
 
 // Include some commonly used global stuff.
 #include "ActionDescriptors.h"
 #include "Globals.h"
+#include "MouseMap.h"
+#include "PlayerInfo.h"
 //#include "SendKey.h"
