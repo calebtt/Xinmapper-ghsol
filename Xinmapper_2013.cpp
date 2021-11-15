@@ -29,14 +29,15 @@ int _tmain(int argc, _TCHAR* argv[])
 		//Error in setting the map information.
 		return errInfo("Error in setting the map information. Exiting.\n" + err, 1);
 	}
-	err = gamepadUser.mouse->SetSensitivity(35);
+	err = gamepadUser.mouse->SetSensitivity(5);
 	if (err.size())
 	{
 		return errInfo("Error in setting the mouse sensitivity. Exiting.\n" + err, 2);
 	}
 	gamepadUser.mouse->EnableProcessing(MouseMap::RIGHT_STICK);
-	gamepadUser.mouse->SetUseAltDeadzone(true);
+	gamepadUser.mouse->SetUseAltDeadzone(false);
 	gamepadUser.mouse->SetAltDeadzoneMultiplier(0.1f);
+	sdsPlayerOne.right_dz = XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE;
 	
 	std::cout << "Xbox 360 controller polling started..." << std::endl;
 	std::cout << "Controller reported as: " << (gamepadUser.poller->IsControllerConnected() ? "Connected." : "Disconnected.") << std::endl;

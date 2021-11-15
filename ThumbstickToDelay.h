@@ -5,10 +5,10 @@
 namespace sds
 {
 	/// <summary>
-	/// Basic logic for mapping thumbstick values to SendInput mouse movement values.
-	/// A single instance for a single thumbstick is to be used.
+	/// Basic logic for mapping thumbstick values to work thread delay values.
+	/// A single instance for a single thumbstick axis is to be used.
 	/// </summary>
-	class ThumbstickToMovement
+	class ThumbstickToDelay
 	{
 		bool isDeadzoneActivated;
 		bool altDeadzoneConfig;
@@ -19,20 +19,21 @@ namespace sds
 
 		const int SENSITIVITY_MIN = 0;
 		const int SENSITIVITY_MAX = 100;
-		const int MOUSE_SMOOTHING = 2;//2
+		const int MICROSECONDS_MIN = 1;
+		const int MICROSECONDS_MAX = 8000;
 
 	public:
 		//Ctor for not using the alternate deadzone configuration
-		ThumbstickToMovement(int sensitivityMouse, int deadzone)
+		ThumbstickToDelay(int sensitivityMouse, int deadzone)
 			: mouseSensitivity(sensitivityMouse), playerDeadzone(deadzone), altDeadzoneConfig(false), altDeadzoneMultiplier(1.0f), isDeadzoneActivated(false)
 		{
 		}
 
 		//Ctor for using the alternate deadzone configuration
-		ThumbstickToMovement(int sensitivityMouse, int deadzone, float multiplier)
-			: mouseSensitivity(sensitivityMouse), playerDeadzone(deadzone), altDeadzoneConfig(false), altDeadzoneMultiplier(multiplier), isDeadzoneActivated(false)
-		{
-		}
+		//ThumbstickToDelay(int sensitivityMouse, int deadzone, float multiplier)
+		//	: mouseSensitivity(sensitivityMouse), playerDeadzone(deadzone), altDeadzoneConfig(false), altDeadzoneMultiplier(multiplier), isDeadzoneActivated(false)
+		//{
+		//}
 
 		/// <summary>
 		/// Determines if the X or Y values are greater than the deadzone values and would
@@ -116,10 +117,10 @@ namespace sds
 				if (x != 0)
 				{
 					if (x > std::numeric_limits<SHORT>::max())
-						x = static_cast<long long>(std::numeric_limits<SHORT>::max())-1;
+						x = static_cast<long long>(std::numeric_limits<SHORT>::max()) - 1;
 					x = NormalizeRange(0, std::numeric_limits<SHORT>::max() - 1, static_cast<LONG>(t_sens), reduceToLongLimit(x));
 				}
-				
+
 			}
 			else if (x < 0)
 			{
@@ -127,14 +128,25 @@ namespace sds
 				if (x != 0)
 				{
 					if (x < std::numeric_limits<SHORT>::min())
-						x = static_cast<long long>(std::numeric_limits<SHORT>::min())+1;
+						x = static_cast<long long>(std::numeric_limits<SHORT>::min()) + 1;
 					x = -static_cast<long long>(NormalizeRange(0, std::numeric_limits<SHORT>::max() - 1, static_cast<LONG>(t_sens), -reduceToLongLimit(x)));
 				}
-				
+
 			}
 			return static_cast<LONG>(x);
 		}
 
+		/// <summary>
+		/// Main function for use
+		/// </summary>
+		/// <param name="x"></param>
+		/// <param name="y"></param>
+		/// <returns></returns>
+		size_t GetDelayFromThumbstickValues(int x, int y)
+		{
+			long long curVal = NormalizeRange(MICROSECONDS_MIN, MICROSECONDS_MAX, mouseSensitivity, x);
+			return 0;
+		}
 		/// <summary>
 		/// WARNING: Function only works with positive values!
 		/// If you need a negative value, pass a positive value and negate the result.
@@ -176,131 +188,6 @@ namespace sds
 			x = static_cast<size_t>((x * x) / mouseSensitivity + 1);
 			return (x == 0) ? 1 : x;
 		}
-
-		/// <summary>
-		/// Runs through the gamut of utility functions to get the number of pixels to move
-		/// before moving the mouse.
-		/// </summary>
-		/// <param name="x"></param>
-		/// <param name="y"></param>
-		std::vector<std::tuple<int,int>> GetFinalInput(LONG x, LONG y)
-		{
-			//NormalizeAxis will subtract (or add) the deadzone value from the numbers.
-			long long x_value = NormalizeAxis(x);
-			long long y_value = 0;
-
-			//Have to be careful inverting signs,
-			//can overflow easily!
-			if (y <= std::numeric_limits<SHORT>::min())
-			{
-				y = std::numeric_limits<SHORT>::min() + 1;
-			}
-
-			//here y is inverted, to invert the y axis.
-			//this is because the coordinate plane for pixels starts at the top-left on windows
-			y_value = -NormalizeAxis(y);
-
-			if (x_value != 0)
-			{
-				if (x_value > 0)
-				{
-					x_value = getFunctionalValue(x_value);
-				}
-				else
-				{
-					x_value = -(LONG)getFunctionalValue(abs(x_value));
-				}
-			}
-
-			if (y_value != 0)
-			{
-				if (y_value > 0)
-				{
-					y_value = getFunctionalValue(y_value);
-				}
-				else
-				{
-					y_value = -(LONG)getFunctionalValue(abs(y_value));
-				}
-			}
-
-			return GetPackagedInput(x_value, y_value);
-		}
-
-		std::vector<std::tuple<int,int>> GetPackagedInput(LONG x, LONG y)
-		{
-			std::vector<std::tuple<int, int>> ret;
-			int abX = std::abs(x);
-			int abY = std::abs(y);
-
-			bool xGood = (abX <= MOUSE_SMOOTHING);
-			bool yGood = (abY <= MOUSE_SMOOTHING);
-			if(xGood && yGood)
-			{
-				ret.push_back(std::make_tuple(x, y));
-				return ret;
-			}
-
-			int countX = abX / MOUSE_SMOOTHING;
-			int countY = abY / MOUSE_SMOOTHING;
-			//int remainX = x % MOUSE_SMOOTHING;
-			//int remainY = y % MOUSE_SMOOTHING;
-			int remainX = 0;
-			int remainY = 0;
-			if (abX > MOUSE_SMOOTHING)
-				remainX = x % MOUSE_SMOOTHING;
-			else
-				remainX = x;
-			if (abY > MOUSE_SMOOTHING)
-				remainY = y % MOUSE_SMOOTHING;
-			else
-				remainY = y;
-
-			//send smooth step amounts for x and y at the same time
-			while ((countX > 0) && (countY > 0))
-			{
-				int xv = x > 0 ? MOUSE_SMOOTHING : -MOUSE_SMOOTHING;
-				int yv = y > 0 ? MOUSE_SMOOTHING : -MOUSE_SMOOTHING;
-				ret.push_back(std::make_tuple(xv, yv));
-				countX--;
-				countY--;
-			}
-			//one or the other is now zero
-			while (countX > 0)
-			{
-				if (x > 0)
-				{
-					ret.push_back(std::make_tuple(MOUSE_SMOOTHING, remainY));
-					remainY = 0;
-				}
-				else
-				{
-					ret.push_back(std::make_tuple(-MOUSE_SMOOTHING, remainY));
-					remainY = 0;
-				}
-				countX--;
-			}
-			while (countY > 0)
-			{
-				if (y > 0)
-				{
-					ret.push_back(std::make_tuple(remainX, MOUSE_SMOOTHING));
-					remainX = 0;
-				}
-				else
-				{
-					ret.push_back(std::make_tuple(remainX, -MOUSE_SMOOTHING));
-					remainX = 0;
-				}
-				countY--;
-			}
-			if (remainX || remainY)
-			{
-				ret.push_back(std::make_tuple(remainX, remainY));
-			}
-			return ret;
-		}
-
 	};
 }
 

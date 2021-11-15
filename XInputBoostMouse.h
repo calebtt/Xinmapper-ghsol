@@ -18,6 +18,7 @@ Also need sensitivity for both X and Y axis.
 #include "stdafx.h"
 #include "CPPThreadRunner.h"
 #include "ThumbstickToMovement.h"
+#include "ThumbstickAxisThread.h"
 
 namespace sds
 {
@@ -45,6 +46,8 @@ namespace sds
 
 		const int MOVE_THREAD_SLEEP = 4;//4 ms
 		const int MOVE_THREAD_SLEEP_MOVE = 2;//2 ms
+		const int MOVE_THREAD_SLEEP_MICRO = 4000; //4000 microseconds
+		//const int MOVE_THREAD_SLEEP_MICRO = 4000000;
 		const int SENSITIVITY_MIN = 0;
 		const int SENSITIVITY_MAX = 100;
 		const float MULTIPLIER_MIN = 0.01f;
@@ -73,6 +76,8 @@ namespace sds
 		{
 			playerLeftDeadzone = player.left_dz;
 			playerRightDeadzone = player.right_dz;
+			threadX = 0;
+			threadY = 0;
 		}
 		~XInputBoostMouse()
 		{ 
@@ -156,6 +161,8 @@ namespace sds
 			if (newValue > MULTIPLIER_MAX|| newValue < MULTIPLIER_MIN)
 				return "Failed to set new deadzone value, out of range.";
 			altDeadzoneMultiplier = newValue;
+			this->stopThread();
+			this->startThread();
 			return "";
 		}
 
@@ -169,7 +176,7 @@ namespace sds
 			return r;
 		}
 		/// <summary>
-		/// Setter for sensitivity value
+		/// Setter for sensitivity value, blocks while work thread stops and restarts.
 		/// </summary>
 		/// <param name="new_sens"></param>
 		/// <returns> returns a std::string containing an error message
@@ -181,6 +188,8 @@ namespace sds
 				return "Error in sds::XInputBoostMouse::SetSensitivity(), int new_sens less than or equal to 0 or greater than 100.";
 			}
 			mouseSensitivity = new_sens;
+			this->stopThread();
+			this->startThread();
 			return "";
 		}
 		/// <summary>
@@ -198,28 +207,17 @@ namespace sds
 		/// </summary>
 		virtual void workThread()
 		{
-			SendKey keySend;
-			int dzz = this->stickMapInfo == MouseMap::RIGHT_STICK ? sdsPlayerOne.right_dz : sdsPlayerOne.left_dz;
-			ThumbstickToMovement mover(this->mouseSensitivity, dzz, this->altDeadzoneMultiplier);
-			std::vector<std::tuple<int, int>> inputList;
-			SHORT tx, ty;
-
+			int dzz = this->stickMapInfo == MouseMap::RIGHT_STICK ? this->playerRightDeadzone : this->playerLeftDeadzone;
+			ThumbstickAxisThread xThread(dzz, this->GetSensitivity(), true, false);
+			ThumbstickAxisThread yThread(dzz, this->GetSensitivity(), false, true);
+			//thread main loop
 			while(!isStopRequested)//<--Danger! From the base class.
 			{
-
-				//attempt do input.
-				tx = threadX;
-				ty = threadY;
-				if (mover.DoesRequireMove(tx, ty))
-				{
-					inputList = mover.GetFinalInput(tx, ty);
-					keySend.SendMouseMove(inputList);
-					Sleep(MOVE_THREAD_SLEEP_MOVE);
-				}
-				else
-				{
-					Sleep(MOVE_THREAD_SLEEP);
-				}
+				//delegate values to separate threads
+				xThread.ProcessState(threadX);
+				yThread.ProcessState(threadY);
+				
+				std::this_thread::sleep_for(std::chrono::microseconds(MOVE_THREAD_SLEEP_MICRO));
 			}
 		
 			//mark thread status as not running.

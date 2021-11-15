@@ -13,7 +13,7 @@ namespace sds
 	/// </summary>
 	class InputPoller : public CPPThreadRunner<XINPUT_STATE>
 	{
-		const int THREAD_DELAY = 4; //4ms
+		const int THREAD_DELAY = 10; //10ms
 		Mapper *m;
 		XInputTranslater *t;
 		XInputBoostMouse *mse;
