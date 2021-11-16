@@ -13,10 +13,10 @@ namespace sds
     class ThumbstickAxisThread :
         public CPPThreadRunner<int>
     {
-        inline static std::mutex sendkeyMutex;
-        const int PIXELS_MAGNITUDE = 1;
-        const int PIXELS_NOMOVE = 0;
-        const int THREAD_DELAY = 1500;
+        inline static std::mutex m_sendKeyMutex;
+        const int PIXELS_MAGNITUDE = 1; //1
+        const int PIXELS_NOMOVE = 0; //0
+        const int THREAD_DELAY = 1500; //1500 microseconds
         std::atomic<int> m_sensitivity;
         std::atomic<int> m_deadzone;
         std::atomic<int> m_localstate;
@@ -141,7 +141,7 @@ namespace sds
                             //in that it should alternate between the two instances when required. Without this, a single thread
                             //will "run-away" and send many inputs at once before switching back to the other thread.
                             {
-                                lock l(sendkeyMutex);
+                                lock l(m_sendKeyMutex);
                                 keySend.SendMouseMove(movexval, moveyval);
                                 lastMoved = true;
                                 delayValue = std::chrono::microseconds(thumbDelay->GetDelayFromThumbstickValue(m_localstate)).count();
@@ -154,7 +154,7 @@ namespace sds
                 else if(m_moveDetermine->DoesRequireMove(testxval, testyval) && timeSpan.count() > delayValue)
                 {
                     {
-                        lock l(sendkeyMutex);
+                        lock l(m_sendKeyMutex);
                         keySend.SendMouseMove(movexval, moveyval);
                         lastMoved = true;
                         delayValue = std::chrono::microseconds(thumbDelay->GetDelayFromThumbstickValue(m_localstate)).count();
