@@ -20,9 +20,8 @@ namespace sds
         std::atomic<int> m_sensitivity;
         std::atomic<int> m_deadzone;
         std::atomic<int> m_localstate;
-        //bool m_isInverted; // is axis value translation inverted
-		bool m_isX; // x or y axis
-		std::shared_ptr<ThumbstickToDelay> m_moveDetermine;
+        bool m_isX; // x or y axis
+        std::shared_ptr<ThumbstickToDelay> m_moveDetermine;
     public:
         ThumbstickAxisThread(int deadzone, int sensitivity, bool isX)
             : CPPThreadRunner<int>(), m_deadzone(deadzone), m_sensitivity(sensitivity), m_isX(isX)
