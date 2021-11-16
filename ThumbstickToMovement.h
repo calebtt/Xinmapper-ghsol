@@ -204,11 +204,11 @@ namespace sds
 			{
 				if (x_value > 0)
 				{
-					x_value = getFunctionalValue(x_value);
+					x_value = getFunctionalValue(static_cast<size_t>(x_value));
 				}
 				else
 				{
-					x_value = -(LONG)getFunctionalValue(abs(x_value));
+					x_value = -(LONG)getFunctionalValue(static_cast<size_t>(abs(x_value)));
 				}
 			}
 
@@ -216,15 +216,15 @@ namespace sds
 			{
 				if (y_value > 0)
 				{
-					y_value = getFunctionalValue(y_value);
+					y_value = getFunctionalValue(static_cast<size_t>(y_value));
 				}
 				else
 				{
-					y_value = -(LONG)getFunctionalValue(abs(y_value));
+					y_value = -(LONG)getFunctionalValue(static_cast<size_t>(abs(y_value)));
 				}
 			}
 
-			return GetPackagedInput(x_value, y_value);
+			return GetPackagedInput((LONG)x_value, (LONG)y_value);
 		}
 
 		std::vector<std::tuple<int,int>> GetPackagedInput(LONG x, LONG y)

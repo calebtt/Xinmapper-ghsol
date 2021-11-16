@@ -19,8 +19,8 @@ namespace sds
 
 		const int SENSITIVITY_MIN = 0;
 		const int SENSITIVITY_MAX = 100;
-		const int MICROSECONDS_MIN = 1;
-		const int MICROSECONDS_MAX = 8000;
+		const int MICROSECONDS_MIN = 1; //1 microsecond min
+		const int MICROSECONDS_MAX = 8000; //8000 microsecond max
 
 	public:
 		//Ctor for not using the alternate deadzone configuration
@@ -139,13 +139,35 @@ namespace sds
 		/// <summary>
 		/// Main function for use
 		/// </summary>
-		/// <param name="x"></param>
-		/// <param name="y"></param>
 		/// <returns></returns>
-		size_t GetDelayFromThumbstickValues(int x, int y)
+		size_t GetDelayFromThumbstickValue(int val)
 		{
-			long long curVal = NormalizeRange(MICROSECONDS_MIN, MICROSECONDS_MAX, mouseSensitivity, x);
-			return 0;
+			//TODO return appropriate delay values
+			return 1000;
+			long long curVal = 0;
+			if(val > 0)
+				curVal = NormalizeRange(MICROSECONDS_MIN, MICROSECONDS_MAX, mouseSensitivity, val);
+			else if(val < 0)
+				curVal = -NormalizeRange(MICROSECONDS_MIN, MICROSECONDS_MAX, mouseSensitivity, -val);
+			return static_cast<size_t>(curVal);
+		}
+		/// <summary>
+		/// Main function for use, uses information from the other axis
+		/// to generate the delay for the current axis.
+		/// </summary>
+		/// <returns></returns>
+		size_t GetDelayFromThumbstickValues(int currentAxisVal, int otherAxisVal)
+		{
+			//TODO return appropriate delay values with information from the other axis
+			return 1000;
+			long long curVal = 0;
+			unsigned long long magnitude = (long long)std::abs(currentAxisVal) + (long long)std::abs(otherAxisVal);
+
+			//if (val > 0)
+			//	curVal = NormalizeRange(MICROSECONDS_MIN, MICROSECONDS_MAX, mouseSensitivity, val);
+			//else if (val < 0)
+			//	curVal = -NormalizeRange(MICROSECONDS_MIN, MICROSECONDS_MAX, mouseSensitivity, -val);
+			//return static_cast<size_t>(curVal);
 		}
 		/// <summary>
 		/// WARNING: Function only works with positive values!

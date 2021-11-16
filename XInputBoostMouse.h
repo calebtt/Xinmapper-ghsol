@@ -208,18 +208,32 @@ namespace sds
 		virtual void workThread()
 		{
 			int dzz = this->stickMapInfo == MouseMap::RIGHT_STICK ? this->playerRightDeadzone : this->playerLeftDeadzone;
-			ThumbstickAxisThread xThread(dzz, this->GetSensitivity(), true, false);
-			ThumbstickAxisThread yThread(dzz, this->GetSensitivity(), false, true);
+			ThumbstickAxisThread xThread(dzz, this->GetSensitivity(), true);
+			ThumbstickAxisThread yThread(dzz, this->GetSensitivity(), false);
+			xThread.Start();
+			yThread.Start();
+			//int tx = threadX;
+			//int ty = threadY;
+			//std::thread t2 = yThread.GetProcessStateThread(ty);
+			//std::thread t1 = xThread.GetProcessStateThread(tx);
 			//thread main loop
 			while(!isStopRequested)//<--Danger! From the base class.
 			{
+				//if (t2.joinable())
+				//	t2.join();
+				//if (t1.joinable())
+				//	t1.join();
 				//delegate values to separate threads
+				//create two threads to call the update function asynchronously
+				//t2 = yThread.GetProcessStateThread(ty);
+				//t1 = xThread.GetProcessStateThread(tx);
 				xThread.ProcessState(threadX);
 				yThread.ProcessState(threadY);
 				
 				std::this_thread::sleep_for(std::chrono::microseconds(MOVE_THREAD_SLEEP_MICRO));
 			}
-		
+			xThread.Stop();
+			yThread.Stop();
 			//mark thread status as not running.
 			isThreadRunning = false;
 		}

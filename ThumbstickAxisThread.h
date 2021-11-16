@@ -13,14 +13,19 @@ namespace sds
     class ThumbstickAxisThread :
         public CPPThreadRunner<int>
     {
+        inline static std::mutex sendkeyMutex;
+        const int PIXELS_MAGNITUDE = 1;
+        const int PIXELS_NOMOVE = 0;
+        const int THREAD_DELAY = 1500;
         std::atomic<int> m_sensitivity;
         std::atomic<int> m_deadzone;
-        bool m_isInverted; // is axis value translation inverted
+        std::atomic<int> m_localstate;
+        //bool m_isInverted; // is axis value translation inverted
 		bool m_isX; // x or y axis
 		std::shared_ptr<ThumbstickToDelay> m_moveDetermine;
     public:
-        ThumbstickAxisThread(int deadzone, int sensitivity, bool isX, bool inverted)
-            : CPPThreadRunner<int>(), m_deadzone(deadzone), m_sensitivity(sensitivity), m_isX(isX), m_isInverted(inverted)
+        ThumbstickAxisThread(int deadzone, int sensitivity, bool isX)
+            : CPPThreadRunner<int>(), m_deadzone(deadzone), m_sensitivity(sensitivity), m_isX(isX)
         {
 
         }
@@ -34,51 +39,138 @@ namespace sds
 		/// <param name="thumbValue"> thumbstick axis value </param>
 		void ProcessState(int thumbValue)
 		{
-			this->updateState(thumbValue);
-			
-
-			//if (stickMapInfo == MouseMap::NEITHER_STICK)
-			//	return;
-			////Holds the reported stick values and will compare to determine if movement has occurred.
-			//int tsx, tsy;
-
-			//if (stickMapInfo == MouseMap::RIGHT_STICK)
-			//{
-			//	tsx = state.Gamepad.sThumbRX;
-			//	tsy = state.Gamepad.sThumbRY;
-			//}
-			//else
-			//{
-			//	tsx = state.Gamepad.sThumbLX;
-			//	tsy = state.Gamepad.sThumbLY;
-			//}
-			////Give worker thread new values.
-			//threadX = tsx;
-			//threadY = tsy;
-
-			//int tdz = stickMapInfo == MouseMap::RIGHT_STICK ? sdsPlayerOne.right_dz : sdsPlayerOne.left_dz;
-			//ThumbstickToMovement moveDetermine(this->mouseSensitivity, tdz, this->altDeadzoneMultiplier);
-
-			//if (moveDetermine.DoesRequireMove(tsx, tsy))
-			//{
-			//	//update state.
-			//	this->updateState(state);
-
-			//	//check for thread is running.
-			//	if (!isThreadRunning)
-			//		this->startThread();
-			//}
+            m_localstate = thumbValue;
+            if (!this->isThreadRunning && !this->isStopRequested)
+            {
+                this->startThread();
+            }
 		}
+
+        /// <summary>
+        /// Called to update the internal thumbstick values with new values.
+        /// Note the params are not X and Y but rather currentAxis and otherAxis
+        /// </summary>
+        /// <param name="thumbValue"> thumbstick axis value </param>
+        void ProcessState(int thumbValue, int otherAxisValue)
+        {
+            //TODO complete this function to pass along the values
+            m_localstate = thumbValue;
+            if (!this->isThreadRunning && !this->isStopRequested)
+            {
+                this->startThread();
+            }
+        }
+        void Start()
+        {
+            this->startThread();
+        }
+        void Stop()
+        {
+            this->stopThread();
+        }
+
     protected:
         virtual void workThread()
         {
+            this->isThreadRunning = true;
+            
+            //small lambda to ensure no overflow when negating an int
+            auto reduceToLongLimit = [](long long valx)
+            {
+                if (valx <= std::numeric_limits<int>::min())
+                    return static_cast<int>(std::numeric_limits<int>::min() + 1);
+                else if (valx >= std::numeric_limits<int>::max())
+                    return static_cast<int>(std::numeric_limits<int>::max() - 1);
+                else
+                    return static_cast<int>(valx);
+            };
+            auto invertIfY = [&reduceToLongLimit](long long &valy, bool isX)
+            {
+                if (!isX)
+                {
+                    valy = reduceToLongLimit(valy);
+                    valy = -valy;
+                }
+            };
+
+            using namespace std::chrono;
             SendKey keySend;
 			m_moveDetermine = std::make_shared<ThumbstickToDelay>(this->m_sensitivity, this->m_deadzone);
+            steady_clock::time_point begin = steady_clock::now();
+            steady_clock::time_point end = steady_clock::now();
+            auto timeSpan = duration_cast<microseconds>(end - begin);
+            bool lastMoved = false;
+            long long delayValue = 1;
 
-            while (!this->isStopRequested)
+            //local copies
+            long long localVal = m_localstate;
+            //invert if Y axis
+            invertIfY(localVal, m_isX);
+
+            int movexval = m_isX ? (localVal > 0 ? PIXELS_MAGNITUDE: -PIXELS_MAGNITUDE): PIXELS_NOMOVE;
+            int moveyval = m_isX ? PIXELS_NOMOVE: (localVal > 0 ? PIXELS_MAGNITUDE : -PIXELS_MAGNITUDE);
+            int testxval = m_isX ? static_cast<int>(localVal) : PIXELS_NOMOVE;
+            int testyval = m_isX ? PIXELS_NOMOVE : static_cast<int>(localVal);
+            std::shared_ptr<ThumbstickToDelay> thumbDelay = m_moveDetermine;
+
+            //main loop
+            while (true)
             {
+                if (this->isStopRequested)
+                    return;
+                
+                localVal = m_localstate;
+                //invert if Y axis
+                invertIfY(localVal, m_isX);
 
+                testxval = m_isX ? static_cast<int>(localVal) : PIXELS_NOMOVE;
+                testyval = m_isX ? PIXELS_NOMOVE : static_cast<int>(localVal);
+                movexval = m_isX ? (localVal > 0 ? PIXELS_MAGNITUDE : -PIXELS_MAGNITUDE) : PIXELS_NOMOVE;
+                moveyval = m_isX ? PIXELS_NOMOVE : (localVal > 0 ? PIXELS_MAGNITUDE : -PIXELS_MAGNITUDE);
+
+                //if last iteration moved the mouse, switch to using the high precision timer for thread delay.
+                if (lastMoved)
+                {
+                    //if timer value greater than last reported delay value
+                    if (timeSpan.count() > delayValue)
+                    {
+                        //reset clock begin
+                        begin = steady_clock::now();
+                        if (thumbDelay->DoesRequireMove(testxval, testyval))
+                        {
+                            //utilizing the static mutex to synchronize multiple instances of "thumbstickaxisthread"
+                            //in that it should alternate between the two instances when required. Without this, a single thread
+                            //will "run-away" and send many inputs at once before switching back to the other thread.
+                            {
+                                lock l(sendkeyMutex);
+                                keySend.SendMouseMove(movexval, moveyval);
+                                lastMoved = true;
+                                delayValue = std::chrono::microseconds(thumbDelay->GetDelayFromThumbstickValue(m_localstate)).count();
+                            }
+                        }
+                        else
+                            lastMoved = false; // resets lastMoved if no move
+                    }
+                }
+                else if(m_moveDetermine->DoesRequireMove(testxval, testyval) && timeSpan.count() > delayValue)
+                {
+                    {
+                        lock l(sendkeyMutex);
+                        keySend.SendMouseMove(movexval, moveyval);
+                        lastMoved = true;
+                        delayValue = std::chrono::microseconds(thumbDelay->GetDelayFromThumbstickValue(m_localstate)).count();
+                    }
+                }
+                else
+                {
+                    std::this_thread::sleep_for(std::chrono::microseconds(THREAD_DELAY));
+                }
+
+                //variable thread delay
+                end = steady_clock::now();
+                timeSpan = duration_cast<microseconds>(end - begin);
             }
+            this->isThreadRunning = false;
         }
     };
 
