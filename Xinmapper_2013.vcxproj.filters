@@ -16,6 +16,9 @@
     <Filter Include="Header Files\MouseMovement">
       <UniqueIdentifier>{277ec959-8ac6-4c88-83a4-81ed8f62e2c1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Utility">
+      <UniqueIdentifier>{66b5f681-ee0d-444e-97da-b7de1b903aa9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -36,25 +39,13 @@
     <ClInclude Include="Mapper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MultiBool.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="PlayerInfo.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SendKey.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="XInputTranslater.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CPPThreadRunner.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ButtonStateDown.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MouseMap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ThumbstickToDelay.h">
@@ -69,6 +60,18 @@
     <ClInclude Include="ThumbstickAxisThread.h">
       <Filter>Header Files\MouseMovement</Filter>
     </ClInclude>
+    <ClInclude Include="MultiBool.h">
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="ButtonStateDown.h">
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="SendKey.h">
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="MouseMap.h">
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -79,7 +82,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="ClassDiagram.cd" />
     <None Include="xinmapper_drawing.pdf" />
+    <None Include="ClassDiagram.cd" />
   </ItemGroup>
 </Project>
