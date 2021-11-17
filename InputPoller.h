@@ -78,6 +78,14 @@ namespace sds
 		/// </summary>
 		InputPoller() = delete;
 
+		/// <summary>
+		/// Destructor overriding the base virtual destructor, the thread should be stopped
+		/// in this class's destructor, not the base destructor.
+		/// </summary>
+		~InputPoller() override
+		{
+			this->stopThread();
+		}
 
 		/// <summary>
 		/// Start polling for input (and processing via Mapper, XInputBoostMouse, XInputTranslater)

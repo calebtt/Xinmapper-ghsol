@@ -63,9 +63,14 @@ namespace sds
 			isDeadzoneActivated(false), altDeadzoneConfig(true), altDeadzoneMultiplier(0.5f)
 		{
 		}
-		~XInputBoostMouse()
+
+		/// <summary>
+		/// Destructor overriding the base virtual destructor, the thread should be stopped
+		/// in this class's destructor, not the base destructor.
+		/// </summary>
+		~XInputBoostMouse() override
 		{ 
-			//this->HaltOperation(); 
+			this->stopThread();
 		}
 		/// <summary>
 		/// Use this function to establish one stick or the other as the one controlling the mouse movements.

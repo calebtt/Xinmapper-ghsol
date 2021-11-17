@@ -146,19 +146,19 @@ namespace sds
 		}
 		
 		/// <summary>
-		/// Virtual destructor, called after the derived object's destructor is called, ensures the running
-		/// thread is stopped. This function does block.
+		/// Virtual destructor, to be overridden by an inheriting class.
+		/// Make sure you call stopThread() in the inherited class's destructor, not here.
 		/// </summary>
 		virtual ~CPPThreadRunner()
 		{
-			if( this->thread != nullptr )
-			{
-				this->isStopRequested = true;
-				if (this->thread->joinable())
-				{
-					this->thread->join();
-				}
-			}
+			//if( this->thread != nullptr )
+			//{
+			//	this->isStopRequested = true;
+			//	if (this->thread->joinable())
+			//	{
+			//		this->thread->join();
+			//	}
+			//}
 		}
 
 	};
