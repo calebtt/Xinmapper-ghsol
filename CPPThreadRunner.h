@@ -19,12 +19,12 @@ namespace sds
 	template <class InternalData> class CPPThreadRunner
 	{
 		
-
+		std::shared_ptr<std::thread> localThread;
 	protected:
 		//Interestingly, accessibility modifiers (public/private/etc.) work on "using" typedefs!
 		using lock = std::lock_guard<std::mutex>;
 
-		std::shared_ptr<std::thread> thread;
+		
 
 		std::atomic<bool> isThreadRunning;
 		std::atomic<bool> isStopRequested;
@@ -45,24 +45,24 @@ namespace sds
 		{
 			if( ! this->isThreadRunning )
 			{
-				if (this->thread == nullptr)
+				if (this->localThread == nullptr)
 				{
 					this->isStopRequested = false;
 					this->isThreadRunning = true;
-					this->thread = std::shared_ptr<std::thread>
+					this->localThread = std::shared_ptr<std::thread>
 						(new std::thread(std::bind(&CPPThreadRunner::workThread, this)));
 				}
 				else
 				{
-					if (this->thread->joinable())
+					if (this->localThread->joinable())
 					{
 						this->isStopRequested = true;
-						this->thread->join();
+						this->localThread->join();
 					}
-					this->thread.reset();
+					this->localThread.reset();
 					this->isStopRequested = false;
 					this->isThreadRunning = true;
-					this->thread = std::shared_ptr<std::thread>(new std::thread(std::bind(&CPPThreadRunner::workThread, this)));
+					this->localThread = std::shared_ptr<std::thread>(new std::thread(std::bind(&CPPThreadRunner::workThread, this)));
 				}
 			}
 		}
@@ -72,7 +72,7 @@ namespace sds
 		/// </summary>
 		void requestStop()
 		{
-			if( this->thread != nullptr )
+			if( this->localThread != nullptr )
 			{
 				//if thread not running, return
 				if (!this->isThreadRunning)
@@ -96,19 +96,19 @@ namespace sds
 			this->isStopRequested = true;
 
 			//If there is a thread obj..
-			if(this->thread != nullptr)
+			if(this->localThread != nullptr)
 			{
 				//if it is not joinable, set to nullptr
-				if (!this->thread->joinable())
+				if (!this->localThread->joinable())
 				{
-					this->thread = nullptr;
+					this->localThread = nullptr;
 					this->isThreadRunning = false;
 					return;
 				}
 				else
 				{
-					this->thread->join();
-					this->thread = nullptr;
+					this->localThread->join();
+					this->localThread = nullptr;
 					this->isThreadRunning = false;
 				}
 			}
@@ -146,19 +146,19 @@ namespace sds
 		}
 		
 		/// <summary>
-		/// Virtual destructor, called after the derived object's destructor is called, ensures the running
-		/// thread is stopped. This function does block.
+		/// Virtual destructor, the running thread should be stopped in the inherited class,
+		/// before the member function "workThread" is destructed.
 		/// </summary>
 		virtual ~CPPThreadRunner()
 		{
-			if( this->thread != nullptr )
-			{
-				this->isStopRequested = true;
-				if (this->thread->joinable())
-				{
-					this->thread->join();
-				}
-			}
+			//if( this->thread != nullptr )
+			//{
+			//	this->isStopRequested = true;
+			//	if (this->thread->joinable())
+			//	{
+			//		this->thread->join();
+			//	}
+			//}
 		}
 
 	};

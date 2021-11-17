@@ -28,9 +28,13 @@ namespace sds
         {
 
         }
-        virtual ~ThumbstickAxisThread()
+        /// <summary>
+        /// Destructor override, ensures the running thread function is stopped
+        /// inside of this class and not the base.
+        /// </summary>
+        ~ThumbstickAxisThread() override
         {
-
+            this->stopThread();
         }
 		/// <summary>
 		/// Called to update the internal thumbstick value with a new value.

@@ -48,7 +48,7 @@ namespace sds
 				mse->ProcessState(this->getCurrentState());
 				m->ProcessActionDetails(t->ProcessState(this->getCurrentState()));
 
-				Sleep(THREAD_DELAY);
+				std::this_thread::sleep_for(std::chrono::milliseconds(THREAD_DELAY));
 			}
 			this->isThreadRunning = false;
 		}
@@ -78,6 +78,15 @@ namespace sds
 		/// </summary>
 		InputPoller() = delete;
 
+		
+		/// <summary>
+		/// Destructor override, ensures the running thread function is stopped
+		/// inside of this class and not the base.
+		/// </summary>
+		~InputPoller() override
+		{
+			this->stopThread();
+		}
 
 		/// <summary>
 		/// Start polling for input (and processing via Mapper, XInputBoostMouse, XInputTranslater)

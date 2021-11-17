@@ -79,9 +79,14 @@ namespace sds
 			threadX = 0;
 			threadY = 0;
 		}
-		~XInputBoostMouse()
+
+		/// <summary>
+		/// Destructor override, ensures the running thread function is stopped
+		/// inside of this class and not the base.
+		/// </summary>
+		~XInputBoostMouse() override
 		{ 
-			//this->HaltOperation(); 
+			this->stopThread();
 		}
 		/// <summary>
 		/// Use this function to establish one stick or the other as the one controlling the mouse movements.
