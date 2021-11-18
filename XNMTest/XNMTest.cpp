@@ -4,6 +4,7 @@
 #include "TestMapper.h"
 #include "TestMouse.h"
 #include "TestThumbstickToMovement.h"
+#include "TestThumbstickToDelay.h"
 #include "BuildRandomStrings.h"
 #include <string>
 #include <vector>

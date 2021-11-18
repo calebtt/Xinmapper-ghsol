@@ -17,23 +17,51 @@ namespace sds
 		int playerDeadzone;
 		int mouseSensitivity;
 
-		const int SENSITIVITY_MIN = 0;
-		const int SENSITIVITY_MAX = 100;
-		const int MICROSECONDS_MIN = 1; //1 microsecond min
-		const int MICROSECONDS_MAX = 8000; //8000 microsecond max
+		static const short SMax = std::numeric_limits<SHORT>::max();
+		static const short SMin = std::numeric_limits<SHORT>::min();
+		static const int SENSITIVITY_MIN = 1;
+		static const int SENSITIVITY_MAX = 100;
+		static const int MICROSECONDS_MIN = 1000; //1 ms min
+		static const int MICROSECONDS_MAX = 8000; //8000 microsecond max
+		static const int DEADZONE_MIN = 1;
+		constexpr static const int DEADZONE_MAX = std::numeric_limits<SHORT>::max() - 1;
+		
+
+		std::map<int, int> sensitivityMap;
 
 	public:
 		//Ctor for not using the alternate deadzone configuration
-		ThumbstickToDelay(int sensitivityMouse, int deadzone)
+		ThumbstickToDelay(int sensitivityMouse, int deadzone) noexcept
 			: mouseSensitivity(sensitivityMouse), playerDeadzone(deadzone), altDeadzoneConfig(false), altDeadzoneMultiplier(1.0f), isDeadzoneActivated(false)
 		{
-		}
+			//assertions about static const members
+			static_assert(SENSITIVITY_MAX < MICROSECONDS_MAX);
+			static_assert(SENSITIVITY_MIN >= 1);
+			static_assert(SENSITIVITY_MIN < SENSITIVITY_MAX);
+			static_assert(DEADZONE_MIN > 0);
+			static_assert(DEADZONE_MAX < std::numeric_limits<SHORT>::max());
 
-		//Ctor for using the alternate deadzone configuration
-		//ThumbstickToDelay(int sensitivityMouse, int deadzone, float multiplier)
-		//	: mouseSensitivity(sensitivityMouse), playerDeadzone(deadzone), altDeadzoneConfig(false), altDeadzoneMultiplier(multiplier), isDeadzoneActivated(false)
-		//{
-		//}
+			//error checking sensitivityMouse arg range
+			if (sensitivityMouse > SENSITIVITY_MAX)
+				mouseSensitivity = SENSITIVITY_MAX;
+			else if (sensitivityMouse < SENSITIVITY_MIN)
+				mouseSensitivity = SENSITIVITY_MIN;
+
+			//error checking deadzone arg range
+			if (deadzone < DEADZONE_MIN)
+				playerDeadzone = DEADZONE_MIN;
+			else if (deadzone > DEADZONE_MAX)
+				playerDeadzone = DEADZONE_MAX;
+
+			int step = MICROSECONDS_MAX / SENSITIVITY_MAX;
+			for (int i = SENSITIVITY_MIN, j = SENSITIVITY_MAX; i <= SENSITIVITY_MAX; i++,j--)
+			{
+				if (i * step < MICROSECONDS_MIN)
+					sensitivityMap[j] = MICROSECONDS_MIN;
+				else
+					sensitivityMap[j] = i * step;
+			}
+		}
 
 		/// <summary>
 		/// Determines if the X or Y values are greater than the deadzone values and would
@@ -69,87 +97,54 @@ namespace sds
 		}
 
 		/// <summary>
-		/// Normalize axis value from the thumbstick with regard to deadzone,
-		/// and after that the sensitivity value via NormalizeRange.
-		/// </summary>
-		/// <param name="x"></param>
-		/// <returns>An adjusted number of pixels to move, to be used with the getFunctionalValue
-		/// sensitivity function.</returns>
-		LONG NormalizeAxis(long long x)
-		{
-			//Copy some values
-			int t_sens = mouseSensitivity;
-			bool localDeadzoneConfig = this->altDeadzoneConfig;
-			bool localIsDeadzoneActivated = this->isDeadzoneActivated;
-			float localMultiplier = this->altDeadzoneMultiplier;
-			int deadzoneVal = altDeadzoneConfig ? static_cast<int>(playerDeadzone * localMultiplier) : playerDeadzone;
-
-			auto reduceToLongLimit = [](long long valx)
-			{
-				if (valx <= std::numeric_limits<LONG>::min())
-					return static_cast<LONG>(std::numeric_limits<LONG>::min() + 1);
-				else if (valx >= std::numeric_limits<SHORT>::max())
-					return static_cast<LONG>(std::numeric_limits<LONG>::max() - 1);
-				else
-					return static_cast<LONG>(valx);
-			};
-			auto deadzoneMultiplierFunc = [&t_sens, &localDeadzoneConfig, &localIsDeadzoneActivated, &deadzoneVal, &reduceToLongLimit](long long dzv, double dzm, long long val, bool isPositiveVal)
-			{
-				if (isPositiveVal)
-				{
-					val -= (dzv);
-					if (val <= 0)
-						return 0l;
-				}
-				else
-				{
-					val += (dzv);
-					if (val >= 0)
-						return 0l;
-				}
-				return static_cast<LONG>(reduceToLongLimit(val));
-			};
-
-
-			if (x > 0)
-			{
-				x = deadzoneMultiplierFunc(playerDeadzone, altDeadzoneMultiplier, x, true);
-				if (x != 0)
-				{
-					if (x > std::numeric_limits<SHORT>::max())
-						x = static_cast<long long>(std::numeric_limits<SHORT>::max()) - 1;
-					x = NormalizeRange(0, std::numeric_limits<SHORT>::max() - 1, static_cast<LONG>(t_sens), reduceToLongLimit(x));
-				}
-
-			}
-			else if (x < 0)
-			{
-				x = deadzoneMultiplierFunc(playerDeadzone, altDeadzoneMultiplier, x, false);
-				if (x != 0)
-				{
-					if (x < std::numeric_limits<SHORT>::min())
-						x = static_cast<long long>(std::numeric_limits<SHORT>::min()) + 1;
-					x = -static_cast<long long>(NormalizeRange(0, std::numeric_limits<SHORT>::max() - 1, static_cast<LONG>(t_sens), -reduceToLongLimit(x)));
-				}
-
-			}
-			return static_cast<LONG>(x);
-		}
-
-		/// <summary>
 		/// Main function for use
 		/// </summary>
 		/// <returns></returns>
 		size_t GetDelayFromThumbstickValue(int val)
 		{
-			//TODO return appropriate delay values
-			return 1000;
-			long long curVal = 0;
-			if(val > 0)
-				curVal = NormalizeRange(MICROSECONDS_MIN, MICROSECONDS_MAX, mouseSensitivity, val);
-			else if(val < 0)
-				curVal = -NormalizeRange(MICROSECONDS_MIN, MICROSECONDS_MAX, mouseSensitivity, -val);
-			return static_cast<size_t>(curVal);
+			val = GetRangedThumbstickValue(val, this->playerDeadzone);
+			int rval = -1;
+			std::for_each(sensitivityMap.begin(), sensitivityMap.end(), [&val,&rval](std::pair<const int, int> &elem)
+				{
+					if (elem.first == val)
+						rval = elem.second;
+				});
+			if (rval > MICROSECONDS_MIN)
+				return rval;
+			else
+				return MICROSECONDS_MAX;
+		}
+
+		/// <summary>
+		/// For the case where sensitivity range is 1 to 100
+		/// this function will convert the thumbstick value to
+		/// an integer percentage. The deadzone value is subtracted before processing.
+		/// </summary>
+		/// <param name="thumbstick">:thumbstick value between short minimum and short maximum</param>
+		/// <param name="axisDeadzone">:positive deadzone value to use for the axis value</param>
+		/// <returns>positive value between (inclusive) SENSITIVITY_MIN and SENSITIVITY_MAX, or SENSITIVITY_MIN for thumbstick less than deadzone</returns>
+		int GetRangedThumbstickValue(int thumbstick, int axisDeadzone)
+		{
+			if (thumbstick > SMax)
+				thumbstick = SMax;
+			else if (thumbstick < SMin)
+				thumbstick = SMin;
+			else if (thumbstick == 0)
+				return SENSITIVITY_MIN;
+			//error checking deadzone arg range
+			if (axisDeadzone < DEADZONE_MIN)
+				axisDeadzone = DEADZONE_MIN;
+			else if (axisDeadzone > DEADZONE_MAX)
+				axisDeadzone = DEADZONE_MAX;
+			unsigned int absThumb = std::abs(thumbstick);
+			if (absThumb < axisDeadzone)
+				return SENSITIVITY_MIN;
+			unsigned int percentage = (absThumb - axisDeadzone) / ((SMax - axisDeadzone) / SENSITIVITY_MAX);
+			if (percentage < SENSITIVITY_MIN)
+				percentage = SENSITIVITY_MIN;
+			else if (percentage > SENSITIVITY_MAX)
+				percentage = SENSITIVITY_MAX;
+			return percentage;
 		}
 		/// <summary>
 		/// Main function for use, uses information from the other axis
@@ -162,54 +157,8 @@ namespace sds
 			return 1000;
 			long long curVal = 0;
 			unsigned long long magnitude = (long long)std::abs(currentAxisVal) + (long long)std::abs(otherAxisVal);
-
-			//if (val > 0)
-			//	curVal = NormalizeRange(MICROSECONDS_MIN, MICROSECONDS_MAX, mouseSensitivity, val);
-			//else if (val < 0)
-			//	curVal = -NormalizeRange(MICROSECONDS_MIN, MICROSECONDS_MAX, mouseSensitivity, -val);
-			//return static_cast<size_t>(curVal);
-		}
-		/// <summary>
-		/// WARNING: Function only works with positive values!
-		/// If you need a negative value, pass a positive value and negate the result.
-		/// This function takes two range values (begin, end) and a sensitivity value (rp),
-		/// it also accepts the current value that the thumbstick is reporting (val) minus the deadzone value.
-		/// It returns a sensitivity "normalized" value that is eventually translated into the number of
-		/// pixels to move the mouse pointer after a "functional value" is obtained via "getFunctionalValue".
-		/// </summary>
-		/// <param name="begin"> is the range begin</param>
-		/// <param name="end"> is the range end</param>
-		/// <param name="rp"> is the sensitivity value to use in the calculation</param>
-		/// <param name="val"> is the thumbstick value</param>
-		/// <returns> a value which becomes a number of pixels to move, based on the sensitivity</returns>
-		long long NormalizeRange(LONG begin, LONG end, LONG rp, LONG val)
-		{
-			if (val == 0)
-				return 0ll;
-			long long step = (end - begin) / rp;
-			for (long long i = begin, j = 1; i <= end; i += step, ++j)
-			{
-				if (val >= i && val < i + step)
-				{
-					if (val == end)
-						return static_cast<long long>(j) - 1;
-					return static_cast<long long>(j);
-				}
-			}
-			return 0ll;
 		}
 
-		/// <summary>
-		/// Sensitivity function is the graph of x*x/mouseSensitivity + 1
-		/// returns a sensitivity normalized value; or 1 if the result is 0
-		/// </summary>
-		/// <param name="x">normalized value to adjust for sensitivity</param>
-		/// <returns> a sensitivity normalized value or 1 if the result is 0</returns>
-		size_t getFunctionalValue(size_t x) const
-		{
-			x = static_cast<size_t>((x * x) / mouseSensitivity + 1);
-			return (x == 0) ? 1 : x;
-		}
 	};
 }
 
