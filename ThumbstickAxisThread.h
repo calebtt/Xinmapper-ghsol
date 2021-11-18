@@ -110,10 +110,10 @@ namespace sds
             //invert if Y axis
             invertIfY(localVal, m_isX);
 
-            int movexval = m_isX ? (localVal > 0 ? PIXELS_MAGNITUDE: -PIXELS_MAGNITUDE): PIXELS_NOMOVE;
-            int moveyval = m_isX ? PIXELS_NOMOVE: (localVal > 0 ? PIXELS_MAGNITUDE : -PIXELS_MAGNITUDE);
-            int testxval = m_isX ? static_cast<int>(localVal) : PIXELS_NOMOVE;
-            int testyval = m_isX ? PIXELS_NOMOVE : static_cast<int>(localVal);
+            int movexval = 0;
+            int moveyval = 0;
+            int testxval = 0;
+            int testyval = 0;
             std::shared_ptr<ThumbstickToDelay> thumbDelay = m_moveDetermine;
 
             //main loop
@@ -138,6 +138,7 @@ namespace sds
                     if (timeSpan.count() > delayValue)
                     {
                         //reset clock begin
+                        //TODO: there is a bug here for super low delay values from GetDelayFromThumbstickValue
                         begin = steady_clock::now();
                         if (thumbDelay->DoesRequireMove(testxval, testyval))
                         {
@@ -148,7 +149,7 @@ namespace sds
                                 lock l(m_sendKeyMutex);
                                 keySend.SendMouseMove(movexval, moveyval);
                                 lastMoved = true;
-                                delayValue = std::chrono::microseconds(thumbDelay->GetDelayFromThumbstickValue(m_localstate)).count();
+                                delayValue = std::abs(std::chrono::microseconds(thumbDelay->GetDelayFromThumbstickValue(static_cast<int>(localVal))).count());
                             }
                         }
                         else
@@ -161,7 +162,7 @@ namespace sds
                         lock l(m_sendKeyMutex);
                         keySend.SendMouseMove(movexval, moveyval);
                         lastMoved = true;
-                        delayValue = std::chrono::microseconds(thumbDelay->GetDelayFromThumbstickValue(m_localstate)).count();
+                        delayValue = std::abs(std::chrono::microseconds(thumbDelay->GetDelayFromThumbstickValue(static_cast<int>(localVal))).count());
                     }
                 }
                 else
@@ -171,7 +172,7 @@ namespace sds
 
                 //variable thread delay
                 end = steady_clock::now();
-                timeSpan = duration_cast<microseconds>(end - begin);
+                timeSpan = std::chrono::abs(duration_cast<microseconds>(end - begin));
             }
             this->isThreadRunning = false;
         }

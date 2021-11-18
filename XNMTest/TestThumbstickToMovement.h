@@ -6,6 +6,7 @@
 #include "..\SendKey.h"
 #include "..\ActionDescriptors.h"
 #include "..\ThumbstickToMovement.h"
+#include <locale>
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
@@ -120,57 +121,55 @@ namespace XNMTest
 			//vector to hold the results
 			std::vector<std::tuple<int, int>> inputBuf;
 			
-			auto testInputBuf = [&inputBuf](bool useGreater, bool useEqual, std::string testNumber)
+			auto testInputBuf = [&inputBuf](bool useGreater, bool useEqual, std::wstring testNumber)
 			{
-				std::string message;
+				auto getMessage = [](std::tuple<int, int> t)
+				{
+					std::wstring mes(std::to_wstring(std::get<0>(t)) + L" and " + std::to_wstring(std::get<1>(t)));
+					return mes;
+				};
+				std::wstring message;
+
 				if (useGreater)
 				{
 					if (useEqual)
 					{
-						message = testNumber + " :Begin testing greater than equal zero. ";
-						Logger::WriteMessage(message.c_str());
-						std::for_each(inputBuf.begin(), inputBuf.end(), [](std::tuple<int, int> &t)
+						message = testNumber + std::wstring(L" :Begin testing greater than equal zero. ");
+						std::for_each(inputBuf.begin(), inputBuf.end(), [&message,&getMessage](std::tuple<int, int> &t)
 							{
-								Assert::IsTrue((std::get<0>(t) >= 0) && (std::get<1>(t) >= 0));
+								message += getMessage(t);
+								Assert::IsTrue((std::get<0>(t) >= 0) && (std::get<1>(t) >= 0), message.c_str());
 							});
-						message = testNumber + " :End testing greater than equal zero. ";
-						Logger::WriteMessage(message.c_str());
 					}
 					else
 					{
-						message = testNumber + " :Begin testing greater than zero. ";
-						Logger::WriteMessage(message.c_str());
-						std::for_each(inputBuf.begin(), inputBuf.end(), [](std::tuple<int, int> &t)
+						message = testNumber + std::wstring(L" :Begin testing greater than zero. ");
+						std::for_each(inputBuf.begin(), inputBuf.end(), [&message,&getMessage](std::tuple<int, int> &t)
 							{
-								Assert::IsTrue((std::get<0>(t) > 0) && (std::get<1>(t) > 0));
+								message += getMessage(t);
+								Assert::IsTrue((std::get<0>(t) > 0) && (std::get<1>(t) > 0), message.c_str());
 							});
-						message = testNumber + " :End testing greater than zero. ";
-						Logger::WriteMessage(message.c_str());
 					}
 				}
 				else
 				{
 					if (useEqual)
 					{
-						message = testNumber + " :Begin testing less than equal zero. ";
-						Logger::WriteMessage(message.c_str());
-						std::for_each(inputBuf.begin(), inputBuf.end(), [](std::tuple<int, int> &t)
+						message = testNumber + std::wstring(L" :Begin testing less than equal zero. ");
+						std::for_each(inputBuf.begin(), inputBuf.end(), [&message,&getMessage](std::tuple<int, int> &t)
 							{
-								Assert::IsTrue((std::get<0>(t) <= 0) && (std::get<1>(t) <= 0));
+								message += getMessage(t);
+								Assert::IsTrue((std::get<0>(t) <= 0) && (std::get<1>(t) <= 0), message.c_str());
 							});
-						message = testNumber + " :End testing less than equal zero. ";
-						Logger::WriteMessage(message.c_str());
 					}
 					else
 					{
-						message = testNumber + " :Begin testing less than zero. ";
-						Logger::WriteMessage(message.c_str());
-						std::for_each(inputBuf.begin(), inputBuf.end(), [](std::tuple<int, int> &t)
+						message = testNumber + std::wstring(L" :Begin testing less than zero. ");
+						std::for_each(inputBuf.begin(), inputBuf.end(), [&message,&getMessage](std::tuple<int, int> &t)
 							{
-								Assert::IsTrue((std::get<0>(t) < 0) && (std::get<1>(t) < 0));
+								message += getMessage(t);
+								Assert::IsTrue((std::get<0>(t) < 0) && (std::get<1>(t) < 0), message.c_str());
 							});
-						message = testNumber + " :End testing less than zero. ";
-						Logger::WriteMessage(message.c_str());
 					}
 				}
 
@@ -185,31 +184,31 @@ namespace XNMTest
 			//assert >0 results
 			inputBuf = mover.GetPackagedInput(PixelsToMoveHigh, PixelsToMoveHigh);
 			assertTheSize();
-			testInputBuf(true,false,"[1]");
+			testInputBuf(true,false,L"[1]");
 			inputBuf = mover.GetPackagedInput(PixelsToMoveLow, PixelsToMoveLow);
 			assertTheSize();
-			testInputBuf(true,false,"[2]");
+			testInputBuf(true,false, L"[2]");
 			//assert >=0 results
 			inputBuf = mover.GetPackagedInput(PixelsToMoveLow, PixelsToMoveHigh);
 			assertTheSize();
-			testInputBuf(true,true,"[3]");
+			testInputBuf(true,true, L"[3]");
 			inputBuf = mover.GetPackagedInput(PixelsToMoveHigh, PixelsToMoveLow);
 			assertTheSize();
-			testInputBuf(true,true,"[4]");
+			testInputBuf(true,true, L"[4]");
 
 			//assert <0 results
 			inputBuf = mover.GetPackagedInput(-(PixelsToMoveHigh), -(PixelsToMoveHigh));
 			assertTheSize();
-			testInputBuf(false,false,"[5]");
+			testInputBuf(false,false, L"[5]");
 			inputBuf = mover.GetPackagedInput(-(PixelsToMoveLow), -(PixelsToMoveLow));
 			assertTheSize();
-			testInputBuf(false, false, "[6]");
+			testInputBuf(false, false, L"[6]");
 			inputBuf = mover.GetPackagedInput(-(PixelsToMoveLow), -(PixelsToMoveHigh));
 			assertTheSize();
-			testInputBuf(false, true, "[7]");
+			testInputBuf(false, true, L"[7]");
 			inputBuf = mover.GetPackagedInput(-(PixelsToMoveHigh), -(PixelsToMoveLow));
 			assertTheSize();
-			testInputBuf(false, true, "[8]");
+			testInputBuf(false, true, L"[8]");
 
 			Logger::WriteMessage("End TestGetPackagedInput()");
 		}
@@ -229,73 +228,63 @@ namespace XNMTest
 				Logger::WriteMessage("size > 0 asserted true");
 			};
 			//main lambda to run a test
-			auto testInputBuf = [&inputBuf](bool firstValGreater, bool secondValGreater, bool firstUseEqual, bool secondUseEqual, std::string testNumber)
+			auto testInputBuf = [&inputBuf](bool firstValGreater, bool secondValGreater, bool firstUseEqual, bool secondUseEqual, std::wstring testNumber)
 			{
+				//helper to build a message from a tuple
+				auto getMessage = [](std::tuple<int, int> t)
+				{
+					std::wstring mes(std::to_wstring(std::get<0>(t)) + L" and " + std::to_wstring(std::get<1>(t)));
+					return mes;
+				};
 				//lambdas to test each element with
-				std::string message;
-				auto testFirstGreaterEqual = [&message,&testNumber](std::tuple<int, int> &t)
+				std::wstring message;
+				auto testFirstGreaterEqual = [&message, &testNumber, &getMessage](std::tuple<int, int> &t)
 				{
-					message = testNumber + " :Begin testing first greater than equal zero. ";
-					Logger::WriteMessage(message.c_str());
-					Assert::IsTrue((std::get<0>(t) >= 0));
-					message = testNumber + " :End testing first greater than equal zero. ";
-					Logger::WriteMessage(message.c_str());
+					message = testNumber + L" :Begin testing first greater than equal zero. ";
+					message += getMessage(t);
+					Assert::IsTrue((std::get<0>(t) >= 0), message.c_str());
 				};
-				auto testFirstLessEqual = [&message, &testNumber](std::tuple<int, int> &t)
+				auto testFirstLessEqual = [&message, &testNumber, &getMessage](std::tuple<int, int> &t)
 				{
-					message = testNumber + " :Begin testing first less than equal zero. ";
-					Logger::WriteMessage(message.c_str());
-					Assert::IsTrue((std::get<0>(t) <= 0));
-					message = testNumber + " :End testing first less than equal zero. ";
-					Logger::WriteMessage(message.c_str());
+					message = testNumber + L" :Begin testing first less than equal zero. ";
+					message += getMessage(t);
+					Assert::IsTrue((std::get<0>(t) <= 0),message.c_str());
 				};
-				auto testFirstGreater = [&message, &testNumber](std::tuple<int, int> &t)
+				auto testFirstGreater = [&message, &testNumber, &getMessage](std::tuple<int, int> &t)
 				{
-					message = testNumber + " :Begin testing first greater than zero. ";
-					Logger::WriteMessage(message.c_str());
-					Assert::IsTrue((std::get<0>(t) > 0));
-					message = testNumber + " :End testing first greater than zero. ";
-					Logger::WriteMessage(message.c_str());
+					message = testNumber + L" :Begin testing first greater than zero. ";
+					message += getMessage(t);
+					Assert::IsTrue((std::get<0>(t) > 0), message.c_str());
 				};
-				auto testFirstLess = [&message, &testNumber](std::tuple<int, int> &t)
+				auto testFirstLess = [&message, &testNumber, &getMessage](std::tuple<int, int> &t)
 				{
-					message = testNumber + " :Begin testing first less than zero. ";
-					Logger::WriteMessage(message.c_str());
-					Assert::IsTrue((std::get<0>(t) < 0));
-					message = testNumber + " :End testing first less than zero. ";
-					Logger::WriteMessage(message.c_str());
+					message = testNumber + L" :Begin testing first less than zero. ";
+					message += getMessage(t);
+					Assert::IsTrue((std::get<0>(t) < 0),message.c_str());
 				};
-				auto testSecondGreaterEqual = [&message,&testNumber](std::tuple<int, int> &t)
+				auto testSecondGreaterEqual = [&message,&testNumber, &getMessage](std::tuple<int, int> &t)
 				{
-					message = testNumber + " :Begin testing second greater than equal zero. ";
-					Logger::WriteMessage(message.c_str());
-					Assert::IsTrue((std::get<1>(t) >= 0));
-					message = testNumber + " :End testing second greater than equal zero. ";
-					Logger::WriteMessage(message.c_str());
+					message = testNumber + L" :Begin testing second greater than equal zero. ";
+					message += getMessage(t);
+					Assert::IsTrue((std::get<1>(t) >= 0),message.c_str());
 				};
-				auto testSecondLessEqual = [&message, &testNumber](std::tuple<int, int> &t)
+				auto testSecondLessEqual = [&message, &testNumber, &getMessage](std::tuple<int, int> &t)
 				{
-					message = testNumber + " :Begin testing second less than equal zero. ";
-					Logger::WriteMessage(message.c_str());
-					Assert::IsTrue((std::get<1>(t) <= 0));
-					message = testNumber + " :End testing second less than equal zero. ";
-					Logger::WriteMessage(message.c_str());
+					message = testNumber + L" :Begin testing second less than equal zero. ";
+					message += getMessage(t);
+					Assert::IsTrue((std::get<1>(t) <= 0),message.c_str());
 				};
-				auto testSecondGreater = [&message, &testNumber](std::tuple<int, int> &t)
+				auto testSecondGreater = [&message, &testNumber, &getMessage](std::tuple<int, int> &t)
 				{
-					message = testNumber + " :Begin testing second greater than zero. ";
-					Logger::WriteMessage(message.c_str());
-					Assert::IsTrue((std::get<1>(t) > 0));
-					message = testNumber + " :End testing second greater than zero. ";
-					Logger::WriteMessage(message.c_str());
+					message = testNumber + L" :Begin testing second greater than zero. ";
+					message += getMessage(t);
+					Assert::IsTrue((std::get<1>(t) > 0),message.c_str());
 				};
-				auto testSecondLess = [&message, &testNumber](std::tuple<int, int> &t)
+				auto testSecondLess = [&message, &testNumber, &getMessage](std::tuple<int, int> &t)
 				{
-					message = testNumber + " :Begin testing second less than zero. ";
-					Logger::WriteMessage(message.c_str());
-					Assert::IsTrue((std::get<1>(t) < 0));
-					message = testNumber + " :End testing second less than zero. ";
-					Logger::WriteMessage(message.c_str());
+					message = testNumber + L" :Begin testing second less than zero. ";
+					message += getMessage(t);
+					Assert::IsTrue((std::get<1>(t) < 0),message.c_str());
 				};
 
 				//Run the tests for the first elements
@@ -355,30 +344,30 @@ namespace XNMTest
 			//test lambda calls
 			inputBuf = mover.GetFinalInput(SMax, SMax);
 			assertTheSize();
-			testInputBuf(true, false, false, false, "[1]");
+			testInputBuf(true, false, false, false, L"[1]");
 			testBothNotZero("[2]");
 
 			inputBuf = mover.GetFinalInput(SMin, SMin);
 			assertTheSize();
-			testInputBuf(false, true, false, false, "[3]");
+			testInputBuf(false, true, false, false, L"[3]");
 			testBothNotZero("[4]");
 
 			inputBuf = mover.GetFinalInput(SMin, SMax);
 			assertTheSize();
-			testInputBuf(false, false, false, false, "[5]");
+			testInputBuf(false, false, false, false, L"[5]");
 			testBothNotZero("[6]");
 
 			inputBuf = mover.GetFinalInput(SMax, SMin);
 			assertTheSize();
-			testInputBuf(true, true, false, false, "[7]");
+			testInputBuf(true, true, false, false, L"[7]");
 			testBothNotZero("[8]");
 
 			//test many in a loop
 			Logger::WriteMessage("Starting loop testing.");
 			for (int i = SMax, j = SMin; i > 0 && j < SMax; i--, j++)
 			{
-				std::string curVal = "[TestGetFinalInput]:[9]= ";
-				curVal += std::to_string(i) + " : " + std::to_string(j);
+				std::wstring curVal = L"[TestGetFinalInput]:[9]= ";
+				curVal += std::to_wstring(i) + L" : " + std::to_wstring(j);
 				inputBuf = mover.GetFinalInput(i, j);
 				testInputBuf(true, true, true, true, curVal);
 			}

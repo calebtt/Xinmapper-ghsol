@@ -52,7 +52,30 @@ namespace XNMTest
 			{
 				testGreaterEqualToLast(i, deadzone, last);
 			}
-
+			//build a list of returned values, then remove duplicates and print the list
+			//to the test output
+			std::vector<int> valuesList;
+			for (int i = 1; i < SMax; i++)
+			{
+				valuesList.push_back(delay.GetRangedThumbstickValue(i, deadzone));
+				//testGreaterEqualToLast(i, deadzone, last);
+			}
+			auto newEnd = std::unique(valuesList.begin(), valuesList.end());
+			std::for_each(valuesList.begin(), newEnd, [](int i)
+				{
+					Logger::WriteMessage(std::to_string(i).c_str());
+				});
+			//build a list of returned values from negative thumbstick values
+			valuesList.clear();
+			for (int i = SMin; i < 0; i++)
+			{
+				valuesList.push_back(delay.GetRangedThumbstickValue(i, deadzone));
+			}
+			newEnd = std::unique(valuesList.begin(), valuesList.end());
+			std::for_each(valuesList.begin(), newEnd, [](int i)
+				{
+					Logger::WriteMessage(std::to_string(i).c_str());
+				});
 		}
 	};
 }

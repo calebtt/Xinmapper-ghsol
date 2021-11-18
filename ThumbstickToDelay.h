@@ -21,8 +21,8 @@ namespace sds
 		static const short SMin = std::numeric_limits<SHORT>::min();
 		static const int SENSITIVITY_MIN = 1;
 		static const int SENSITIVITY_MAX = 100;
-		static const int MICROSECONDS_MIN = 1000; //1 ms min
-		static const int MICROSECONDS_MAX = 8000; //8000 microsecond max
+		static const int MICROSECONDS_MIN = 500; //0.4 ms min
+		static const int MICROSECONDS_MAX = 8000; //8 ms max
 		static const int DEADZONE_MIN = 1;
 		constexpr static const int DEADZONE_MAX = std::numeric_limits<SHORT>::max() - 1;
 		
@@ -98,6 +98,7 @@ namespace sds
 
 		/// <summary>
 		/// Main function for use
+		/// throws std::string if bad value internally
 		/// </summary>
 		/// <returns></returns>
 		size_t GetDelayFromThumbstickValue(int val)
@@ -109,10 +110,12 @@ namespace sds
 					if (elem.first == val)
 						rval = elem.second;
 				});
-			if (rval > MICROSECONDS_MIN)
+			if (rval >= MICROSECONDS_MIN && rval <= MICROSECONDS_MAX)
 				return rval;
-			else
-				return MICROSECONDS_MAX;
+			else if (rval == -1)
+				throw std::string("Exception in ThumbstickToDelay::GetDelayFromThumbstickValue(): Bad value from GetRangedThumbstickValue");
+				//return MICROSECONDS_MAX;
+			return MICROSECONDS_MAX;
 		}
 
 		/// <summary>
@@ -136,7 +139,7 @@ namespace sds
 				axisDeadzone = DEADZONE_MIN;
 			else if (axisDeadzone > DEADZONE_MAX)
 				axisDeadzone = DEADZONE_MAX;
-			unsigned int absThumb = std::abs(thumbstick);
+			int absThumb = std::abs(thumbstick);
 			if (absThumb < axisDeadzone)
 				return SENSITIVITY_MIN;
 			unsigned int percentage = (absThumb - axisDeadzone) / ((SMax - axisDeadzone) / SENSITIVITY_MAX);
