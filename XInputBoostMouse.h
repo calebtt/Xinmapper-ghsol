@@ -5,13 +5,6 @@ and to allow mapping with the MapString.
 Which would mean updating ActionDescriptors to include the new
 tokens, and updating this class to interpret an ActionString,
 and finally update GamepadUser.
-
-Finally, the ability to modify the sensitivity function
-is of utmost importance, which may require a math expression
-parser.  The class currently uses the graph of [ y = (x^2) / mouseSensitivity + 1 ]
-which is a parabola with the quality that at the curve's highest points
-it is the nearly (or exactly) the size of the viewing window--the mouseSensitivity.
-
 */
 
 #pragma once
@@ -43,6 +36,10 @@ namespace sds
 
 		sds::PlayerInfo localPlayerInfo;
 
+		//default vals
+		const int SENSITIVITY_DEFAULT = 35;
+		const float MULTIPLIER_DEFAULT = 0.5f;
+		//constants
 		const int MOVE_THREAD_SLEEP = 4;//4 ms
 		const int MOVE_THREAD_SLEEP_MOVE = 2;//2 ms
 		const int MOVE_THREAD_SLEEP_MICRO = 4000; //4 milliseconds
@@ -57,10 +54,10 @@ namespace sds
 		XInputBoostMouse()
 			: CPPThreadRunner(),
 			stickMapInfo(MouseMap::NEITHER_STICK),
-			mouseSensitivity(30),
+			mouseSensitivity(SENSITIVITY_DEFAULT),
 			isDeadzoneActivated(false), 
 			altDeadzoneConfig(true), 
-			altDeadzoneMultiplier(0.5f)
+			altDeadzoneMultiplier(MULTIPLIER_DEFAULT)
 		{
 			threadX = 0;
 			threadY = 0;
@@ -71,10 +68,10 @@ namespace sds
 		XInputBoostMouse(const sds::PlayerInfo &player)
 			: CPPThreadRunner(),
 			stickMapInfo(MouseMap::NEITHER_STICK),
-			mouseSensitivity(30),
+			mouseSensitivity(SENSITIVITY_DEFAULT),
 			isDeadzoneActivated(false), 
 			altDeadzoneConfig(true), 
-			altDeadzoneMultiplier(0.5f)
+			altDeadzoneMultiplier(MULTIPLIER_DEFAULT)
 		{
 			localPlayerInfo = player;
 			threadX = 0;
@@ -217,8 +214,7 @@ namespace sds
 		{
 			int dzx = this->stickMapInfo == MouseMap::RIGHT_STICK ? localPlayerInfo.right_x_dz : localPlayerInfo.left_x_dz;
 			int dzy = this->stickMapInfo == MouseMap::RIGHT_STICK ? localPlayerInfo.right_y_dz : localPlayerInfo.left_y_dz;
-			//ThumbstickAxisThread xThread(this->GetSensitivity(), dzx, true);
-			//ThumbstickAxisThread yThread(this->GetSensitivity(), dzy, false);
+
 			ThumbstickAxisThread xThread(this->GetSensitivity(), localPlayerInfo, stickMapInfo, true);
 			ThumbstickAxisThread yThread(this->GetSensitivity(), localPlayerInfo, stickMapInfo, false);
 			
