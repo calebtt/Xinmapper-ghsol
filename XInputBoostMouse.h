@@ -45,7 +45,7 @@ namespace sds
 
 		const int MOVE_THREAD_SLEEP = 4;//4 ms
 		const int MOVE_THREAD_SLEEP_MOVE = 2;//2 ms
-		const int MOVE_THREAD_SLEEP_MICRO = 4000; //4000 microseconds
+		const int MOVE_THREAD_SLEEP_MICRO = 4000; //4 milliseconds
 		const int SENSITIVITY_MIN = 1;
 		const int SENSITIVITY_MAX = 100;
 		const float MULTIPLIER_MIN = 0.01f;

@@ -92,33 +92,30 @@ namespace sds
         }
 
     protected:
+        int reduceToLongLimit(long long valx)
+        {
+            if (valx <= std::numeric_limits<int>::min())
+                return static_cast<int>(std::numeric_limits<int>::min() + 1);
+            else if (valx >= std::numeric_limits<int>::max())
+                return static_cast<int>(std::numeric_limits<int>::max() - 1);
+            else
+                return static_cast<int>(valx);
+        }
+        void invertIfY(long long &valy, bool isX)
+        {
+            if (!isX)
+            {
+                valy = reduceToLongLimit(valy);
+                valy = -valy;
+            }
+        }
         virtual void workThread()
         {
             this->isThreadRunning = true;
-            
-            //small lambda to ensure no overflow when negating an int
-            auto reduceToLongLimit = [](long long valx)
-            {
-                if (valx <= std::numeric_limits<int>::min())
-                    return static_cast<int>(std::numeric_limits<int>::min() + 1);
-                else if (valx >= std::numeric_limits<int>::max())
-                    return static_cast<int>(std::numeric_limits<int>::max() - 1);
-                else
-                    return static_cast<int>(valx);
-            };
-            auto invertIfY = [&reduceToLongLimit](long long &valy, bool isX)
-            {
-                if (!isX)
-                {
-                    valy = reduceToLongLimit(valy);
-                    valy = -valy;
-                }
-            };
 
             using namespace std::chrono;
             SendKey keySend;
             m_moveDetermine = std::make_shared<ThumbstickToDelay>(this->m_sensitivity, this->localPlayer, this->localStick);
-            //std::shared_ptr<ThumbstickToDelay> thumbDelay = m_moveDetermine; // local copy of smart pointer for lambda
             steady_clock::time_point begin = steady_clock::now();
             steady_clock::time_point end = steady_clock::now();
             auto timeSpan = duration_cast<microseconds>(end - begin);
@@ -134,7 +131,6 @@ namespace sds
             int moveyval = 0;
             int testxval = 0;
             int testyval = 0;
-            
 
             //main loop
             while (true)
