@@ -11,7 +11,7 @@ is of utmost importance, which may require a math expression
 parser.  The class currently uses the graph of [ y = (x^2) / mouseSensitivity + 1 ]
 which is a parabola with the quality that at the curve's highest points
 it is the nearly (or exactly) the size of the viewing window--the mouseSensitivity.
-Also need sensitivity for both X and Y axis.
+
 */
 
 #pragma once
@@ -41,41 +41,42 @@ namespace sds
 		std::atomic<bool> altDeadzoneConfig;
 		std::atomic<float> altDeadzoneMultiplier;
 
-		int playerLeftDeadzone;
-		int playerRightDeadzone;
+		sds::PlayerInfo localPlayerInfo;
 
 		const int MOVE_THREAD_SLEEP = 4;//4 ms
 		const int MOVE_THREAD_SLEEP_MOVE = 2;//2 ms
 		const int MOVE_THREAD_SLEEP_MICRO = 4000; //4000 microseconds
-		//const int MOVE_THREAD_SLEEP_MICRO = 4000000;
-		const int SENSITIVITY_MIN = 0;
+		const int SENSITIVITY_MIN = 1;
 		const int SENSITIVITY_MAX = 100;
 		const float MULTIPLIER_MIN = 0.01f;
-		const float MULTIPLIER_MAX = 1.0F;
+		const float MULTIPLIER_MAX = 1.0f;
 	public:
 		/// <summary>
-		/// Ctor Initializes some configuration variables like the alternate deadzone config multiplier
+		/// Ctor for default configuration
 		/// </summary>
 		XInputBoostMouse()
 			: CPPThreadRunner(),
-			mouseSensitivity(30),
 			stickMapInfo(MouseMap::NEITHER_STICK),
-			isDeadzoneActivated(false), altDeadzoneConfig(true), altDeadzoneMultiplier(0.5f),
-			playerLeftDeadzone(sds::sdsPlayerOne.left_dz), playerRightDeadzone(sds::sdsPlayerOne.right_dz)
+			mouseSensitivity(30),
+			isDeadzoneActivated(false), 
+			altDeadzoneConfig(true), 
+			altDeadzoneMultiplier(0.5f)
 		{
+			threadX = 0;
+			threadY = 0;
 		}
 		/// <summary>
-		/// Ctor Initializes some configuration variables like the alternate deadzone config multiplier
-		/// and allows setting a custom PlayerInfo
+		/// Ctor allows setting a custom PlayerInfo
 		/// </summary>
 		XInputBoostMouse(const sds::PlayerInfo &player)
 			: CPPThreadRunner(),
-			mouseSensitivity(30),
 			stickMapInfo(MouseMap::NEITHER_STICK),
-			isDeadzoneActivated(false), altDeadzoneConfig(true), altDeadzoneMultiplier(0.5f)
+			mouseSensitivity(30),
+			isDeadzoneActivated(false), 
+			altDeadzoneConfig(true), 
+			altDeadzoneMultiplier(0.5f)
 		{
-			playerLeftDeadzone = player.left_dz;
-			playerRightDeadzone = player.right_dz;
+			localPlayerInfo = player;
 			threadX = 0;
 			threadY = 0;
 		}
@@ -124,8 +125,10 @@ namespace sds
 			threadX = tsx;
 			threadY = tsy;
 
-			int tdz = stickMapInfo == MouseMap::RIGHT_STICK ? sdsPlayerOne.right_dz : sdsPlayerOne.left_dz;
-			ThumbstickToMovement moveDetermine(this->mouseSensitivity, tdz, this->altDeadzoneMultiplier);
+
+			int tdx = stickMapInfo == MouseMap::RIGHT_STICK ? localPlayerInfo.right_x_dz : localPlayerInfo.left_x_dz;
+			int tdy = stickMapInfo == MouseMap::RIGHT_STICK ? localPlayerInfo.right_y_dz : localPlayerInfo.left_y_dz;
+			ThumbstickToDelay moveDetermine(mouseSensitivity, tdx, tdy);
 
 			if( moveDetermine.DoesRequireMove(tsx,tsy) )
 			{
@@ -188,9 +191,9 @@ namespace sds
 		/// if there is an error, empty string otherwise. </returns>
 		std::string SetSensitivity(int new_sens)
 		{
-			if (new_sens <= SENSITIVITY_MIN || new_sens > SENSITIVITY_MAX)
+			if (new_sens < SENSITIVITY_MIN || new_sens > SENSITIVITY_MAX)
 			{
-				return "Error in sds::XInputBoostMouse::SetSensitivity(), int new_sens less than or equal to 0 or greater than 100.";
+				return "Error in sds::XInputBoostMouse::SetSensitivity(), int new_sens out of range.";
 			}
 			mouseSensitivity = new_sens;
 			this->stopThread();
@@ -212,26 +215,19 @@ namespace sds
 		/// </summary>
 		virtual void workThread()
 		{
-			int dzz = this->stickMapInfo == MouseMap::RIGHT_STICK ? this->playerRightDeadzone : this->playerLeftDeadzone;
-			ThumbstickAxisThread xThread(dzz, this->GetSensitivity(), true);
-			ThumbstickAxisThread yThread(dzz, this->GetSensitivity(), false);
+			int dzx = this->stickMapInfo == MouseMap::RIGHT_STICK ? localPlayerInfo.right_x_dz : localPlayerInfo.left_x_dz;
+			int dzy = this->stickMapInfo == MouseMap::RIGHT_STICK ? localPlayerInfo.right_y_dz : localPlayerInfo.left_y_dz;
+			//ThumbstickAxisThread xThread(this->GetSensitivity(), dzx, true);
+			//ThumbstickAxisThread yThread(this->GetSensitivity(), dzy, false);
+			ThumbstickAxisThread xThread(this->GetSensitivity(), localPlayerInfo, stickMapInfo, true);
+			ThumbstickAxisThread yThread(this->GetSensitivity(), localPlayerInfo, stickMapInfo, false);
+			
 			xThread.Start();
 			yThread.Start();
-			//int tx = threadX;
-			//int ty = threadY;
-			//std::thread t2 = yThread.GetProcessStateThread(ty);
-			//std::thread t1 = xThread.GetProcessStateThread(tx);
+
 			//thread main loop
 			while(!isStopRequested)//<--Danger! From the base class.
 			{
-				//if (t2.joinable())
-				//	t2.join();
-				//if (t1.joinable())
-				//	t1.join();
-				//delegate values to separate threads
-				//create two threads to call the update function asynchronously
-				//t2 = yThread.GetProcessStateThread(ty);
-				//t1 = xThread.GetProcessStateThread(tx);
 				xThread.ProcessState(threadX);
 				yThread.ProcessState(threadY);
 				

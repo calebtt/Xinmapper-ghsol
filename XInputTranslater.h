@@ -25,6 +25,10 @@ namespace sds
 		{
 			bsd = new ButtonStateDown();
 		}
+		XInputTranslater(const sds::PlayerInfo &player)
+		{
+			bsd = new ButtonStateDown(player);
+		}
 		~XInputTranslater()
 		{
 			delete bsd;

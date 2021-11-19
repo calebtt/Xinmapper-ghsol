@@ -45,6 +45,13 @@ namespace sds
 			mouse = new XInputBoostMouse();
 			poller = new InputPoller(mapper,transl,mouse);
 		}
+		GamepadUser(const sds::PlayerInfo &player)
+		{
+			mapper = new Mapper();
+			transl = new XInputTranslater(player);
+			mouse = new XInputBoostMouse();
+			poller = new InputPoller(mapper, transl, mouse);
+		}
 		~GamepadUser()
 		{
 			poller->Stop();

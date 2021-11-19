@@ -9,7 +9,15 @@ namespace sds
 	/// </summary>
 	class ButtonStateDown
 	{
+		sds::PlayerInfo localPlayer;
 	public:
+		ButtonStateDown()
+		{
+		}
+		ButtonStateDown(const sds::PlayerInfo &player)
+		{
+			localPlayer = player;
+		}
 		/// <summary>
 		/// Utility function that aids in determining if the button is pressed in the XINPUT_STATE
 		/// </summary>
@@ -71,22 +79,22 @@ namespace sds
 			if (token == temp + sds::sdsActionDescriptors.left)
 			{
 				//Test lThumb left.
-				if (state.Gamepad.sThumbLX < (-sds::sdsPlayerOne.left_dz))
+				if (state.Gamepad.sThumbLX < (-localPlayer.left_x_dz))
 					return true;
 			}
 			else if (token == temp + sds::sdsActionDescriptors.right)
 			{
-				if (state.Gamepad.sThumbLX > sds::sdsPlayerOne.left_dz)
+				if (state.Gamepad.sThumbLX > localPlayer.left_x_dz)
 					return true;
 			}
 			else if (token == temp + sds::sdsActionDescriptors.down)
 			{
-				if (state.Gamepad.sThumbLY < (-sds::sdsPlayerOne.left_dz))
+				if (state.Gamepad.sThumbLY < (-localPlayer.left_y_dz))
 					return true;
 			}
 			else if (token == temp + sds::sdsActionDescriptors.up)
 			{
-				if (state.Gamepad.sThumbLY > sds::sdsPlayerOne.left_dz)
+				if (state.Gamepad.sThumbLY > localPlayer.left_y_dz)
 					return true;
 			}
 			temp = sds::sdsActionDescriptors.rThumb + sds::sdsActionDescriptors.moreInfo;
@@ -94,22 +102,22 @@ namespace sds
 			if (token == temp + sds::sdsActionDescriptors.left)
 			{
 				//Test lThumb left.
-				if (state.Gamepad.sThumbRX < (-sds::sdsPlayerOne.left_dz))
+				if (state.Gamepad.sThumbRX < (-localPlayer.right_x_dz))
 					return true;
 			}
 			else if (token == temp + sds::sdsActionDescriptors.right)
 			{
-				if (state.Gamepad.sThumbRX > sds::sdsPlayerOne.left_dz)
+				if (state.Gamepad.sThumbRX > localPlayer.right_x_dz)
 					return true;
 			}
 			else if (token == temp + sds::sdsActionDescriptors.down)
 			{
-				if (state.Gamepad.sThumbRY < (-sds::sdsPlayerOne.left_dz))
+				if (state.Gamepad.sThumbRY < (-localPlayer.right_y_dz))
 					return true;
 			}
 			else if (token == temp + sds::sdsActionDescriptors.up)
 			{
-				if (state.Gamepad.sThumbRY > sds::sdsPlayerOne.left_dz)
+				if (state.Gamepad.sThumbRY > localPlayer.right_y_dz)
 					return true;
 			}
 			return false;

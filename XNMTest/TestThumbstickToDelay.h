@@ -22,7 +22,10 @@ namespace XNMTest
 
 		TEST_METHOD(TestGetDelayFromThumbstickValue)
 		{
-			sds::ThumbstickToDelay delay(Sens, deadzone);
+			sds::PlayerInfo pl;
+			sds::MouseMap mp = sds::MouseMap::RIGHT_STICK;
+			sds::ThumbstickToDelay delay(Sens,pl,mp);
+
 			auto testValues = [&delay](int first, int second, int comparison)
 			{
 				int result = delay.GetRangedThumbstickValue(first, second);

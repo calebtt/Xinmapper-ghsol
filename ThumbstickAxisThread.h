@@ -13,19 +13,35 @@ namespace sds
     class ThumbstickAxisThread :
         public CPPThreadRunner<int>
     {
-        inline static std::mutex m_sendKeyMutex;
+        inline static std::mutex m_sendKeyMutex; //mutex shared between instances
         const int PIXELS_MAGNITUDE = 1; //1
         const int PIXELS_NOMOVE = 0; //0
-        const int THREAD_DELAY = 1500; //1500 microseconds
+        const int THREAD_DELAY_MICRO = 1500; //1500 microseconds
+        sds::PlayerInfo localPlayer;
+        sds::MouseMap localStick;
         std::atomic<int> m_sensitivity;
-        std::atomic<int> m_deadzone;
-        std::atomic<int> m_localstate;
+        std::atomic<int> m_localX;
+        std::atomic<int> m_localY;
+        int m_xDeadzone;
+        int m_yDeadzone;
         bool m_isX; // x or y axis
         std::shared_ptr<ThumbstickToDelay> m_moveDetermine;
     public:
-        ThumbstickAxisThread(int deadzone, int sensitivity, bool isX)
-            : CPPThreadRunner<int>(), m_deadzone(deadzone), m_sensitivity(sensitivity), m_isX(isX)
+        //ThumbstickAxisThread(int sensitivity, int deadzone, bool isX)
+        //    : CPPThreadRunner<int>(), m_deadzone(deadzone), m_sensitivity(sensitivity), m_isX(isX)
+        //{
+
+        //}
+        ThumbstickAxisThread(int sensitivity, const PlayerInfo &player, MouseMap whichStick, bool isX)
+            : CPPThreadRunner<int>(), m_sensitivity(sensitivity), localPlayer(player), localStick(whichStick), m_isX(isX)
         {
+            if (whichStick == MouseMap::NEITHER_STICK)
+                localStick = MouseMap::RIGHT_STICK;
+
+            m_xDeadzone = localStick == MouseMap::LEFT_STICK ? player.left_x_dz : player.right_x_dz;
+            m_yDeadzone = localStick == MouseMap::LEFT_STICK ? player.left_y_dz : player.right_y_dz;
+            m_localX = 0;
+            m_localY = 0;
 
         }
         /// <summary>
@@ -42,7 +58,7 @@ namespace sds
 		/// <param name="thumbValue"> thumbstick axis value </param>
 		void ProcessState(int thumbValue)
 		{
-            m_localstate = thumbValue;
+            m_localX = thumbValue;
             if (!this->isThreadRunning && !this->isStopRequested)
             {
                 this->startThread();
@@ -51,13 +67,16 @@ namespace sds
 
         /// <summary>
         /// Called to update the internal thumbstick values with new values.
-        /// Note the params are not X and Y but rather currentAxis and otherAxis
+        /// Note the params are X and Y.
         /// </summary>
-        /// <param name="thumbValue"> thumbstick axis value </param>
-        void ProcessState(int thumbValue, int otherAxisValue)
+        /// <param name="thumbX"> x thumbstick axis value </param>
+        /// <param name="thumbY"> y thumbstick axis value </param>
+        void ProcessState(int thumbX, int thumbY)
         {
             //TODO complete this function to pass along the values
-            m_localstate = thumbValue;
+            m_localX = thumbX;
+            m_localY = thumbY;
+
             if (!this->isThreadRunning && !this->isStopRequested)
             {
                 this->startThread();
@@ -98,7 +117,8 @@ namespace sds
 
             using namespace std::chrono;
             SendKey keySend;
-			m_moveDetermine = std::make_shared<ThumbstickToDelay>(this->m_sensitivity, this->m_deadzone);
+            m_moveDetermine = std::make_shared<ThumbstickToDelay>(this->m_sensitivity, this->localPlayer, this->localStick);
+            //std::shared_ptr<ThumbstickToDelay> thumbDelay = m_moveDetermine; // local copy of smart pointer for lambda
             steady_clock::time_point begin = steady_clock::now();
             steady_clock::time_point end = steady_clock::now();
             auto timeSpan = duration_cast<microseconds>(end - begin);
@@ -106,7 +126,7 @@ namespace sds
             long long delayValue = 1;
 
             //local copies
-            long long localVal = m_localstate;
+            long long localVal = m_localX;
             //invert if Y axis
             invertIfY(localVal, m_isX);
 
@@ -114,7 +134,7 @@ namespace sds
             int moveyval = 0;
             int testxval = 0;
             int testyval = 0;
-            std::shared_ptr<ThumbstickToDelay> thumbDelay = m_moveDetermine;
+            
 
             //main loop
             while (true)
@@ -122,7 +142,7 @@ namespace sds
                 if (this->isStopRequested)
                     return;
                 
-                localVal = m_localstate;
+                localVal = m_localX;
                 //invert if Y axis
                 invertIfY(localVal, m_isX);
 
@@ -138,9 +158,8 @@ namespace sds
                     if (timeSpan.count() > delayValue)
                     {
                         //reset clock begin
-                        //TODO: there is a bug here for super low delay values from GetDelayFromThumbstickValue
                         begin = steady_clock::now();
-                        if (thumbDelay->DoesRequireMove(testxval, testyval))
+                        if (m_moveDetermine->DoesRequireMove(testxval, testyval))
                         {
                             //utilizing the static mutex to synchronize multiple instances of "thumbstickaxisthread"
                             //in that it should alternate between the two instances when required. Without this, a single thread
@@ -149,7 +168,7 @@ namespace sds
                                 lock l(m_sendKeyMutex);
                                 keySend.SendMouseMove(movexval, moveyval);
                                 lastMoved = true;
-                                delayValue = std::abs(std::chrono::microseconds(thumbDelay->GetDelayFromThumbstickValue(static_cast<int>(localVal))).count());
+                                delayValue = std::abs(std::chrono::microseconds(m_moveDetermine->GetDelayFromThumbstickValue(static_cast<int>(localVal))).count());
                             }
                         }
                         else
@@ -162,12 +181,12 @@ namespace sds
                         lock l(m_sendKeyMutex);
                         keySend.SendMouseMove(movexval, moveyval);
                         lastMoved = true;
-                        delayValue = std::abs(std::chrono::microseconds(thumbDelay->GetDelayFromThumbstickValue(static_cast<int>(localVal))).count());
+                        delayValue = std::abs(std::chrono::microseconds(m_moveDetermine->GetDelayFromThumbstickValue(static_cast<int>(localVal))).count());
                     }
                 }
                 else
                 {
-                    std::this_thread::sleep_for(std::chrono::microseconds(THREAD_DELAY));
+                    std::this_thread::sleep_for(std::chrono::microseconds(THREAD_DELAY_MICRO));
                 }
 
                 //variable thread delay
