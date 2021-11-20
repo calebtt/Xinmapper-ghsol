@@ -35,11 +35,9 @@ namespace sds
 		/// Allows getting sensitivity values for the current axis, from using alternate deadzones and sensitivity values for each axis.
 		/// In effect, the delay values returned will be influenced by the state of the other axis.
 		/// </summary>
-		/// <param name="firstAxisSens">current axis of interest sensitivity value</param>
-		/// <param name="firstAxisDz">current axis of interest deadzone value</param>
-		/// <param name="secondAxisSens">other axis sensitivity value</param>
-		/// <param name="secondAxisDz">other axis deadzone value</param>
-		/// <returns></returns>
+		/// <param name="sensitivity">int sensitivity value</param>
+		/// <param name="player">PlayerInfo struct full of deadzone information</param>
+		/// <param name="whichStick">MouseMap enum denoting which thumbstick</param>
 		ThumbstickToDelay(int sensitivity, const PlayerInfo &player, MouseMap whichStick) noexcept
 		{
 			//assertions about static const members
@@ -99,7 +97,7 @@ namespace sds
 		/// </summary>
 		/// <param name="sensitivity">is the mouse sensitivity value to use</param>
 		/// <param name="xAxisDz">x axis deadzone value</param>
-		/// <param name="secondAxisDz">y axis deadzone value</param>
+		/// <param name="yAxisDz">y axis deadzone value</param>
 		/// <returns></returns>
 		ThumbstickToDelay(int sensitivity, int xAxisDz, int yAxisDz) noexcept
 			: axisSensitivity(sensitivity), axisDeadzone(xAxisDz), otherAxisDeadzone(yAxisDz)
@@ -186,16 +184,18 @@ namespace sds
 		/// to generate the delay for the current axis.
 		/// throws std::string if bad value internally
 		/// </summary>
+		/// <param name="x">X value</param>
+		/// <param name="y">Y value</param>
 		/// <returns></returns>
-		size_t GetDelayFromThumbstickValues(int currentAxisVal, int otherAxisVal)
+		size_t GetDelayFromThumbstickValues(int x, int y)
 		{
 			//TODO finish
-			currentAxisVal = GetRangedThumbstickValue(currentAxisVal, this->axisDeadzone);
-			otherAxisVal = GetRangedThumbstickValue(otherAxisVal, this->axisDeadzone);
+			x = GetRangedThumbstickValue(x, this->axisDeadzone);
+			y= GetRangedThumbstickValue(y, this->axisDeadzone);
 			int rval = -1;
-			std::for_each(sharedSensitivityMap.begin(), sharedSensitivityMap.end(), [&currentAxisVal, &rval](std::pair<const int, int> &elem)
+			std::for_each(sharedSensitivityMap.begin(), sharedSensitivityMap.end(), [&x, &rval](std::pair<const int, int> &elem)
 				{
-					if (elem.first == currentAxisVal)
+					if (elem.first == x)
 						rval = elem.second;
 				});
 			if (rval >= MICROSECONDS_MIN && rval <= MICROSECONDS_MAX)
@@ -236,6 +236,15 @@ namespace sds
 			else if (percentage > SENSITIVITY_MAX)
 				percentage = SENSITIVITY_MAX;
 			return percentage;
+		}
+
+		/// <summary>
+		/// returns a copy of the internal sensitivity map
+		/// </summary>
+		/// <returns></returns>
+		std::map<int, int> GetCopyOfSensitivityMap() const
+		{
+			return sharedSensitivityMap;
 		}
 
 

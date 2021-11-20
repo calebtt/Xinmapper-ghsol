@@ -27,11 +27,6 @@ namespace sds
         bool m_isX; // x or y axis
         std::shared_ptr<ThumbstickToDelay> m_moveDetermine;
     public:
-        //ThumbstickAxisThread(int sensitivity, int deadzone, bool isX)
-        //    : CPPThreadRunner<int>(), m_deadzone(deadzone), m_sensitivity(sensitivity), m_isX(isX)
-        //{
-
-        //}
         ThumbstickAxisThread(int sensitivity, const PlayerInfo &player, MouseMap whichStick, bool isX)
             : CPPThreadRunner<int>(), m_sensitivity(sensitivity), localPlayer(player), localStick(whichStick), m_isX(isX)
         {
