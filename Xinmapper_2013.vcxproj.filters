@@ -77,7 +77,7 @@
     <ClCompile Include="stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Xinmapper_2013.cpp">
+    <ClCompile Include="Xinmapper_2022.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

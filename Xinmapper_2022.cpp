@@ -1,6 +1,5 @@
-// Xinmapper_2013.cpp : Defines the entry point for the console application.
+// Xinmapper_2022.cpp : Defines the entry point for the console application.
 //Caleb Taylor
-//last updated Oct 17th, 2021
 //Keep in mind need to run the .exe in administrator mode to work with programs running in admin mode.
 
 
