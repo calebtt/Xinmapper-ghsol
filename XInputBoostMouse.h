@@ -26,34 +26,34 @@ namespace sds
 	class XInputBoostMouse : public CPPThreadRunner<XINPUT_STATE>
 	{
 	private:
-		std::atomic<MouseMap> stickMapInfo;
-		std::atomic<SHORT> threadX, threadY;
-		std::atomic<int> mouseSensitivity;
+		std::atomic<MouseMap> m_stickMapInfo;
+		std::atomic<SHORT> m_threadX, m_threadY;
+		std::atomic<int> m_mouseSensitivity;
 
-		sds::PlayerInfo localPlayerInfo;
+		sds::PlayerInfo m_localPlayerInfo;
 	public:
 		/// <summary>
 		/// Ctor for default configuration
 		/// </summary>
 		XInputBoostMouse()
 			: CPPThreadRunner(),
-			stickMapInfo(MouseMap::NEITHER_STICK),
-			mouseSensitivity(XinSettings::SENSITIVITY_DEFAULT)
+			m_stickMapInfo(MouseMap::NEITHER_STICK),
+			m_mouseSensitivity(XinSettings::SENSITIVITY_DEFAULT)
 		{
-			threadX = 0;
-			threadY = 0;
+			m_threadX = 0;
+			m_threadY = 0;
 		}
 		/// <summary>
 		/// Ctor allows setting a custom PlayerInfo
 		/// </summary>
 		XInputBoostMouse(const sds::PlayerInfo &player)
 			: CPPThreadRunner(),
-			stickMapInfo(MouseMap::NEITHER_STICK),
-			mouseSensitivity(XinSettings::SENSITIVITY_DEFAULT)
+			m_stickMapInfo(MouseMap::NEITHER_STICK),
+			m_mouseSensitivity(XinSettings::SENSITIVITY_DEFAULT)
 		{
-			localPlayerInfo = player;
-			threadX = 0;
-			threadY = 0;
+			m_localPlayerInfo = player;
+			m_threadX = 0;
+			m_threadY = 0;
 		}
 
 		/// <summary>
@@ -71,7 +71,7 @@ namespace sds
 		/// <param name="info"> a MouseMap enum</param>
 		void EnableProcessing(MouseMap info)
 		{
-			stickMapInfo = info;
+			m_stickMapInfo = info;
 		}
 
 		/// <summary>
@@ -81,12 +81,12 @@ namespace sds
 		/// <param name="state"> an XINPUT_STATE </param>
 		void ProcessState(const XINPUT_STATE &state)
 		{
-			if(stickMapInfo == MouseMap::NEITHER_STICK)
+			if(m_stickMapInfo == MouseMap::NEITHER_STICK)
 				return;
 			//Holds the reported stick values and will compare to determine if movement has occurred.
 			int tsx, tsy;
 		
-			if(stickMapInfo == MouseMap::RIGHT_STICK)
+			if(m_stickMapInfo == MouseMap::RIGHT_STICK)
 			{
 				tsx = state.Gamepad.sThumbRX;
 				tsy = state.Gamepad.sThumbRY;
@@ -97,13 +97,13 @@ namespace sds
 				tsy = state.Gamepad.sThumbLY;
 			}
 			//Give worker thread new values.
-			threadX = tsx;
-			threadY = tsy;
+			m_threadX = tsx;
+			m_threadY = tsy;
 
 
-			int tdx = stickMapInfo == MouseMap::RIGHT_STICK ? localPlayerInfo.right_x_dz : localPlayerInfo.left_x_dz;
-			int tdy = stickMapInfo == MouseMap::RIGHT_STICK ? localPlayerInfo.right_y_dz : localPlayerInfo.left_y_dz;
-			ThumbstickToDelay moveDetermine(mouseSensitivity, tdx, tdy);
+			int tdx = m_stickMapInfo == MouseMap::RIGHT_STICK ? m_localPlayerInfo.right_x_dz : m_localPlayerInfo.left_x_dz;
+			int tdy = m_stickMapInfo == MouseMap::RIGHT_STICK ? m_localPlayerInfo.right_y_dz : m_localPlayerInfo.left_y_dz;
+			ThumbstickToDelay moveDetermine(m_mouseSensitivity, tdx, tdy);
 
 			if( moveDetermine.DoesRequireMove(tsx,tsy) )
 			{
@@ -128,7 +128,7 @@ namespace sds
 			{
 				return "Error in sds::XInputBoostMouse::SetSensitivity(), int new_sens out of range.";
 			}
-			mouseSensitivity = new_sens;
+			m_mouseSensitivity = new_sens;
 			this->stopThread();
 			this->startThread();
 			return "";
@@ -139,7 +139,7 @@ namespace sds
 		/// <returns></returns>
 		int GetSensitivity() const
 		{
-			return mouseSensitivity;
+			return m_mouseSensitivity;
 		}
 	private:
 		/// <summary>
@@ -148,11 +148,11 @@ namespace sds
 		/// </summary>
 		virtual void workThread()
 		{
-			int dzx = this->stickMapInfo == MouseMap::RIGHT_STICK ? localPlayerInfo.right_x_dz : localPlayerInfo.left_x_dz;
-			int dzy = this->stickMapInfo == MouseMap::RIGHT_STICK ? localPlayerInfo.right_y_dz : localPlayerInfo.left_y_dz;
+			int dzx = this->m_stickMapInfo == MouseMap::RIGHT_STICK ? m_localPlayerInfo.right_x_dz : m_localPlayerInfo.left_x_dz;
+			int dzy = this->m_stickMapInfo == MouseMap::RIGHT_STICK ? m_localPlayerInfo.right_y_dz : m_localPlayerInfo.left_y_dz;
 
-			ThumbstickAxisThread xThread(this->GetSensitivity(), localPlayerInfo, stickMapInfo, true);
-			ThumbstickAxisThread yThread(this->GetSensitivity(), localPlayerInfo, stickMapInfo, false);
+			ThumbstickAxisThread xThread(this->GetSensitivity(), m_localPlayerInfo, m_stickMapInfo, true);
+			ThumbstickAxisThread yThread(this->GetSensitivity(), m_localPlayerInfo, m_stickMapInfo, false);
 			
 			xThread.Start();
 			yThread.Start();
@@ -160,8 +160,8 @@ namespace sds
 			//thread main loop
 			while(!isStopRequested)//<--Danger! From the base class.
 			{
-				xThread.ProcessState(threadX, threadY);
-				yThread.ProcessState(threadX, threadY);
+				xThread.ProcessState(m_threadX, m_threadY);
+				yThread.ProcessState(m_threadX, m_threadY);
 				
 				std::this_thread::sleep_for(std::chrono::microseconds(XinSettings::MOVE_THREAD_SLEEP_MICRO));
 			}

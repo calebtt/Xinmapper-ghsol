@@ -10,22 +10,22 @@ namespace sds
 	/// </summary>
 	class SendKey
 	{
-		INPUT keyInput;
-		INPUT mouseClickInput;
-		INPUT mouseMoveInput;
+		INPUT m_keyInput;
+		INPUT m_mouseClickInput;
+		INPUT m_mouseMoveInput;
 	public:
 		/// <summary>
 		/// Default Constructor
 		/// </summary>
 		SendKey()
 		{
-			memset(&keyInput, 0, sizeof(INPUT));
-			memset(&mouseClickInput, 0, sizeof(INPUT));
-			memset(&mouseMoveInput, 0, sizeof(INPUT));
-			keyInput.type = INPUT_KEYBOARD;
-			mouseClickInput.type = INPUT_MOUSE;
-			mouseMoveInput.type = INPUT_MOUSE;
-			mouseMoveInput.mi.dwFlags = MOUSEEVENTF_MOVE;
+			memset(&m_keyInput, 0, sizeof(INPUT));
+			memset(&m_mouseClickInput, 0, sizeof(INPUT));
+			memset(&m_mouseMoveInput, 0, sizeof(INPUT));
+			m_keyInput.type = INPUT_KEYBOARD;
+			m_mouseClickInput.type = INPUT_MOUSE;
+			m_mouseMoveInput.type = INPUT_MOUSE;
+			m_mouseMoveInput.mi.dwFlags = MOUSEEVENTF_MOVE;
 		}
 		/// <summary>
 		/// Sends mouse movement specified by X and Y number of pixels to move.
@@ -34,12 +34,12 @@ namespace sds
 		/// <param name="y">number of pixels in Y</param>
 		void SendMouseMove(const int x, const int y)
 		{
-			mouseMoveInput.mi.dx = static_cast<LONG>(x);
-			mouseMoveInput.mi.dy = static_cast<LONG>(y);
-			mouseMoveInput.mi.dwExtraInfo = GetMessageExtraInfo();
+			m_mouseMoveInput.mi.dx = static_cast<LONG>(x);
+			m_mouseMoveInput.mi.dy = static_cast<LONG>(y);
+			m_mouseMoveInput.mi.dwExtraInfo = GetMessageExtraInfo();
 
 			//Finally, send the input
-			SendInput(1, &mouseMoveInput, sizeof(INPUT));
+			SendInput(1, &m_mouseMoveInput, sizeof(INPUT));
 		}
 
 		/// <summary>
@@ -74,12 +74,12 @@ namespace sds
 		void Send(const int vk, const bool down)
 		{
 			if (down)
-				keyInput.ki.dwFlags = KEYEVENTF_SCANCODE;
+				m_keyInput.ki.dwFlags = KEYEVENTF_SCANCODE;
 			else
-				keyInput.ki.dwFlags = KEYEVENTF_SCANCODE | KEYEVENTF_KEYUP;
+				m_keyInput.ki.dwFlags = KEYEVENTF_SCANCODE | KEYEVENTF_KEYUP;
 
 			WORD scanCode = GetScanCode(vk);
-			keyInput.ki.wScan = scanCode;
+			m_keyInput.ki.wScan = scanCode;
 			if (scanCode == 0)
 			{
 				//Assume mouse.
@@ -87,30 +87,30 @@ namespace sds
 				{
 				case VK_LBUTTON:
 					if (down)
-						mouseClickInput.mi.dwFlags = MOUSEEVENTF_LEFTDOWN;
+						m_mouseClickInput.mi.dwFlags = MOUSEEVENTF_LEFTDOWN;
 					else
-						mouseClickInput.mi.dwFlags = MOUSEEVENTF_LEFTUP;
+						m_mouseClickInput.mi.dwFlags = MOUSEEVENTF_LEFTUP;
 					break;
 				case VK_RBUTTON:
 					if (down)
-						mouseClickInput.mi.dwFlags = MOUSEEVENTF_RIGHTDOWN;
+						m_mouseClickInput.mi.dwFlags = MOUSEEVENTF_RIGHTDOWN;
 					else
-						mouseClickInput.mi.dwFlags = MOUSEEVENTF_RIGHTUP;
+						m_mouseClickInput.mi.dwFlags = MOUSEEVENTF_RIGHTUP;
 					break;
 				case VK_MBUTTON:
 					if (down)
-						mouseClickInput.mi.dwFlags = MOUSEEVENTF_MIDDLEDOWN;
+						m_mouseClickInput.mi.dwFlags = MOUSEEVENTF_MIDDLEDOWN;
 					else
-						mouseClickInput.mi.dwFlags = MOUSEEVENTF_MIDDLEUP;
+						m_mouseClickInput.mi.dwFlags = MOUSEEVENTF_MIDDLEUP;
 					break;
 				default:
 					break;
 				}
 			}
 
-			mouseClickInput.mi.dwExtraInfo = GetMessageExtraInfo();
-			keyInput.ki.dwExtraInfo = GetMessageExtraInfo();
-			UINT ret = SendInput(1, (scanCode != 0 ? &keyInput : &mouseClickInput), sizeof(INPUT));
+			m_mouseClickInput.mi.dwExtraInfo = GetMessageExtraInfo();
+			m_keyInput.ki.dwExtraInfo = GetMessageExtraInfo();
+			UINT ret = SendInput(1, (scanCode != 0 ? &m_keyInput : &m_mouseClickInput), sizeof(INPUT));
 			//assert(ret != 0);
 		}
 		/// <summary>

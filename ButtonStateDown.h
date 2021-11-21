@@ -9,14 +9,14 @@ namespace sds
 	/// </summary>
 	class ButtonStateDown
 	{
-		sds::PlayerInfo localPlayer;
+		sds::PlayerInfo m_localPlayer;
 	public:
 		ButtonStateDown()
 		{
 		}
 		ButtonStateDown(const sds::PlayerInfo &player)
 		{
-			localPlayer = player;
+			m_localPlayer = player;
 		}
 		/// <summary>
 		/// Utility function that aids in determining if the button is pressed in the XINPUT_STATE
@@ -49,14 +49,14 @@ namespace sds
 		{
 			if (token == sds::sdsActionDescriptors.lTrigger)
 			{
-				if (state.Gamepad.bLeftTrigger > localPlayer.left_trigger_dz)
+				if (state.Gamepad.bLeftTrigger > m_localPlayer.left_trigger_dz)
 				{
 					return true;
 				}
 			}
 			if (token == sds::sdsActionDescriptors.rTrigger)
 			{
-				if (state.Gamepad.bRightTrigger > localPlayer.right_trigger_dz)
+				if (state.Gamepad.bRightTrigger > m_localPlayer.right_trigger_dz)
 				{
 					return true;
 				}
@@ -79,22 +79,22 @@ namespace sds
 			if (token == temp + sds::sdsActionDescriptors.left)
 			{
 				//Test lThumb left.
-				if (state.Gamepad.sThumbLX < (-localPlayer.left_x_dz))
+				if (state.Gamepad.sThumbLX < (-m_localPlayer.left_x_dz))
 					return true;
 			}
 			else if (token == temp + sds::sdsActionDescriptors.right)
 			{
-				if (state.Gamepad.sThumbLX > localPlayer.left_x_dz)
+				if (state.Gamepad.sThumbLX > m_localPlayer.left_x_dz)
 					return true;
 			}
 			else if (token == temp + sds::sdsActionDescriptors.down)
 			{
-				if (state.Gamepad.sThumbLY < (-localPlayer.left_y_dz))
+				if (state.Gamepad.sThumbLY < (-m_localPlayer.left_y_dz))
 					return true;
 			}
 			else if (token == temp + sds::sdsActionDescriptors.up)
 			{
-				if (state.Gamepad.sThumbLY > localPlayer.left_y_dz)
+				if (state.Gamepad.sThumbLY > m_localPlayer.left_y_dz)
 					return true;
 			}
 			temp = sds::sdsActionDescriptors.rThumb + sds::sdsActionDescriptors.moreInfo;
@@ -102,22 +102,22 @@ namespace sds
 			if (token == temp + sds::sdsActionDescriptors.left)
 			{
 				//Test lThumb left.
-				if (state.Gamepad.sThumbRX < (-localPlayer.right_x_dz))
+				if (state.Gamepad.sThumbRX < (-m_localPlayer.right_x_dz))
 					return true;
 			}
 			else if (token == temp + sds::sdsActionDescriptors.right)
 			{
-				if (state.Gamepad.sThumbRX > localPlayer.right_x_dz)
+				if (state.Gamepad.sThumbRX > m_localPlayer.right_x_dz)
 					return true;
 			}
 			else if (token == temp + sds::sdsActionDescriptors.down)
 			{
-				if (state.Gamepad.sThumbRY < (-localPlayer.right_y_dz))
+				if (state.Gamepad.sThumbRY < (-m_localPlayer.right_y_dz))
 					return true;
 			}
 			else if (token == temp + sds::sdsActionDescriptors.up)
 			{
-				if (state.Gamepad.sThumbRY > localPlayer.right_y_dz)
+				if (state.Gamepad.sThumbRY > m_localPlayer.right_y_dz)
 					return true;
 			}
 			return false;

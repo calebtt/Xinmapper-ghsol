@@ -19,12 +19,12 @@
     <Filter Include="Header Files\Utility">
       <UniqueIdentifier>{66b5f681-ee0d-444e-97da-b7de1b903aa9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Config">
+      <UniqueIdentifier>{30201953-344d-49f5-b74a-b900de8a89e1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ActionDescriptors.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GamepadUser.h">
@@ -69,8 +69,11 @@
     <ClInclude Include="MouseMap.h">
       <Filter>Header Files\Utility</Filter>
     </ClInclude>
+    <ClInclude Include="ActionDescriptors.h">
+      <Filter>Header Files\Config</Filter>
+    </ClInclude>
     <ClInclude Include="XinSettings.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Config</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

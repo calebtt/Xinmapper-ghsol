@@ -16,8 +16,8 @@ namespace sds
         public CPPThreadRunner<int>
     {
         inline static std::mutex m_sendKeyMutex; //mutex shared between instances
-        sds::PlayerInfo localPlayer;
-        sds::MouseMap localStick;
+        sds::PlayerInfo m_localPlayer;
+        sds::MouseMap m_localStick;
         std::atomic<int> m_sensitivity;
         std::atomic<int> m_localX;
         std::atomic<int> m_localY;
@@ -27,16 +27,16 @@ namespace sds
         std::shared_ptr<ThumbstickToDelay> m_moveDetermine;
     public:
         ThumbstickAxisThread(int sensitivity, const PlayerInfo &player, MouseMap whichStick, bool isX)
-            : CPPThreadRunner<int>(), m_sensitivity(sensitivity), localPlayer(player), localStick(whichStick), m_isX(isX)
+            : CPPThreadRunner<int>(), m_sensitivity(sensitivity), m_localPlayer(player), m_localStick(whichStick), m_isX(isX)
         {
             if (!XinSettings::IsValidSensitivityValue(sensitivity))
                 m_sensitivity = XinSettings::SENSITIVITY_DEFAULT;
 
             if (whichStick == MouseMap::NEITHER_STICK)
-                localStick = MouseMap::RIGHT_STICK;
+                m_localStick = MouseMap::RIGHT_STICK;
 
-            m_xDeadzone = localStick == MouseMap::LEFT_STICK ? player.left_x_dz : player.right_x_dz;
-            m_yDeadzone = localStick == MouseMap::LEFT_STICK ? player.left_y_dz : player.right_y_dz;
+            m_xDeadzone = m_localStick == MouseMap::LEFT_STICK ? player.left_x_dz : player.right_x_dz;
+            m_yDeadzone = m_localStick == MouseMap::LEFT_STICK ? player.left_y_dz : player.right_y_dz;
             if (!XinSettings::IsValidDeadzoneValue(m_xDeadzone))
                 m_xDeadzone = XinSettings::DEADZONE_DEFAULT;
             if (!XinSettings::IsValidDeadzoneValue(m_yDeadzone))
@@ -118,7 +118,7 @@ namespace sds
 
             using namespace std::chrono;
             SendKey keySend;
-            m_moveDetermine = std::make_shared<ThumbstickToDelay>(this->m_sensitivity, this->localPlayer, this->localStick);
+            m_moveDetermine = std::make_shared<ThumbstickToDelay>(this->m_sensitivity, this->m_localPlayer, this->m_localStick);
             steady_clock::time_point begin = steady_clock::now();
             steady_clock::time_point end = steady_clock::now();
             auto timeSpan = duration_cast<microseconds>(end - begin);

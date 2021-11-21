@@ -28,9 +28,9 @@ namespace sds
 			WordData() : down(false) {}
 		};
 
-		SendKey keySend;
-		std::vector<WordData> mapTokenInfo;
-		MapInformation map;
+		SendKey m_keySend;
+		std::vector<WordData> m_mapTokenInfo;
+		MapInformation m_map;
 	public:
 
 		/// <summary>
@@ -52,7 +52,7 @@ namespace sds
 		/// <returns></returns>
 		MapInformation GetMapInfo() const
 		{
-			return map;
+			return m_map;
 		}
 		/// <summary>
 		/// Takes a "MapInformation" string and internalizes (copies) it to adjust how controller input is mapped
@@ -104,9 +104,9 @@ namespace sds
 				}
 			}
 			//Reset map token info.
-			mapTokenInfo = tempVec;
+			m_mapTokenInfo = tempVec;
 			//Set MapInformation
-			map = newMap;
+			m_map = newMap;
 
 			return "";
 		}
@@ -136,7 +136,7 @@ namespace sds
 			//set all worddata "down" fields to false, the "down" member denotes that the button is currently being pressed
 			//according to the current info from the XINPUT lib, translated and sent here. A finite state machine type is used
 			//to keep track of the state of the key press
-			std::for_each(mapTokenInfo.begin(), mapTokenInfo.end(), [](WordData& d) 
+			std::for_each(m_mapTokenInfo.begin(), m_mapTokenInfo.end(), [](WordData& d) 
 				{
 					d.down = false;
 				});
@@ -156,7 +156,7 @@ namespace sds
 				//iterate the vector of worddata internal to this class, 
 				//if controlButton matches the current "worddata" AND the extra detail is NONE or matches the current "worddata"
 				//then set "down" to true
-				for(auto ij = mapTokenInfo.begin(); ij != mapTokenInfo.end(); ++ij)
+				for(auto ij = m_mapTokenInfo.begin(); ij != m_mapTokenInfo.end(); ++ij)
 				{
 					if (controlButton == ij->control 
 						&& (buttonExtraDetail + sds::sdsActionDescriptors.none == ij->info 
@@ -167,7 +167,7 @@ namespace sds
 				}
 			}
 			//Pass on the tokenized and processed info in the form of the vector<WordData> to the input simulation helper func
-			ProcessStates(this->mapTokenInfo);
+			ProcessStates(this->m_mapTokenInfo);
 		}
 
 		/// <summary>
@@ -208,10 +208,10 @@ namespace sds
 					int keyCode = GetVkFromTokenString(detail.value);
 					if( keyCode >= 0 )
 					{
-						keySend.Send(keyCode,true);
+						m_keySend.Send(keyCode,true);
 					}
 					else
-						keySend.Send(detail.value,true);
+						m_keySend.Send(detail.value,true);
 					detail.fsm.current_state = MultiBool::BUTTONSTATE::STATE_TWO;
 				}
 			}
@@ -223,10 +223,10 @@ namespace sds
 					int keyCode = GetVkFromTokenString(detail.value);
 					if( keyCode >= 0 )
 					{
-						keySend.Send(keyCode,false);
+						m_keySend.Send(keyCode,false);
 					}
 					else
-						keySend.Send(detail.value,false);
+						m_keySend.Send(detail.value,false);
 					detail.fsm.ResetState();
 				}
 			}
@@ -246,18 +246,18 @@ namespace sds
 					//Check for VK
 					int keyCode = GetVkFromTokenString(detail.value);
 					if(keyCode >= 0)
-						keySend.Send(keyCode,true);
+						m_keySend.Send(keyCode,true);
 					else
-						keySend.Send(detail.value,true);
+						m_keySend.Send(detail.value,true);
 					detail.fsm.current_state = MultiBool::BUTTONSTATE::STATE_TWO;
 				}
 				if( detail.fsm.current_state == MultiBool::BUTTONSTATE::STATE_THREE )
 				{
 					int keyCode = GetVkFromTokenString(detail.value);
 					if(keyCode >= 0)
-						keySend.Send(keyCode,false);
+						m_keySend.Send(keyCode,false);
 					else
-						keySend.Send(detail.value,false);
+						m_keySend.Send(detail.value,false);
 					detail.fsm.current_state = MultiBool::BUTTONSTATE::STATE_FOUR;
 				}
 			}
@@ -286,13 +286,13 @@ namespace sds
 				int keyCode = GetVkFromTokenString(detail.value);
 				if( keyCode >= 0 )
 				{
-					keySend.Send(keyCode,true);
-					keySend.Send(keyCode,false);
+					m_keySend.Send(keyCode,true);
+					m_keySend.Send(keyCode,false);
 				}
 				else
 				{
-					keySend.Send(detail.value,true);
-					keySend.Send(detail.value,false);
+					m_keySend.Send(detail.value,true);
+					m_keySend.Send(detail.value,false);
 				}
 
 			}
