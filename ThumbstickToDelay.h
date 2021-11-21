@@ -11,23 +11,32 @@ namespace sds
 	/// </summary>
 	class ThumbstickToDelay
 	{
+		//TODO add alternate deadzone behavior
+		inline static bool m_isDeadzoneActivated;
+		float m_altDeadzoneMultiplier;
 		int m_xAxisDeadzone;
 		int m_yAxisDeadzone;
 		int m_axisSensitivity;
-
-		static const short SMax = std::numeric_limits<SHORT>::max();
-		static const short SMin = std::numeric_limits<SHORT>::min();
-		static const int SENSITIVITY_MIN = 1;
-		static const int SENSITIVITY_MAX = 100;
-		static const int MICROSECONDS_MIN = 500; //0.5 ms min
-		static const int MICROSECONDS_MAX = 10000; //10 ms max
-		static const int DEADZONE_MIN = 1;
-		constexpr static const int DEADZONE_MAX = std::numeric_limits<SHORT>::max() - 1;
 		const std::string BAD_DELAY_MSG = "Bad timer delay value, exception.";
 		
 
 		std::map<int, int> m_sharedSensitivityMap;
 
+		void BuildSensitivityMap()
+		{
+			int step = XinSettings::MICROSECONDS_MAX / XinSettings::SENSITIVITY_MAX;
+			for (int i = XinSettings::SENSITIVITY_MIN, j = XinSettings::SENSITIVITY_MAX; i <= XinSettings::SENSITIVITY_MAX; i++, j--)
+			{
+				if (i * step < XinSettings::MICROSECONDS_MIN)
+				{
+					m_sharedSensitivityMap[j] = XinSettings::MICROSECONDS_MIN;
+				}
+				else
+				{
+					m_sharedSensitivityMap[j] = i * step;
+				}
+			}
+		}
 	public:
 		/// <summary>
 		/// Ctor for dual axis sensitivity and deadzone processing.
@@ -38,23 +47,18 @@ namespace sds
 		/// <param name="player">PlayerInfo struct full of deadzone information</param>
 		/// <param name="whichStick">MouseMap enum denoting which thumbstick</param>
 		ThumbstickToDelay(int sensitivity, const PlayerInfo &player, MouseMap whichStick) noexcept
+			: m_axisSensitivity(sensitivity), m_altDeadzoneMultiplier(XinSettings::ALT_DEADZONE_MULT_DEFAULT)
 		{
-			//assertions about static const members
-			static_assert(SENSITIVITY_MAX < MICROSECONDS_MAX);
-			static_assert(SENSITIVITY_MIN >= 1);
-			static_assert(SENSITIVITY_MIN < SENSITIVITY_MAX);
-			static_assert(DEADZONE_MIN > 0);
-			static_assert(DEADZONE_MAX < std::numeric_limits<SHORT>::max());
-			
+			m_isDeadzoneActivated = false;
 			m_axisSensitivity = sensitivity;
 			m_xAxisDeadzone = whichStick == MouseMap::LEFT_STICK ? player.left_x_dz : player.right_x_dz;
 			m_yAxisDeadzone = whichStick == MouseMap::LEFT_STICK ? player.left_y_dz : player.right_y_dz;
 
 			//error checking sensitivity arg range
-			if (sensitivity > SENSITIVITY_MAX)
-				m_axisSensitivity = SENSITIVITY_MAX;
-			else if (sensitivity < SENSITIVITY_MIN)
-				m_axisSensitivity = SENSITIVITY_MIN;
+			if (sensitivity > XinSettings::SENSITIVITY_MAX)
+				m_axisSensitivity = XinSettings::SENSITIVITY_MAX;
+			else if (sensitivity < XinSettings::SENSITIVITY_MIN)
+				m_axisSensitivity = XinSettings::SENSITIVITY_MIN;
 			
 			//error checking mousemap stick setting
 			if (whichStick == MouseMap::NEITHER_STICK)
@@ -64,29 +68,12 @@ namespace sds
 			//delay returned is some silly value
 			int cdx = whichStick == MouseMap::LEFT_STICK ? player.left_x_dz : player.right_x_dz;
 			int cdy = whichStick == MouseMap::LEFT_STICK ? player.left_y_dz : player.right_y_dz;
+			if (!XinSettings::IsValidDeadzoneValue(cdx))
+				m_xAxisDeadzone = XinSettings::DEADZONE_DEFAULT;
+			if (!XinSettings::IsValidDeadzoneValue(cdy))
+				m_yAxisDeadzone = XinSettings::DEADZONE_DEFAULT;
 
-			if (cdx < DEADZONE_MIN)
-				m_xAxisDeadzone = DEADZONE_MIN;
-			else if (cdx > DEADZONE_MAX)
-				m_xAxisDeadzone = DEADZONE_MAX;
-
-			if (cdy < DEADZONE_MIN)
-				m_yAxisDeadzone = DEADZONE_MIN;
-			else if (cdy > DEADZONE_MAX)
-				m_yAxisDeadzone = DEADZONE_MAX;
-
-			int step = MICROSECONDS_MAX / SENSITIVITY_MAX;
-			for (int i = SENSITIVITY_MIN, j = SENSITIVITY_MAX; i <= SENSITIVITY_MAX; i++, j--)
-			{
-				if (i * step < MICROSECONDS_MIN)
-				{
-					m_sharedSensitivityMap[j] = MICROSECONDS_MIN;
-				}
-				else
-				{
-					m_sharedSensitivityMap[j] = i * step;
-				}
-			}
+			BuildSensitivityMap();
 		}
 
 		/// <summary>
@@ -99,45 +86,24 @@ namespace sds
 		/// <param name="yAxisDz">y axis deadzone value</param>
 		/// <returns></returns>
 		ThumbstickToDelay(int sensitivity, int xAxisDz, int yAxisDz) noexcept
-			: m_axisSensitivity(sensitivity), m_xAxisDeadzone(xAxisDz), m_yAxisDeadzone(yAxisDz)
+			: m_axisSensitivity(sensitivity), m_xAxisDeadzone(xAxisDz), m_yAxisDeadzone(yAxisDz), m_altDeadzoneMultiplier(XinSettings::ALT_DEADZONE_MULT_DEFAULT)
 		{
-			//assertions about static const members
-			static_assert(SENSITIVITY_MAX < MICROSECONDS_MAX);
-			static_assert(SENSITIVITY_MIN >= 1);
-			static_assert(SENSITIVITY_MIN < SENSITIVITY_MAX);
-			static_assert(DEADZONE_MIN > 0);
-			static_assert(DEADZONE_MAX < std::numeric_limits<SHORT>::max());
+			m_isDeadzoneActivated = false;
 
-			//error checking firstAxisSens arg range
-			if (sensitivity > SENSITIVITY_MAX)
-				m_axisSensitivity = SENSITIVITY_MAX;
-			else if (sensitivity < SENSITIVITY_MIN)
-				m_axisSensitivity = SENSITIVITY_MIN;
+			//error checking sensitivity arg range
+			if (sensitivity > XinSettings::SENSITIVITY_MAX)
+				m_axisSensitivity = XinSettings::SENSITIVITY_MAX;
+			else if (sensitivity < XinSettings::SENSITIVITY_MIN)
+				m_axisSensitivity = XinSettings::SENSITIVITY_MIN;
 
-			//error checking firstAxisDz arg range
-			if (xAxisDz < DEADZONE_MIN)
-				m_xAxisDeadzone = DEADZONE_MIN;
-			else if (xAxisDz > DEADZONE_MAX)
-				m_xAxisDeadzone = DEADZONE_MAX;
+			//error checking axis dz arg range, because it might crash the program if the
+			//delay returned is some silly value
+			if (!XinSettings::IsValidDeadzoneValue(xAxisDz))
+				m_xAxisDeadzone = XinSettings::DEADZONE_DEFAULT;
+			if (!XinSettings::IsValidDeadzoneValue(yAxisDz))
+				m_yAxisDeadzone = XinSettings::DEADZONE_DEFAULT;
 
-			//error checking secondAxisDz arg range
-			if (yAxisDz < DEADZONE_MIN)
-				m_yAxisDeadzone = DEADZONE_MIN;
-			else if (yAxisDz > DEADZONE_MAX)
-				m_yAxisDeadzone = DEADZONE_MAX;
-
-			int step = MICROSECONDS_MAX / SENSITIVITY_MAX;
-			for (int i = SENSITIVITY_MIN, j = SENSITIVITY_MAX; i <= SENSITIVITY_MAX; i++, j--)
-			{
-				if (i * step < MICROSECONDS_MIN)
-				{
-					m_sharedSensitivityMap[j] = MICROSECONDS_MIN;
-				}
-				else
-				{
-					m_sharedSensitivityMap[j] = i * step;
-				}
-			}
+			BuildSensitivityMap();
 		}
 
 		/// <summary>
@@ -153,7 +119,16 @@ namespace sds
 			xMove = (x > m_xAxisDeadzone || x < -m_xAxisDeadzone);
 			yMove = (y > m_yAxisDeadzone || y < -m_yAxisDeadzone);
 			
-			return xMove || yMove;
+			if (!xMove && !yMove)
+			{
+				m_isDeadzoneActivated = false;
+				return false;
+			}
+			else
+			{
+				m_isDeadzoneActivated = true;
+				return true;
+			}
 		}
 
 		/// <summary>
@@ -165,7 +140,8 @@ namespace sds
 		/// <returns>delay in microseconds</returns>
 		size_t GetDelayFromThumbstickValue(int val, bool isX)
 		{
-			val = GetRangedThumbstickValue( val, (isX ? m_xAxisDeadzone : m_yAxisDeadzone) );
+			int curr = (!m_isDeadzoneActivated) ? (isX ? m_xAxisDeadzone : m_yAxisDeadzone) : (isX ? m_xAxisDeadzone*m_altDeadzoneMultiplier : m_yAxisDeadzone*m_altDeadzoneMultiplier);
+			val = GetRangedThumbstickValue( val, curr );
 			int rval = 0;
 			//error checking to make sure the key is in the map
 			auto it = std::find_if(m_sharedSensitivityMap.begin(), m_sharedSensitivityMap.end(), [&val, &rval](const std::pair<int, int> &elem)
@@ -181,9 +157,9 @@ namespace sds
 			}
 
 			//double check the value from the map is within bounds
-			if (rval >= MICROSECONDS_MIN && rval <= MICROSECONDS_MAX)
+			if (rval >= XinSettings::MICROSECONDS_MIN && rval <= XinSettings::MICROSECONDS_MAX)
 				return rval;
-			return MICROSECONDS_MAX;
+			return XinSettings::MICROSECONDS_MAX;
 		}
 
 		/// <summary>
@@ -210,9 +186,9 @@ namespace sds
 			else
 				txVal = y + (std::sqrt(x)*2);
 			
-			if (txVal > SENSITIVITY_MAX)
+			if (txVal > XinSettings::SENSITIVITY_MAX)
 			{
-				txVal = SENSITIVITY_MAX;
+				txVal = XinSettings::SENSITIVITY_MAX;
 			}
 			//error checking to make sure the value is in the map,
 			//and uses the iterator if found to get the mapped value
@@ -230,9 +206,9 @@ namespace sds
 				throw std::string("Exception in ThumbstickToDelay::GetDelayFromThumbstickValue(): " + BAD_DELAY_MSG);
 			}
 
-			if (txVal >= MICROSECONDS_MIN && txVal <= MICROSECONDS_MAX)
+			if (txVal >= XinSettings::MICROSECONDS_MIN && txVal <= XinSettings::MICROSECONDS_MAX)
 				return txVal;
-			return MICROSECONDS_MAX;
+			return XinSettings::MICROSECONDS_MAX;
 		}
 
 		/// <summary>
@@ -245,25 +221,23 @@ namespace sds
 		/// <returns>positive value between (inclusive) SENSITIVITY_MIN and SENSITIVITY_MAX, or SENSITIVITY_MIN for thumbstick less than deadzone</returns>
 		int GetRangedThumbstickValue(int thumbstick, int axisDeadzone)
 		{
-			if (thumbstick > SMax)
-				thumbstick = SMax;
-			else if (thumbstick < SMin)
-				thumbstick = SMin;
+			if (thumbstick > XinSettings::SMax)
+				thumbstick = XinSettings::SMax;
+			else if (thumbstick < XinSettings::SMin)
+				thumbstick = XinSettings::SMin;
 			else if (thumbstick == 0)
-				return SENSITIVITY_MIN;
+				return XinSettings::SENSITIVITY_MIN;
 			//error checking deadzone arg range
-			if (axisDeadzone < DEADZONE_MIN)
-				axisDeadzone = DEADZONE_MIN;
-			else if (axisDeadzone > DEADZONE_MAX)
-				axisDeadzone = DEADZONE_MAX;
+			if (!XinSettings::IsValidDeadzoneValue(axisDeadzone))
+				axisDeadzone = XinSettings::DEADZONE_DEFAULT;
 			int absThumb = std::abs(thumbstick);
 			if (absThumb < axisDeadzone)
-				return SENSITIVITY_MIN;
-			unsigned int percentage = (absThumb - axisDeadzone) / ((SMax - axisDeadzone) / SENSITIVITY_MAX);
-			if (percentage < SENSITIVITY_MIN)
-				percentage = SENSITIVITY_MIN;
-			else if (percentage > SENSITIVITY_MAX)
-				percentage = SENSITIVITY_MAX;
+				return XinSettings::SENSITIVITY_MIN;
+			unsigned int percentage = (absThumb - axisDeadzone) / ((XinSettings::SMax - axisDeadzone) / XinSettings::SENSITIVITY_MAX);
+			if (percentage < XinSettings::SENSITIVITY_MIN)
+				percentage = XinSettings::SENSITIVITY_MIN;
+			else if (percentage > XinSettings::SENSITIVITY_MAX)
+				percentage = XinSettings::SENSITIVITY_MAX;
 			return percentage;
 		}
 

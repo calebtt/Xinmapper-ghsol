@@ -49,4 +49,5 @@
 #include "Globals.h"
 #include "MouseMap.h"
 #include "PlayerInfo.h"
+#include "XinmapperSettings.h"
 //#include "SendKey.h"

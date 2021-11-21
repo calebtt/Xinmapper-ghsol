@@ -30,21 +30,8 @@ namespace sds
 		std::atomic<MouseMap> stickMapInfo;
 		std::atomic<SHORT> threadX, threadY;
 		std::atomic<int> mouseSensitivity;
-		std::atomic<bool> isDeadzoneActivated;
 
 		sds::PlayerInfo localPlayerInfo;
-
-		//default vals
-		const int SENSITIVITY_DEFAULT = 35;
-		const float MULTIPLIER_DEFAULT = 0.5f;
-		//constants
-		const int MOVE_THREAD_SLEEP = 4;//4 ms
-		const int MOVE_THREAD_SLEEP_MOVE = 2;//2 ms
-		const int MOVE_THREAD_SLEEP_MICRO = 4000; //4 milliseconds
-		const int SENSITIVITY_MIN = 1;
-		const int SENSITIVITY_MAX = 100;
-		const float MULTIPLIER_MIN = 0.01f;
-		const float MULTIPLIER_MAX = 1.0f;
 	public:
 		/// <summary>
 		/// Ctor for default configuration
@@ -52,8 +39,7 @@ namespace sds
 		XInputBoostMouse()
 			: CPPThreadRunner(),
 			stickMapInfo(MouseMap::NEITHER_STICK),
-			mouseSensitivity(SENSITIVITY_DEFAULT),
-			isDeadzoneActivated(false)
+			mouseSensitivity(XinSettings::SENSITIVITY_DEFAULT)
 		{
 			threadX = 0;
 			threadY = 0;
@@ -64,8 +50,7 @@ namespace sds
 		XInputBoostMouse(const sds::PlayerInfo &player)
 			: CPPThreadRunner(),
 			stickMapInfo(MouseMap::NEITHER_STICK),
-			mouseSensitivity(SENSITIVITY_DEFAULT),
-			isDeadzoneActivated(false)
+			mouseSensitivity(XinSettings::SENSITIVITY_DEFAULT)
 		{
 			localPlayerInfo = player;
 			threadX = 0;
@@ -140,7 +125,7 @@ namespace sds
 		/// if there is an error, empty string otherwise. </returns>
 		std::string SetSensitivity(int new_sens)
 		{
-			if (new_sens < SENSITIVITY_MIN || new_sens > SENSITIVITY_MAX)
+			if (new_sens < XinSettings::SENSITIVITY_MIN || new_sens > XinSettings::SENSITIVITY_MAX)
 			{
 				return "Error in sds::XInputBoostMouse::SetSensitivity(), int new_sens out of range.";
 			}
@@ -179,7 +164,7 @@ namespace sds
 				xThread.ProcessState(threadX, threadY);
 				yThread.ProcessState(threadX, threadY);
 				
-				std::this_thread::sleep_for(std::chrono::microseconds(MOVE_THREAD_SLEEP_MICRO));
+				std::this_thread::sleep_for(std::chrono::microseconds(XinSettings::MOVE_THREAD_SLEEP_MICRO));
 			}
 			xThread.Stop();
 			yThread.Stop();

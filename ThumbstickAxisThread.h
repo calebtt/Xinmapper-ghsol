@@ -16,9 +16,6 @@ namespace sds
         public CPPThreadRunner<int>
     {
         inline static std::mutex m_sendKeyMutex; //mutex shared between instances
-        const int PIXELS_MAGNITUDE = 1; //1
-        const int PIXELS_NOMOVE = 0; //0
-        const int THREAD_DELAY_MICRO = 1500; //1500 microseconds
         sds::PlayerInfo localPlayer;
         sds::MouseMap localStick;
         std::atomic<int> m_sensitivity;
@@ -32,11 +29,18 @@ namespace sds
         ThumbstickAxisThread(int sensitivity, const PlayerInfo &player, MouseMap whichStick, bool isX)
             : CPPThreadRunner<int>(), m_sensitivity(sensitivity), localPlayer(player), localStick(whichStick), m_isX(isX)
         {
+            if (!XinSettings::IsValidSensitivityValue(sensitivity))
+                m_sensitivity = XinSettings::SENSITIVITY_DEFAULT;
+
             if (whichStick == MouseMap::NEITHER_STICK)
                 localStick = MouseMap::RIGHT_STICK;
 
             m_xDeadzone = localStick == MouseMap::LEFT_STICK ? player.left_x_dz : player.right_x_dz;
             m_yDeadzone = localStick == MouseMap::LEFT_STICK ? player.left_y_dz : player.right_y_dz;
+            if (!XinSettings::IsValidDeadzoneValue(m_xDeadzone))
+                m_xDeadzone = XinSettings::DEADZONE_DEFAULT;
+            if (!XinSettings::IsValidDeadzoneValue(m_yDeadzone))
+                m_yDeadzone = XinSettings::DEADZONE_DEFAULT;
             m_localX = 0;
             m_localY = 0;
 
@@ -55,7 +59,10 @@ namespace sds
 		/// <param name="thumbValue"> thumbstick axis value </param>
 		void ProcessState(int thumbValue)
 		{
-            m_localX = thumbValue;
+            if (m_isX)
+                m_localX = thumbValue;
+            else
+                m_localY = thumbValue;
             if (!this->isThreadRunning && !this->isStopRequested)
             {
                 this->startThread();
@@ -143,10 +150,10 @@ namespace sds
                 invertIfY(localValY, false);
 
 
-                testxval = m_isX ? static_cast<int>(localValX) : PIXELS_NOMOVE;
-                testyval = m_isX ? PIXELS_NOMOVE : static_cast<int>(localValY);
-                movexval = m_isX ? (localValX > 0 ? PIXELS_MAGNITUDE : -PIXELS_MAGNITUDE) : PIXELS_NOMOVE;
-                moveyval = m_isX ? PIXELS_NOMOVE : (localValY > 0 ? PIXELS_MAGNITUDE : -PIXELS_MAGNITUDE);
+                testxval = m_isX ? static_cast<int>(localValX) : XinSettings::PIXELS_NOMOVE;
+                testyval = m_isX ? XinSettings::PIXELS_NOMOVE : static_cast<int>(localValY);
+                movexval = m_isX ? (localValX > 0 ? XinSettings::PIXELS_MAGNITUDE : -XinSettings::PIXELS_MAGNITUDE) : XinSettings::PIXELS_NOMOVE;
+                moveyval = m_isX ? XinSettings::PIXELS_NOMOVE : (localValY > 0 ? XinSettings::PIXELS_MAGNITUDE : -XinSettings::PIXELS_MAGNITUDE);
                 
                 //if last iteration moved the mouse, switch to using the high precision timer for thread delay.
                 if (lastMoved)
@@ -183,7 +190,7 @@ namespace sds
                 }
                 else
                 {
-                    std::this_thread::sleep_for(std::chrono::microseconds(THREAD_DELAY_MICRO));
+                    std::this_thread::sleep_for(std::chrono::microseconds(XinSettings::THREAD_DELAY_MICRO));
                 }
 
                 //variable thread delay
