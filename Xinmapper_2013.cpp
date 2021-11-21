@@ -29,7 +29,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		//Error in setting the map information.
 		return errInfo("Error in setting the map information. Exiting.\n" + err, 1);
 	}
-	err = gamepadUser.mouse->SetSensitivity(5);
+	err = gamepadUser.mouse->SetSensitivity(75);
 	if (err.size())
 	{
 		return errInfo("Error in setting the mouse sensitivity. Exiting.\n" + err, 2);

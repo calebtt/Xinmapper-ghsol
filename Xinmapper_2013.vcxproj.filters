@@ -51,9 +51,6 @@
     <ClInclude Include="ThumbstickToDelay.h">
       <Filter>Header Files\MouseMovement</Filter>
     </ClInclude>
-    <ClInclude Include="ThumbstickToMovement.h">
-      <Filter>Header Files\MouseMovement</Filter>
-    </ClInclude>
     <ClInclude Include="XInputBoostMouse.h">
       <Filter>Header Files\MouseMovement</Filter>
     </ClInclude>

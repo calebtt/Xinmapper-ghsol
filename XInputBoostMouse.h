@@ -10,7 +10,6 @@ and finally update GamepadUser.
 #pragma once
 #include "stdafx.h"
 #include "CPPThreadRunner.h"
-#include "ThumbstickToMovement.h"
 #include "ThumbstickAxisThread.h"
 
 namespace sds

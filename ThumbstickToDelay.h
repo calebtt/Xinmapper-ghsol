@@ -142,9 +142,11 @@ namespace sds
 		{
 			int curr = (!m_isDeadzoneActivated) ? (isX ? m_xAxisDeadzone : m_yAxisDeadzone) : (isX ? m_xAxisDeadzone*m_altDeadzoneMultiplier : m_yAxisDeadzone*m_altDeadzoneMultiplier);
 			val = GetRangedThumbstickValue( val, curr );
+			if (val > m_axisSensitivity)
+				val = m_axisSensitivity;
 			int rval = 0;
 			//error checking to make sure the key is in the map
-			auto it = std::find_if(m_sharedSensitivityMap.begin(), m_sharedSensitivityMap.end(), [&val, &rval](const std::pair<int, int> &elem)
+			auto it = std::find_if(m_sharedSensitivityMap.begin(), m_sharedSensitivityMap.end(), [&val](const std::pair<int, int> &elem)
 				{
 					return elem.first == val;
 				});
@@ -177,7 +179,13 @@ namespace sds
 		{
 			x = GetRangedThumbstickValue(x, this->m_xAxisDeadzone);
 			y = GetRangedThumbstickValue(y, this->m_yAxisDeadzone);
-			
+			//TODO fix sensitivity bug where the diagonal moves aren't restricted by sensitivity value
+			if (x > m_axisSensitivity)
+				x = m_axisSensitivity;
+			if (y > m_axisSensitivity)
+				y = m_axisSensitivity;
+
+
 			//add together to lessen the delay, total magnitude of both axes is considered this way
 			//long long txVal = static_cast<long long>(x) + static_cast<long long>(y);
 			int txVal = 0;

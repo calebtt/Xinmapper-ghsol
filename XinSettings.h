@@ -38,9 +38,6 @@ namespace sds
 		constexpr static const int DEADZONE_MAX = std::numeric_limits<SHORT>::max() - 1;
 		//Deadzone Default is the default deadzone value for a thumbstick.
 		static const int DEADZONE_DEFAULT = XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE;
-		//Alt Deadzone Default is the multiplier to use when a deadzone is already activated,
-		//the deadzone value for the other axis is lessened via this value.
-		constexpr static const float ALT_DEADZONE_MULT_DEFAULT = 0.35f;
 		//Move Thread Sleep Micro is the delay in microseconds for the XInputBoostMouse work thread loop
 		//the value determines how often the axis threads are told to process a new state (pair of x,y values).
 		static const int MOVE_THREAD_SLEEP_MICRO = 4000;
@@ -48,6 +45,9 @@ namespace sds
 		constexpr static const float MULTIPLIER_MIN = 0.01f;
 		//Multiplier Max is the maximum alt deadzone multiplier value allowed.
 		constexpr static const float MULTIPLIER_MAX = 1.0f;
+		//Alt Deadzone Default is the multiplier to use when a deadzone is already activated,
+		//the deadzone value for the other axis is lessened via this value.
+		constexpr static const float ALT_DEADZONE_MULT_DEFAULT = 0.35f;
 
 		//Static assertions about the const members
 		static_assert(SENSITIVITY_MAX < MICROSECONDS_MAX);
