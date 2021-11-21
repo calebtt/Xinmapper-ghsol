@@ -8,6 +8,7 @@ namespace sds
 	/// <summary>
 	/// Used as a global data structure to hold player information, includes
 	/// thumbstick and trigger deadzone information.
+	/// A default constructed PlayerInfo struct has default values that are usable.
 	/// </summary>
 	struct PlayerInfo
 	{

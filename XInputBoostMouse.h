@@ -31,8 +31,6 @@ namespace sds
 		std::atomic<SHORT> threadX, threadY;
 		std::atomic<int> mouseSensitivity;
 		std::atomic<bool> isDeadzoneActivated;
-		std::atomic<bool> altDeadzoneConfig;
-		std::atomic<float> altDeadzoneMultiplier;
 
 		sds::PlayerInfo localPlayerInfo;
 
@@ -55,9 +53,7 @@ namespace sds
 			: CPPThreadRunner(),
 			stickMapInfo(MouseMap::NEITHER_STICK),
 			mouseSensitivity(SENSITIVITY_DEFAULT),
-			isDeadzoneActivated(false), 
-			altDeadzoneConfig(true), 
-			altDeadzoneMultiplier(MULTIPLIER_DEFAULT)
+			isDeadzoneActivated(false)
 		{
 			threadX = 0;
 			threadY = 0;
@@ -69,9 +65,7 @@ namespace sds
 			: CPPThreadRunner(),
 			stickMapInfo(MouseMap::NEITHER_STICK),
 			mouseSensitivity(SENSITIVITY_DEFAULT),
-			isDeadzoneActivated(false), 
-			altDeadzoneConfig(true), 
-			altDeadzoneMultiplier(MULTIPLIER_DEFAULT)
+			isDeadzoneActivated(false)
 		{
 			localPlayerInfo = player;
 			threadX = 0;
@@ -139,48 +133,6 @@ namespace sds
 		}
 
 		/// <summary>
-		/// Setter for telling the processing to use the alternate deadzone processing config.
-		/// </summary>
-		/// <param name="useAlt"></param>
-		void SetUseAltDeadzone(bool useAlt)
-		{
-			altDeadzoneConfig = useAlt;
-		}
-		/// <summary>
-		/// Getter for current status of using the alternate deadzone processing config.
-		/// </summary>
-		/// <returns></returns>
-		bool GetUseAltDeadzone() const
-		{
-			return altDeadzoneConfig;
-		}
-		/// <summary>
-		/// Sets the value of the alternate deadzone multiplier.
-		/// For the behavior of the alternate deadzone configuration,
-		/// the multiplier is used to lower the deadzone when one is already activated.
-		/// </summary>
-		/// <param name="newValue"></param>
-		/// <returns></returns>
-		std::string SetAltDeadzoneMultiplier(float newValue)
-		{
-			if (newValue > MULTIPLIER_MAX|| newValue < MULTIPLIER_MIN)
-				return "Failed to set new deadzone value, out of range.";
-			altDeadzoneMultiplier = newValue;
-			this->stopThread();
-			this->startThread();
-			return "";
-		}
-
-		/// <summary>
-		/// Gets the current alternate deadzone multiplier.
-		/// </summary>
-		/// <returns></returns>
-		float GetAltDeadzoneMultiplier() const
-		{
-			float r = altDeadzoneMultiplier;
-			return r;
-		}
-		/// <summary>
 		/// Setter for sensitivity value, blocks while work thread stops and restarts.
 		/// </summary>
 		/// <param name="new_sens"></param>
@@ -224,8 +176,8 @@ namespace sds
 			//thread main loop
 			while(!isStopRequested)//<--Danger! From the base class.
 			{
-				xThread.ProcessState(threadX);
-				yThread.ProcessState(threadY);
+				xThread.ProcessState(threadX, threadY);
+				yThread.ProcessState(threadX, threadY);
 				
 				std::this_thread::sleep_for(std::chrono::microseconds(MOVE_THREAD_SLEEP_MICRO));
 			}

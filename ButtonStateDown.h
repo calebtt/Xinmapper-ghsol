@@ -49,14 +49,14 @@ namespace sds
 		{
 			if (token == sds::sdsActionDescriptors.lTrigger)
 			{
-				if (state.Gamepad.bLeftTrigger > sds::sdsPlayerOne.left_trigger_dz)
+				if (state.Gamepad.bLeftTrigger > localPlayer.left_trigger_dz)
 				{
 					return true;
 				}
 			}
 			if (token == sds::sdsActionDescriptors.rTrigger)
 			{
-				if (state.Gamepad.bRightTrigger > sds::sdsPlayerOne.right_trigger_dz)
+				if (state.Gamepad.bRightTrigger > localPlayer.right_trigger_dz)
 				{
 					return true;
 				}

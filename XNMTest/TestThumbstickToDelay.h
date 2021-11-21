@@ -100,7 +100,7 @@ namespace XNMTest
 
 				//do a computation to get the transformed value expected from GetDelayFromThumbstickValues
 
-				int result = delay.GetDelayFromThumbstickValues(first, second);
+				int result = delay.GetDelayFromThumbstickValue(first, second);
 				Logger::WriteMessage(std::to_string(result).c_str());
 				Assert::IsTrue(result == comparison);
 			};

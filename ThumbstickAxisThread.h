@@ -9,6 +9,8 @@ namespace sds
     /// <summary>
     /// Spawns a worker thread responsible for sending simulated mouse movements
     /// corresponding to a thumbstick axis.
+    /// This thread internally inverts the Y axis to better map to mouse movements
+    /// as on Windows the coordinate plane will start at the top-left.
     /// </summary>
     class ThumbstickAxisThread :
         public CPPThreadRunner<int>
@@ -68,7 +70,6 @@ namespace sds
         /// <param name="thumbY"> y thumbstick axis value </param>
         void ProcessState(int thumbX, int thumbY)
         {
-            //TODO complete this function to pass along the values
             m_localX = thumbX;
             m_localY = thumbY;
 
@@ -118,30 +119,35 @@ namespace sds
             long long delayValue = 1;
 
             //local copies
-            long long localVal = m_localX;
+            long long localValX = m_localX;
+            long long localValY = m_localY;
             //invert if Y axis
-            invertIfY(localVal, m_isX);
+            invertIfY(localValX, m_isX);
+            invertIfY(localValY, !m_isX);
 
             int movexval = 0;
             int moveyval = 0;
             int testxval = 0;
             int testyval = 0;
-
+            int deadzone = m_isX ? m_xDeadzone : m_yDeadzone;
             //main loop
             while (true)
             {
                 if (this->isStopRequested)
                     return;
                 
-                localVal = m_localX;
+                localValX = m_localX;
+                localValY = m_localY;
                 //invert if Y axis
-                invertIfY(localVal, m_isX);
+                invertIfY(localValX, true);
+                invertIfY(localValY, false);
 
-                testxval = m_isX ? static_cast<int>(localVal) : PIXELS_NOMOVE;
-                testyval = m_isX ? PIXELS_NOMOVE : static_cast<int>(localVal);
-                movexval = m_isX ? (localVal > 0 ? PIXELS_MAGNITUDE : -PIXELS_MAGNITUDE) : PIXELS_NOMOVE;
-                moveyval = m_isX ? PIXELS_NOMOVE : (localVal > 0 ? PIXELS_MAGNITUDE : -PIXELS_MAGNITUDE);
 
+                testxval = m_isX ? static_cast<int>(localValX) : PIXELS_NOMOVE;
+                testyval = m_isX ? PIXELS_NOMOVE : static_cast<int>(localValY);
+                movexval = m_isX ? (localValX > 0 ? PIXELS_MAGNITUDE : -PIXELS_MAGNITUDE) : PIXELS_NOMOVE;
+                moveyval = m_isX ? PIXELS_NOMOVE : (localValY > 0 ? PIXELS_MAGNITUDE : -PIXELS_MAGNITUDE);
+                
                 //if last iteration moved the mouse, switch to using the high precision timer for thread delay.
                 if (lastMoved)
                 {
@@ -159,7 +165,7 @@ namespace sds
                                 lock l(m_sendKeyMutex);
                                 keySend.SendMouseMove(movexval, moveyval);
                                 lastMoved = true;
-                                delayValue = std::abs(std::chrono::microseconds(m_moveDetermine->GetDelayFromThumbstickValue(static_cast<int>(localVal))).count());
+                                delayValue = std::abs(std::chrono::microseconds(m_moveDetermine->GetDelayFromThumbstickValue(static_cast<int>(localValX), static_cast<int>(localValY),m_isX)).count());
                             }
                         }
                         else
@@ -172,7 +178,7 @@ namespace sds
                         lock l(m_sendKeyMutex);
                         keySend.SendMouseMove(movexval, moveyval);
                         lastMoved = true;
-                        delayValue = std::abs(std::chrono::microseconds(m_moveDetermine->GetDelayFromThumbstickValue(static_cast<int>(localVal))).count());
+                        delayValue = std::abs(std::chrono::microseconds(m_moveDetermine->GetDelayFromThumbstickValue(static_cast<int>(localValX), static_cast<int>(localValY), m_isX)).count());
                     }
                 }
                 else

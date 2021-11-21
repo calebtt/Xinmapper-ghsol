@@ -17,6 +17,7 @@ namespace sds
 		Mapper *m;
 		XInputTranslater *t;
 		XInputBoostMouse *mse;
+		PlayerInfo localPlayer;
 
 	protected://member functions
 		/// <summary>
@@ -38,7 +39,7 @@ namespace sds
 
 				{
 					lock l2(this->stateMutex);
-					DWORD error = XInputGetState(sds::sdsPlayerOne.player_id, &local_state);
+					DWORD error = XInputGetState(localPlayer.player_id, &local_state);
 					if (error != ERROR_SUCCESS)
 					{
 						continue;
@@ -71,6 +72,27 @@ namespace sds
 				//throw std::format_error("NULL POINTERS in InputPoller::InputPoller() constructor.");
 				throw std::string("NULL POINTERS in InputPoller::InputPoller() constructor.");
 			}
+		}
+
+		/// <summary>
+		/// Constructor, requires pointer to: Mapper, XInputTranslater, XInputBoostMouse
+		/// Throws std::string with error message if nullptr given.
+		/// </summary>
+		/// 
+		/// <param name="mapper"></param>
+		/// <param name="transl"></param>
+		/// <param name="mouse"></param>
+		/// <param name="p"></param>
+		InputPoller(Mapper *mapper, XInputTranslater *transl, XInputBoostMouse *mouse, PlayerInfo p)
+			: CPPThreadRunner(), m(mapper), t(transl), mse(mouse)
+		{
+			if (mapper == nullptr || transl == nullptr || mouse == nullptr)
+			{
+				//At present this new exception type is only available in the preview features "C++ latest" setting.
+				//throw std::format_error("NULL POINTERS in InputPoller::InputPoller() constructor.");
+				throw std::string("NULL POINTERS in InputPoller::InputPoller() constructor.");
+			}
+			localPlayer = p;
 		}
 
 		/// <summary>
@@ -123,7 +145,17 @@ namespace sds
 		bool IsControllerConnected()
 		{
 			XINPUT_STATE ss = {0};
-			return XInputGetState(sds::sdsPlayerOne.player_id, &ss) == ERROR_SUCCESS;
+			return XInputGetState(localPlayer.player_id, &ss) == ERROR_SUCCESS;
+		}
+		/// <summary>
+		/// Returns status of XINPUT library detecting a controller.
+		/// overload that uses the player_id value in a PlayerInfo struct
+		/// </summary>
+		/// <returns> true if controller is connected, false otherwise</returns>
+		bool IsControllerConnected(PlayerInfo p)
+		{
+			XINPUT_STATE ss = { 0 };
+			return XInputGetState(p.player_id, &ss) == ERROR_SUCCESS;
 		}
 	};
 
