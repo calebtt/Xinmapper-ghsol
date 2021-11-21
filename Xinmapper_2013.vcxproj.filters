@@ -72,7 +72,7 @@
     <ClInclude Include="MouseMap.h">
       <Filter>Header Files\Utility</Filter>
     </ClInclude>
-    <ClInclude Include="XinmapperSettings.h">
+    <ClInclude Include="XinSettings.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

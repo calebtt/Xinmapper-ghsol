@@ -103,7 +103,7 @@
     <ClInclude Include="ButtonStateDown.h" />
     <ClInclude Include="ThumbstickToDelay.h" />
     <ClInclude Include="ThumbstickToMovement.h" />
-    <ClInclude Include="XinmapperSettings.h" />
+    <ClInclude Include="XinSettings.h" />
     <ClInclude Include="XInputBoostMouse.h" />
     <ClInclude Include="ThumbstickAxisThread.h" />
     <ClInclude Include="XInputTranslater.h" />

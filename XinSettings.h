@@ -56,22 +56,16 @@ namespace sds
 		static_assert(DEADZONE_MIN > 0);
 		static_assert(DEADZONE_MAX < std::numeric_limits<SHORT>::max());
 
-		//Mutex used to ensure multi-threading safety.
-		//static std::mutex settingsMutex;
-
 		static bool IsValidSensitivityValue(int newSens)
 		{
-			//std::scoped_lock l1(settingsMutex);
 			return (newSens <= SENSITIVITY_MAX) && (newSens >= SENSITIVITY_MIN);
 		}
 		static bool IsValidDeadzoneValue(int dz)
 		{
-			//std::scoped_lock l1(settingsMutex);
 			return (dz <= DEADZONE_MAX) && (dz >= DEADZONE_MIN);
 		}
 		static bool IsValidThumbstickValue(int thumb)
 		{
-			//std::scoped_lock l1(settingsMutex);
 			return (thumb <= SMax) && (thumb >= SMin);
 		}
 
