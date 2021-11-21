@@ -1,6 +1,5 @@
 #pragma once
 #include "stdafx.h"
-#include "PlayerInfo.h"
 #include "ActionDescriptors.h"
 
 namespace sds

@@ -1,6 +1,5 @@
 #pragma once
 #include "stdafx.h"
-#include "SendKey.h"
 
 /*
 Responsible for tokens used in an ActionDetails

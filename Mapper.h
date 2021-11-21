@@ -1,7 +1,7 @@
 #pragma once
 #include "stdafx.h"
 #include "MultiBool.h"
-//#include "SendKey.h"
+#include "SendKey.h"
 
 namespace sds
 {

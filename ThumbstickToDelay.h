@@ -12,7 +12,7 @@ namespace sds
 	class ThumbstickToDelay
 	{
 		//TODO add alternate deadzone behavior
-		inline static bool m_isDeadzoneActivated;
+		inline static std::atomic<bool> m_isDeadzoneActivated;
 		float m_altDeadzoneMultiplier;
 		int m_xAxisDeadzone;
 		int m_yAxisDeadzone;
