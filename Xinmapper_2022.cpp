@@ -23,13 +23,13 @@ int _tmain(int argc, _TCHAR* argv[])
 	
 	std::string err = gamepadUser.mapper->SetMapInfo(mapInfo);
 	//If the string returned has a size, it is an error message.
-	if (err.size())
+	if (!err.empty())
 	{
 		//Error in setting the map information.
 		return errInfo("Error in setting the map information. Exiting.\n" + err, 1);
 	}
 	err = gamepadUser.mouse->SetSensitivity(75);
-	if (err.size())
+	if (!err.empty())
 	{
 		return errInfo("Error in setting the mouse sensitivity. Exiting.\n" + err, 2);
 	}
