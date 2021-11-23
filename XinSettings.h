@@ -18,6 +18,8 @@ namespace sds
 		//Thread Delay Micro is the value in microseconds the worker thread in
 		//ThumbstickAxisThread sleeps when the previous iteration performed no action.
 		constexpr static const int THREAD_DELAY_MICRO = 1500;
+		//Input Poller thread delay, in milliseconds.
+		constexpr static const int THREAD_DELAY_POLLER = 10;
 		//SMax is the value of the Microsoft type "SHORT"'s maximum possible value.
 		constexpr static const short SMax = std::numeric_limits<SHORT>::max();
 		//SMin is the value of the Microsoft type "SHORT"'s minimum possible value.
