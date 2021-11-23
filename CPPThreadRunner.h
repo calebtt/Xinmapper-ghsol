@@ -49,8 +49,7 @@ namespace sds
 				{
 					this->isStopRequested = false;
 					this->isThreadRunning = true;
-					this->localThread = std::shared_ptr<std::thread>
-						(new std::thread(std::bind(&CPPThreadRunner::workThread, this)));
+					this->localThread = std::make_shared<std::thread>([this] { workThread(); });
 				}
 				else
 				{
@@ -62,7 +61,7 @@ namespace sds
 					this->localThread.reset(); //reset the shared_ptr (call's dtor, deletes object if unique)
 					this->isStopRequested = false;
 					this->isThreadRunning = true;
-					this->localThread = std::shared_ptr<std::thread>(new std::thread(std::bind(&CPPThreadRunner::workThread, this)));
+					this->localThread = std::make_shared<std::thread>([this] { workThread(); });
 				}
 			}
 		}

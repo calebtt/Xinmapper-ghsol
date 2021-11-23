@@ -41,7 +41,7 @@ namespace sds
 		/// <returns>ActionDetails string with the information of which buttons are depressed, 
 		/// which thumbsticks and their direction values. Whitespace delimited.
 		/// This might look like: "X B LTRIGGER RTRIGGER LTHUMB:UP RTHUMB:DOWN"</returns>
-		ActionDetails ProcessState(const XINPUT_STATE &state)
+		ActionDetails ProcessState(const XINPUT_STATE &state) const
 		{
 			ActionDetails details;
 
