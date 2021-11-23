@@ -26,11 +26,10 @@ namespace sds
 		{
 			this->current_state = rhs.current_state;
 		}
-		MultiBool( BUTTONSTATE s )
+		MultiBool(const BUTTONSTATE s)
 		{
 			current_state = s;
 		}
-		//void IncrementState();
 		void ResetState()
 		{
 			current_state = BUTTONSTATE::STATE_ONE;
