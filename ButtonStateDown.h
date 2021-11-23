@@ -24,7 +24,7 @@ namespace sds
 		/// <param name="state"> an XINPUT_STATE with current input from the controller</param>
 		/// <param name="token"> a string specifying the button info for comparison</param>
 		/// <returns>true if the button is depressed, false otherwise</returns>
-		bool ButtonDown(const XINPUT_STATE& state, std::string token)
+		bool ButtonDown(const XINPUT_STATE& state, const std::string token) const
 		{
 			//std::const_iterator used for access
 			for (auto it = sds::sdsActionDescriptors.xin_buttons.cbegin(); it != sds::sdsActionDescriptors.xin_buttons.cend(); ++it)
@@ -45,7 +45,7 @@ namespace sds
 		/// <param name="state">is an XINPUT_STATE struct with details on the current reported controller state</param>
 		/// <param name="token">is a one-part token containing normally a trigger designation "LTRIGGER" or "RTRIGGER"</param>
 		/// <returns>true if trigger is depressed, false otherwise</returns>
-		bool TriggerDown(const XINPUT_STATE& state, std::string token)
+		bool TriggerDown(const XINPUT_STATE& state, const std::string token) const
 		{
 			if (token == sds::sdsActionDescriptors.lTrigger)
 			{
@@ -72,7 +72,7 @@ namespace sds
 		/// <param name="token"> is a two-part token containing normally a button and a direction for the thumbsticks,
 		/// colon delimited</param>
 		/// <returns>true if thumbstick+direction is pressed</returns>
-		bool ThumbstickDown(const XINPUT_STATE& state, std::string token)
+		bool ThumbstickDown(const XINPUT_STATE& state, const std::string token) const
 		{
 			//No string in switch, unfortunate.
 			std::string temp = sds::sdsActionDescriptors.lThumb + sds::sdsActionDescriptors.moreInfo;
