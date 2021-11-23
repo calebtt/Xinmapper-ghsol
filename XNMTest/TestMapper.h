@@ -34,14 +34,14 @@ namespace XNMTest
 				std::string ert = "Testmap [input]: " + s + " [expect result no error message]: ";
 				std::string ertt = mp.SetMapInfo(s);
 				Logger::WriteMessage((ert + ertt).c_str());
-				Assert::IsTrue(ertt.size() == 0);
+				Assert::IsTrue(ertt.empty());
 			};
 			auto testMapFunctionFalse = [&mp](const std::string &s)
 			{
 				std::string ert = "Testmap [input]: " + s + " [expect result error message]: ";
 				std::string ertt = mp.SetMapInfo(s);
 				Logger::WriteMessage((ert + ertt).c_str());
-				Assert::IsFalse(ertt.size() == 0);
+				Assert::IsFalse(ertt.empty());
 			};
 
 			//Test known good string case
@@ -51,6 +51,10 @@ namespace XNMTest
 			testMapFunctionFalse("LTHUMB:UP:NORM:a DPAD:DWN:NORM:x DPAD:UP:NORM:vk1");
 			testMapFunctionFalse("LTHUMB::NORM:a DPAD:DWN:NORM:x DPAD:UP:NORM:vk0");
 			testMapFunctionFalse("LTHUMB::NORM:a DPAD:DWN:NORM:x DPAD:UP:NORM:vk");
+			testMapFunctionFalse("LTHUMB:NORM:a DPAD:DWN:NORM:x UP:NORM:vk");
+			testMapFunctionFalse(" ");
+			testMapFunctionFalse("   \r\n");
+			testMapFunctionFalse("");
 			testMapFunctionFalse("lThumb:left:nORM:a dPAD:DoWN:nORM:x DPAd:uP:NoRM:vK3333"); // 3333 is far too large to be a virtual keycode
 			//test some good cases with lower case
 			testMapFunctionTrue("lthumb:left:NORM:a DPAD:DoWN:NORM:x DPAD:UP:NORM:vk33");

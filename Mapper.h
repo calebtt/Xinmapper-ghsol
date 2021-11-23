@@ -68,10 +68,15 @@ namespace sds
 			{
 				return "Error in sds::Mapper::SetMapInfo()\n" + s;
 			};
-			if (newMap.size() == 0)
+			if (newMap.empty())
 			{
 				return errText("MapInformation newMap size() is 0.");
 			}
+
+			// Check if s consists only of whitespaces
+			bool whiteSpacesOnly = std::all_of(newMap.begin(), newMap.end(), isspace);
+			if (whiteSpacesOnly)
+				return errText("[1]Empty map string, consists entirely of white spaces.");
 
 			//Set WordData vector.
 			std::vector<WordData> tempVec;
@@ -85,11 +90,12 @@ namespace sds
 				WordData data;
 				std::replace(t.begin(), t.end(), sds::sdsActionDescriptors.moreInfo, ' ');
 				std::stringstream(t) >> data.control >> data.info >> data.sim_type >> data.value;
+
 				//if all of those pieces don't have something in them
-				if (!(data.control.size() && data.info.size() && data.sim_type.size() && data.value.size()))
+				if (data.control.empty() && data.info.empty() && data.sim_type.empty() && data.value.empty())
 				{
 					//return error message
-					return errText("[1]Failed to parse a token.\n Previous token: " + previousToken + "\n");
+					return errText("[2]Failed to parse a token.\n Previous token: " + previousToken + "\n");
 				}
 				//validate token pieces
 				bool goodToken = ValidateTokenPieces(data);
@@ -100,7 +106,7 @@ namespace sds
 				}
 				else
 				{
-					return errText("[2]Failed to parse a token.\n Previous token: " + previousToken + "\n");
+					return errText("[3]Failed to parse a token.\n Previous token: " + previousToken + "\n");
 				}
 			}
 			//Reset map token info.
@@ -111,7 +117,7 @@ namespace sds
 			return "";
 		}
 	private:
-		bool ValidateTokenPieces(WordData &data)
+		bool ValidateTokenPieces(WordData &data) const
 		{
 			bool testArray[4] = { false,false,false,false };
 			
@@ -171,7 +177,8 @@ namespace sds
 		}
 
 		/// <summary>
-		/// Use the tokenized and processed form of the info we got from XInputTranslater to simulate the proper input
+		/// Use the tokenized and processed form of the info we got from XInputTranslater to simulate the proper input.
+		///	Does modify the vector of WordData, states
 		/// </summary>
 		/// <param name="states">is a ref to a vector of WordData used to finally simulate the input contained within</param>
 		void ProcessStates(std::vector<WordData> &states)
@@ -305,7 +312,7 @@ namespace sds
 		/// </summary>
 		/// <param name="details">is the string to tokenize</param>
 		/// <param name="tokenOut">is a vector&lt;string&gt; to receive the tokens</param>
-		void GetTokens(const std::string &details, std::vector<std::string> &tokenOut)
+		void GetTokens(const std::string &details, std::vector<std::string> &tokenOut) const
 		{
 			tokenOut.clear();
 			std::string t;
@@ -321,7 +328,7 @@ namespace sds
 		/// </summary>
 		/// <param name="in">std::string in is a token containing a Virtual Keycode in string form</param>
 		/// <returns>Returns the virtual keycode in decimal integer form, or -1 for error.</returns>
-		int GetVkFromTokenString(std::string in)//Returns -1 if no translation.
+		int GetVkFromTokenString(std::string in) const
 		{
 			int keyCode = -1;
 			if( in.find(sds::sdsActionDescriptors.vk) != std::string::npos )
