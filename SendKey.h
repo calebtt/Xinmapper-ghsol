@@ -10,18 +10,15 @@ namespace sds
 	/// </summary>
 	class SendKey
 	{
-		INPUT m_keyInput;
-		INPUT m_mouseClickInput;
-		INPUT m_mouseMoveInput;
+		INPUT m_keyInput = {};
+		INPUT m_mouseClickInput = {};
+		INPUT m_mouseMoveInput = {};
 	public:
 		/// <summary>
 		/// Default Constructor
 		/// </summary>
 		SendKey()
 		{
-			memset(&m_keyInput, 0, sizeof(INPUT));
-			memset(&m_mouseClickInput, 0, sizeof(INPUT));
-			memset(&m_mouseMoveInput, 0, sizeof(INPUT));
 			m_keyInput.type = INPUT_KEYBOARD;
 			m_mouseClickInput.type = INPUT_MOUSE;
 			m_mouseMoveInput.type = INPUT_MOUSE;
@@ -45,13 +42,12 @@ namespace sds
 		/// <summary>
 		/// Sends mouse movement specified by vector of tuple(int,int) X and Y number of pixels to move.
 		/// </summary>
-		void SendMouseMove(const std::vector<std::tuple<int,int>> &t)
+		void SendMouseMove(const std::vector<std::tuple<int,int>> &t) const
 		{
 			std::vector<INPUT> inputVec;
 			std::for_each(t.cbegin(), t.cend(), [&inputVec](const std::tuple<int, int> &t)
 				{
-					INPUT i;
-					memset(&i, 0, sizeof(INPUT));
+					INPUT i = { }; // zeroed struct
 					i.type = INPUT_MOUSE;
 					i.mi.dwFlags = MOUSEEVENTF_MOVE;
 					i.mi.dx = static_cast<LONG>(std::get<0>(t));
@@ -78,7 +74,7 @@ namespace sds
 			else
 				m_keyInput.ki.dwFlags = KEYEVENTF_SCANCODE | KEYEVENTF_KEYUP;
 
-			WORD scanCode = GetScanCode(vk);
+			const WORD scanCode = GetScanCode(vk);
 			m_keyInput.ki.wScan = scanCode;
 			if (scanCode == 0)
 			{
@@ -129,7 +125,7 @@ namespace sds
 		/// </summary>
 		/// <param name="vk"> integer virtual keycode</param>
 		/// <returns></returns>
-		WORD GetScanCode(const int vk)
+		WORD GetScanCode(const int vk) const
 		{
 			if (vk > std::numeric_limits<unsigned char>::max() || vk < std::numeric_limits<unsigned char>::min())
 				return 0;
@@ -147,10 +143,9 @@ namespace sds
 		/// </summary>
 		/// <param name="vk">char character such as 'a'</param>
 		/// <returns>0 on error, ScanCode otherwise. Retval of 0 indicates no translation available.</returns>
-		WORD GetScanCode(const char vk)
+		WORD GetScanCode(const char vk) const
 		{
-			char someCharacter = vk;
-			WORD ret = 0;
+			const char someCharacter = vk;
 			bool isSomeCharacter = static_cast<bool>(std::isprint(vk));
 			if (isSomeCharacter)
 			{
@@ -169,7 +164,7 @@ namespace sds
 		/// </summary>
 		/// <param name="vk"> integer virtual keycode as a string</param>
 		/// <returns>0 on error, ScanCode otherwise. Retval of 0 indicates no translation available.</returns>
-		WORD GetScanCode(const std::string vk)
+		WORD GetScanCode(const std::string vk) const
 		{
 			std::stringstream ss(vk);
 			int vki = 0;
