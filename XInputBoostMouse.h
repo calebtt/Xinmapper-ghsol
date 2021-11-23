@@ -69,7 +69,7 @@ namespace sds
 		/// Set to NEITHER_STICK for no thumbstick mouse movement. Options are RIGHT_STICK, LEFT_STICK, NEITHER_STICK
 		/// </summary>
 		/// <param name="info"> a MouseMap enum</param>
-		void EnableProcessing(MouseMap info)
+		void EnableProcessing(const MouseMap info)
 		{
 			m_stickMapInfo = info;
 		}
@@ -97,12 +97,12 @@ namespace sds
 				tsy = state.Gamepad.sThumbLY;
 			}
 			//Give worker thread new values.
-			m_threadX = tsx;
-			m_threadY = tsy;
+			m_threadX = static_cast<SHORT>(tsx);
+			m_threadY = static_cast<SHORT>(tsy);
 
 
-			int tdx = m_stickMapInfo == MouseMap::RIGHT_STICK ? m_localPlayerInfo.right_x_dz : m_localPlayerInfo.left_x_dz;
-			int tdy = m_stickMapInfo == MouseMap::RIGHT_STICK ? m_localPlayerInfo.right_y_dz : m_localPlayerInfo.left_y_dz;
+			const int tdx = m_stickMapInfo == MouseMap::RIGHT_STICK ? m_localPlayerInfo.right_x_dz : m_localPlayerInfo.left_x_dz;
+			const int tdy = m_stickMapInfo == MouseMap::RIGHT_STICK ? m_localPlayerInfo.right_y_dz : m_localPlayerInfo.left_y_dz;
 			ThumbstickToDelay moveDetermine(m_mouseSensitivity, tdx, tdy);
 
 			if( moveDetermine.DoesRequireMove(tsx,tsy) )
@@ -122,7 +122,7 @@ namespace sds
 		/// <param name="new_sens"></param>
 		/// <returns> returns a std::string containing an error message
 		/// if there is an error, empty string otherwise. </returns>
-		std::string SetSensitivity(int new_sens)
+		std::string SetSensitivity(const int new_sens)
 		{
 			if (new_sens < XinSettings::SENSITIVITY_MIN || new_sens > XinSettings::SENSITIVITY_MAX)
 			{
@@ -146,11 +146,8 @@ namespace sds
 		/// Worker thread, private visibility, gets updated data from ProcessState() function to use.
 		/// Accesses the std::atomic threadX and threadY members.
 		/// </summary>
-		virtual void workThread()
+		void workThread() override
 		{
-			int dzx = this->m_stickMapInfo == MouseMap::RIGHT_STICK ? m_localPlayerInfo.right_x_dz : m_localPlayerInfo.left_x_dz;
-			int dzy = this->m_stickMapInfo == MouseMap::RIGHT_STICK ? m_localPlayerInfo.right_y_dz : m_localPlayerInfo.left_y_dz;
-
 			ThumbstickAxisThread xThread(this->GetSensitivity(), m_localPlayerInfo, m_stickMapInfo, true);
 			ThumbstickAxisThread yThread(this->GetSensitivity(), m_localPlayerInfo, m_stickMapInfo, false);
 			

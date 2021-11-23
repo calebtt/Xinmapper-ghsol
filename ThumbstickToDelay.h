@@ -116,7 +116,7 @@ namespace sds
 		/// <param name="x">X value</param>
 		/// <param name="y">Y value</param>
 		/// <returns>true if requires moving the mouse, false otherwise</returns>
-		bool DoesRequireMove(int x, int y) const
+		bool DoesRequireMove(const int x, const int y) const
 		{
 			bool xMove, yMove;
 			xMove = (x > m_xAxisDeadzone || x < -m_xAxisDeadzone);
@@ -141,7 +141,7 @@ namespace sds
 		/// a hanging program.
 		/// </summary>
 		/// <returns>delay in microseconds</returns>
-		size_t GetDelayFromThumbstickValue(int val, bool isX)
+		size_t GetDelayFromThumbstickValue(int val, const bool isX)
 		{
 			const int curr = (!m_isDeadzoneActivated) ? (isX ? m_xAxisDeadzone : m_yAxisDeadzone) : (isX ? m_xAxisDeadzone*m_altDeadzoneMultiplier : m_yAxisDeadzone*m_altDeadzoneMultiplier);
 			val = GetRangedThumbstickValue( val, curr );

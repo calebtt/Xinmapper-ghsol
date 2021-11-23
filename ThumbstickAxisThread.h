@@ -26,9 +26,13 @@ namespace sds
         bool m_isX; // x or y axis
         std::shared_ptr<ThumbstickToDelay> m_moveDetermine;
     public:
-        ThumbstickAxisThread(int sensitivity, const PlayerInfo &player, MouseMap whichStick, bool isX)
-            : CPPThreadRunner<int>(), m_sensitivity(sensitivity), m_localPlayer(player), m_localStick(whichStick), m_isX(isX)
+        ThumbstickAxisThread(int sensitivity, const PlayerInfo &player, MouseMap whichStick, const bool isX)
         {
+            m_sensitivity = sensitivity;
+            m_localPlayer = player;
+            m_localStick = whichStick;
+            m_isX = isX;
+
             if (!XinSettings::IsValidSensitivityValue(sensitivity))
                 m_sensitivity = XinSettings::SENSITIVITY_DEFAULT;
 
@@ -57,7 +61,7 @@ namespace sds
 		/// Called to update the internal thumbstick value with a new value.
 		/// </summary>
 		/// <param name="thumbValue"> thumbstick axis value </param>
-		void ProcessState(int thumbValue)
+		void ProcessState(const int thumbValue)
 		{
             if (m_isX)
                 m_localX = thumbValue;
@@ -75,7 +79,7 @@ namespace sds
         /// </summary>
         /// <param name="thumbX"> x thumbstick axis value </param>
         /// <param name="thumbY"> y thumbstick axis value </param>
-        void ProcessState(int thumbX, int thumbY)
+        void ProcessState(const int thumbX, const int thumbY)
         {
             m_localX = thumbX;
             m_localY = thumbY;
@@ -95,7 +99,7 @@ namespace sds
         }
 
     protected:
-        int reduceToLongLimit(long long valx)
+        int reduceToLongLimit(const long long valx)
         {
             if (valx <= std::numeric_limits<int>::min())
                 return static_cast<int>(std::numeric_limits<int>::min() + 1);
@@ -104,7 +108,7 @@ namespace sds
             else
                 return static_cast<int>(valx);
         }
-        void invertIfY(long long &valy, bool isX)
+        void invertIfY(long long &valy, const bool isX)
         {
             if (!isX)
             {
@@ -112,7 +116,7 @@ namespace sds
                 valy = -valy;
             }
         }
-        virtual void workThread()
+        virtual void workThread() override
         {
             this->isThreadRunning = true;
 
@@ -136,12 +140,14 @@ namespace sds
             int moveyval = 0;
             int testxval = 0;
             int testyval = 0;
-            int deadzone = m_isX ? m_xDeadzone : m_yDeadzone;
             //main loop
             while (true)
             {
                 if (this->isStopRequested)
+                {
+                    this->isThreadRunning = false;
                     return;
+                }
                 
                 localValX = m_localX;
                 localValY = m_localY;
@@ -172,7 +178,7 @@ namespace sds
                                 lock l(m_sendKeyMutex);
                                 keySend.SendMouseMove(movexval, moveyval);
                                 lastMoved = true;
-                                delayValue = std::abs(std::chrono::microseconds(m_moveDetermine->GetDelayFromThumbstickValue(static_cast<int>(localValX), static_cast<int>(localValY),m_isX)).count());
+                                delayValue = std::abs(microseconds(m_moveDetermine->GetDelayFromThumbstickValue(static_cast<int>(localValX), static_cast<int>(localValY),m_isX)).count());
                             }
                         }
                         else
@@ -185,12 +191,12 @@ namespace sds
                         lock l(m_sendKeyMutex);
                         keySend.SendMouseMove(movexval, moveyval);
                         lastMoved = true;
-                        delayValue = std::abs(std::chrono::microseconds(m_moveDetermine->GetDelayFromThumbstickValue(static_cast<int>(localValX), static_cast<int>(localValY), m_isX)).count());
+                        delayValue = std::abs(microseconds(m_moveDetermine->GetDelayFromThumbstickValue(static_cast<int>(localValX), static_cast<int>(localValY), m_isX)).count());
                     }
                 }
                 else
                 {
-                    std::this_thread::sleep_for(std::chrono::microseconds(XinSettings::THREAD_DELAY_MICRO));
+                    std::this_thread::sleep_for(microseconds(XinSettings::THREAD_DELAY_MICRO));
                 }
 
                 //variable thread delay
