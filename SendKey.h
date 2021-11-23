@@ -42,10 +42,10 @@ namespace sds
 		/// <summary>
 		/// Sends mouse movement specified by vector of tuple(int,int) X and Y number of pixels to move.
 		/// </summary>
-		void SendMouseMove(const std::vector<std::tuple<int,int>> &t) const
+		void SendMouseMove(const std::vector<std::tuple<int,int>> &tup) const
 		{
 			std::vector<INPUT> inputVec;
-			std::for_each(t.cbegin(), t.cend(), [&inputVec](const std::tuple<int, int> &t)
+			std::for_each(tup.cbegin(), tup.cend(), [&inputVec](const std::tuple<int, int> &t)
 				{
 					INPUT i = { }; // zeroed struct
 					i.type = INPUT_MOUSE;
