@@ -71,7 +71,17 @@ namespace sds
 		/// <param name="info"> a MouseMap enum</param>
 		void EnableProcessing(const MouseMap info)
 		{
-			m_stickMapInfo = info;
+			if(this->isThreadRunning && !this->isStopRequested)
+			{
+				m_stickMapInfo = info;
+				this->startThread();
+			}
+			else if(this->isStopRequested)
+			{
+				this->stopThread();
+				m_stickMapInfo = info;
+				this->startThread();
+			}
 		}
 
 		/// <summary>

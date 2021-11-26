@@ -23,15 +23,16 @@ namespace sds
         std::atomic<int> m_localY;
         int m_xDeadzone;
         int m_yDeadzone;
-        bool m_isX; // x or y axis
+        const bool m_isX; // x or y axis
         std::shared_ptr<ThumbstickToDelay> m_moveDetermine;
     public:
         ThumbstickAxisThread(int sensitivity, const PlayerInfo &player, MouseMap whichStick, const bool isX)
+	        : m_isX(isX)
         {
             m_sensitivity = sensitivity;
             m_localPlayer = player;
             m_localStick = whichStick;
-            m_isX = isX;
+            //m_isX = isX;
 
             if (!XinSettings::IsValidSensitivityValue(sensitivity))
                 m_sensitivity = XinSettings::SENSITIVITY_DEFAULT;
@@ -178,6 +179,8 @@ namespace sds
                                 lock l(m_sendKeyMutex);
                                 keySend.SendMouseMove(movexval, moveyval);
                                 lastMoved = true;
+                                //int logDelay = std::abs(microseconds(m_moveDetermine->GetDelayFromThumbstickValue(static_cast<int>(localValX), static_cast<int>(localValY), m_isX)).count());
+                                //std::cout << logDelay << std::endl;
                                 delayValue = std::abs(microseconds(m_moveDetermine->GetDelayFromThumbstickValue(static_cast<int>(localValX), static_cast<int>(localValY),m_isX)).count());
                             }
                         }
@@ -198,7 +201,6 @@ namespace sds
                 {
                     std::this_thread::sleep_for(microseconds(XinSettings::THREAD_DELAY_MICRO));
                 }
-
                 //variable thread delay
                 end = steady_clock::now();
                 timeSpan = std::chrono::abs(duration_cast<microseconds>(end - begin));

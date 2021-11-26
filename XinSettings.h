@@ -33,7 +33,7 @@ namespace sds
 		//Microseconds Min is the minimum delay for the thumbstick axis thread loop at the highest thumbstick value.
 		constexpr static const int MICROSECONDS_MIN = 500;
 		//Microseconds Max is the maximum delay for the thumbstick axis thread loop at the lowest thumbstick value.
-		constexpr static const int MICROSECONDS_MAX = 10000;
+		constexpr static const int MICROSECONDS_MAX = 11000;
 		//Deadzone Min is the minimum allowable value for a thumbstick deadzone.
 		constexpr static const int DEADZONE_MIN = 1;
 		//Deadzone Max is the maximum allowable value for a thumbstick deadzone.
@@ -70,7 +70,6 @@ namespace sds
 		{
 			return (thumb <= SMax) && (thumb >= SMin);
 		}
-
 	};
 }
 

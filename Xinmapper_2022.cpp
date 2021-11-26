@@ -28,11 +28,13 @@ int _tmain(int argc, _TCHAR* argv[])
 		//Error in setting the map information.
 		return errInfo("Error in setting the map information. Exiting.\n" + err, 1);
 	}
-	err = gamepadUser.mouse->SetSensitivity(75);
+	err = gamepadUser.mouse->SetSensitivity(100);
 	if (!err.empty())
 	{
 		return errInfo("Error in setting the mouse sensitivity. Exiting.\n" + err, 2);
 	}
+	gamepadUser.mouse->EnableProcessing(MouseMap::RIGHT_STICK);
+	gamepadUser.mouse->EnableProcessing(MouseMap::LEFT_STICK);
 	gamepadUser.mouse->EnableProcessing(MouseMap::RIGHT_STICK);
 	
 	std::cout << "Xbox 360 controller polling started..." << std::endl;
