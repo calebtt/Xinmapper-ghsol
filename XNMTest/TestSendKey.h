@@ -18,9 +18,9 @@ namespace XNMTest
 
 			//Change these here to increase/decrease the test data size.
 			//Some const variables affecting the size of the random	test data. 
-			const int RandomStringCount = 500000;
-			const int RandomStringLength = 3;
-			const int MinimumRandomStringLength = 1;
+			constexpr int RandomStringCount = 500000;
+			constexpr int RandomStringLength = 3;
+			constexpr int MinimumRandomStringLength = 1;
 
 			sds::SendKey sk;
 			// 
@@ -40,11 +40,12 @@ namespace XNMTest
 				std::string outMessage = " Testing Val: ";
 				outMessage += i;
 				outMessage += " ";
-
 				outMessage += typeid(i).name();
-				Logger::WriteMessage(outMessage.c_str());
-				bool testCond = sk.GetScanCode(i) > 0;
-				Assert::IsTrue(testCond);
+				std::wstring errMsg;
+				std::copy(outMessage.begin(), outMessage.end(), std::back_inserter(errMsg));
+				//Logger::WriteMessage(outMessage.c_str());
+				const bool testCond = sk.GetScanCode(i) > 0;
+				Assert::IsTrue(testCond,errMsg.c_str());
 			};
 
 			//test valid scan code range
@@ -80,9 +81,9 @@ namespace XNMTest
 					sst >> i;
 					if (sst)
 					{
-						bool testCond = sk.GetScanCode(s) > 0;
-						bool isFoundInKnownGoodList = (std::find(std::cbegin(codesList), std::cend(codesList), i) != std::cend(codesList));
-						std::string msgg;
+						const bool testCond = sk.GetScanCode(s) > 0;
+						const bool isFoundInKnownGoodList = (std::find(std::cbegin(codesList), std::cend(codesList), i) != std::cend(codesList));
+						std::wstring msgg;
 
 						//if it returns true, then assert is must also be in the known good list
 						if (isFoundInKnownGoodList && testCond)
@@ -95,18 +96,20 @@ namespace XNMTest
 							{
 								//printable characters are also acceptable input to SendKey::GetScanCode()
 								//so if the integer is ALSO translatable to an ASCII keycode, it would still return true.
-								msgg = "Found a true result interpretable as a printable character: ";
+								msgg = L"Found a (random) true result interpretable as a printable character: ";
 								msgg += i;
-								msgg += "\n";
+								msgg += L"\n";
 								Logger::WriteMessage(msgg.c_str());
 							}
 							else
 							{
-								msgg = "Found a true result not in the known good list: " + s;
-								msgg += " translated to int in TestGetVK as: ";
-								msgg += std::to_string(i);
-								Logger::WriteMessage(msgg.c_str());
-								Assert::IsTrue(isFoundInKnownGoodList);
+								std::wstring temp;
+								std::copy(s.begin(), s.end(), std::back_inserter(temp));
+								msgg = L"Found a (random) true result not in the known good list: " + temp;
+								msgg += L" translated to int in TestGetVK as: ";
+								msgg += std::to_wstring(i);
+								//Logger::WriteMessage(msgg.c_str());
+								Assert::IsTrue(isFoundInKnownGoodList,msgg.c_str());
 							}
 
 						}

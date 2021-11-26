@@ -33,15 +33,21 @@ namespace XNMTest
 			{
 				std::string ert = "Testmap [input]: " + s + " [expect result no error message]: ";
 				std::string ertt = mp.SetMapInfo(s);
-				Logger::WriteMessage((ert + ertt).c_str());
-				Assert::IsTrue(ertt.empty());
+				std::string composite = ert + ertt;
+				std::wstring errMsg;
+				std::copy(composite.begin(), composite.end(), std::back_inserter(errMsg));
+				//Logger::WriteMessage((ert + ertt).c_str());
+				Assert::IsTrue(ertt.empty(), errMsg.c_str());
 			};
 			auto testMapFunctionFalse = [&mp](const std::string &s)
 			{
 				std::string ert = "Testmap [input]: " + s + " [expect result error message]: ";
 				std::string ertt = mp.SetMapInfo(s);
-				Logger::WriteMessage((ert + ertt).c_str());
-				Assert::IsFalse(ertt.empty());
+				std::string composite = ert + ertt;
+				std::wstring errMsg;
+				std::copy(composite.begin(), composite.end(), std::back_inserter(errMsg));
+				//Logger::WriteMessage((ert + ertt).c_str());
+				Assert::IsFalse(ertt.empty(),errMsg.c_str());
 			};
 
 			//Test known good string case
@@ -56,6 +62,7 @@ namespace XNMTest
 			testMapFunctionFalse("   \r\n");
 			testMapFunctionFalse("");
 			testMapFunctionFalse("lThumb:left:nORM:a dPAD:DoWN:nORM:x DPAd:uP:NoRM:vK3333"); // 3333 is far too large to be a virtual keycode
+			testMapFunctionFalse("lThumb:left:nORM:a dPAD:DoWN:nORM:x DPAd:uP:NoRM:vK33333333333333333333"); // 3333... might overflow an int
 			//test some good cases with lower case
 			testMapFunctionTrue("lthumb:left:NORM:a DPAD:DoWN:NORM:x DPAD:UP:NORM:vk33");
 			

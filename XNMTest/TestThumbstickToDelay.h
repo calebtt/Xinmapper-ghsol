@@ -28,14 +28,14 @@ namespace XNMTest
 
 			auto testValues = [&delay](int first, int second, int comparison)
 			{
-				int result = delay.GetRangedThumbstickValue(first, second);
+				const int result = delay.GetRangedThumbstickValue(first, second);
 				Logger::WriteMessage(std::to_string(result).c_str());
 				Assert::IsTrue(result == comparison);
 			};
 			int last = 0;
 			auto testGreaterEqualToLast = [&delay](int first, int second, int &last)
 			{
-				int result = delay.GetRangedThumbstickValue(first, second);
+				const int result = delay.GetRangedThumbstickValue(first, second);
 				//Logger::WriteMessage(std::to_string(result).c_str());
 				Assert::IsTrue(result >= last, std::to_wstring(result).c_str());
 				last = result;
@@ -43,7 +43,7 @@ namespace XNMTest
 			//test certain values resulting in certain results
 			testValues(SMax, deadzone, 100);
 			testValues(SMax, 0, 100);
-			int fiftyPercent = (SMax / 2) + (deadzone/2);
+			const int fiftyPercent = (SMax / 2) + (deadzone/2);
 			testValues(fiftyPercent, deadzone, 50);
 			testValues(deadzone+1, deadzone, 1);
 			
