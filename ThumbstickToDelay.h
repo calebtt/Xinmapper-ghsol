@@ -161,7 +161,10 @@ namespace sds
 		/// <returns>delay in microseconds</returns>
 		size_t GetDelayFromThumbstickValue(int val, const bool isX)
 		{
-			const int curr = (!m_isDeadzoneActivated) ? (isX ? m_xAxisDeadzone : m_yAxisDeadzone) : (isX ? m_xAxisDeadzone*m_altDeadzoneMultiplier : m_yAxisDeadzone*m_altDeadzoneMultiplier);
+			constexpr auto ToFloat = [](auto something) { return static_cast<float>(something); };
+			const int curr = static_cast<int>((!m_isDeadzoneActivated) ?
+				(isX ? ToFloat(m_xAxisDeadzone) : ToFloat(m_yAxisDeadzone))
+				: (isX ? ToFloat(m_xAxisDeadzone) * m_altDeadzoneMultiplier : ToFloat(m_yAxisDeadzone) * m_altDeadzoneMultiplier));
 			val = GetRangedThumbstickValue( val, curr );
 
 			int rval = 0;
@@ -192,8 +195,13 @@ namespace sds
 		/// <returns>delay in microseconds</returns>
 		size_t GetDelayFromThumbstickValue(int x, int y, bool isX)
 		{
-			const int xdz = (!m_isDeadzoneActivated) ? (isX ? m_xAxisDeadzone : m_yAxisDeadzone) : (isX ? m_xAxisDeadzone * m_altDeadzoneMultiplier : m_yAxisDeadzone * m_altDeadzoneMultiplier);
-			const int ydz = (!m_isDeadzoneActivated) ? (!isX ? m_xAxisDeadzone : m_yAxisDeadzone) : (!isX ? m_xAxisDeadzone * m_altDeadzoneMultiplier : m_yAxisDeadzone * m_altDeadzoneMultiplier);
+			constexpr auto ToFloat = [](auto something) { return static_cast<float>(something); };
+			const int xdz = static_cast<int>((!m_isDeadzoneActivated) ?
+				(isX ? ToFloat(m_xAxisDeadzone) : ToFloat(m_yAxisDeadzone))
+				: (isX ? ToFloat(m_xAxisDeadzone) * m_altDeadzoneMultiplier : ToFloat(m_yAxisDeadzone) * m_altDeadzoneMultiplier));
+			const int ydz = static_cast<int>((!m_isDeadzoneActivated) ? 
+				(!isX ? ToFloat(m_xAxisDeadzone) : ToFloat(m_yAxisDeadzone)) 
+				: (!isX ? ToFloat(m_xAxisDeadzone) * m_altDeadzoneMultiplier : ToFloat(m_yAxisDeadzone) * m_altDeadzoneMultiplier));
 			x = GetRangedThumbstickValue(x, xdz);
 			y = GetRangedThumbstickValue(y, ydz);
 			//TODO fix sensitivity bug where the diagonal moves aren't as granular with regard to side to side movements as
@@ -250,12 +258,13 @@ namespace sds
 		//The transformation function applied to consider the value of both axes in the calculation.
 		int TransformSensitivityValue(int x, int y, bool isX) const
 		{
-			int txVal = XinSettings::SENSITIVITY_MIN;
+			constexpr auto ToDub = [](auto something) { return static_cast<double>(something); };
+			double txVal = XinSettings::SENSITIVITY_MIN;
 			if (isX)
-				txVal = x + (std::sqrt(y) * 2);
+				txVal = ToDub(x) + (std::sqrt(y) * 2.0);
 			else
-				txVal = y + (std::sqrt(x) * 2);
-			return txVal;
+				txVal = ToDub(y) + (std::sqrt(x) * 2.0);
+			return static_cast<int>(txVal);
 		}
 
 		//Keep microsecond delay value within overall min and max

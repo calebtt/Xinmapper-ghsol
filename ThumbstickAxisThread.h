@@ -100,7 +100,7 @@ namespace sds
         }
 
     protected:
-        int reduceToLongLimit(const long long valx)
+        int reduceToLongLimit(const long long valx) const
         {
             if (valx <= std::numeric_limits<int>::min())
                 return static_cast<int>(std::numeric_limits<int>::min() + 1);
@@ -109,7 +109,7 @@ namespace sds
             else
                 return static_cast<int>(valx);
         }
-        void invertIfY(long long &valy, const bool isX)
+        void invertIfY(long long &valy, const bool isX) const
         {
             if (!isX)
             {
