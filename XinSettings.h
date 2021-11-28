@@ -49,7 +49,7 @@ namespace sds
 		constexpr static const float MULTIPLIER_MAX = 1.0f;
 		//Alt Deadzone Default is the multiplier to use when a deadzone is already activated,
 		//the deadzone value for the other axis is lessened via this value.
-		constexpr static const float ALT_DEADZONE_MULT_DEFAULT = 0.35f;
+		constexpr static const float ALT_DEADZONE_MULT_DEFAULT = 0.5f;
 
 		//Static assertions about the const members
 		static_assert(SENSITIVITY_MAX < MICROSECONDS_MAX);
