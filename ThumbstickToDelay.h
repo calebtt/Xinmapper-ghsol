@@ -9,6 +9,7 @@ namespace sds
 	/// A single instance for a single thumbstick axis is to be used.
 	/// This class must be re-instantiated to use new deadzone values.
 	/// </summary>
+	///	<exception cref="std::string"> throws string on exception. </exception>
 	class ThumbstickToDelay
 	{
 		inline static std::atomic<bool> m_isDeadzoneActivated;

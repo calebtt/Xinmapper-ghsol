@@ -15,7 +15,7 @@ namespace XNMTest
 	{
 		const int Sens = 35;
 		const int SensMax = 100;
-		const int deadzone = XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE;
+		const int DefaultDeadzone = XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE;
 
 		const short SMax = std::numeric_limits<SHORT>::max();
 		const short SMin = std::numeric_limits<SHORT>::min();
@@ -41,27 +41,27 @@ namespace XNMTest
 				last = result;
 			};
 			//test certain values resulting in certain results
-			testValues(SMax, deadzone, 100);
+			testValues(SMax, DefaultDeadzone, 100);
 			testValues(SMax, 0, 100);
-			const int fiftyPercent = (SMax / 2) + (deadzone/2);
-			testValues(fiftyPercent, deadzone, 50);
-			testValues(deadzone+1, deadzone, 1);
+			const int fiftyPercent = (SMax / 2) + (DefaultDeadzone/2);
+			testValues(fiftyPercent, DefaultDeadzone, 50);
+			testValues(DefaultDeadzone+1, DefaultDeadzone, 1);
 			
 			//test negative and zero thumbstick values
-			testValues(0, deadzone, 1);
-			testValues(-1, deadzone, 1);
-			testValues(SMin, -deadzone, 100);
+			testValues(0, DefaultDeadzone, 1);
+			testValues(-1, DefaultDeadzone, 1);
+			testValues(SMin, -DefaultDeadzone, 100);
 			for (int i = 1; i < SMax; i++)
 			{
-				testGreaterEqualToLast(i, deadzone, last);
+				testGreaterEqualToLast(i, DefaultDeadzone, last);
 			}
 			//build a list of returned values, then remove duplicates and print the list
 			//to the test output
 			std::vector<int> valuesList;
 			for (int i = 1; i < SMax; i++)
 			{
-				valuesList.push_back(delay.GetRangedThumbstickValue(i, deadzone));
-				//testGreaterEqualToLast(i, deadzone, last);
+				valuesList.push_back(delay.GetRangedThumbstickValue(i, DefaultDeadzone));
+				//testGreaterEqualToLast(i, DefaultDeadzone, last);
 			}
 			auto newEnd = std::unique(valuesList.begin(), valuesList.end());
 			std::for_each(valuesList.begin(), newEnd, [](int i)
@@ -72,7 +72,7 @@ namespace XNMTest
 			valuesList.clear();
 			for (int i = SMin; i < 0; i++)
 			{
-				valuesList.push_back(delay.GetRangedThumbstickValue(i, deadzone));
+				valuesList.push_back(delay.GetRangedThumbstickValue(i, DefaultDeadzone));
 			}
 			newEnd = std::unique(valuesList.begin(), valuesList.end());
 			std::for_each(valuesList.begin(), newEnd, [](int i)
@@ -83,16 +83,16 @@ namespace XNMTest
 
 		TEST_METHOD(TestGetDelayFromThumbstickValues)
 		{
-			sds::PlayerInfo pl;
-			sds::MouseMap mp = sds::MouseMap::RIGHT_STICK;
+			const sds::PlayerInfo pl;
+			const sds::MouseMap mp = sds::MouseMap::RIGHT_STICK;
 			sds::ThumbstickToDelay delay(Sens, pl, mp);
 			std::map<int, int> sensMap = delay.GetCopyOfSensitivityMap();
-			const int localdz = deadzone;
+			const int localdz = DefaultDeadzone;
 			auto testValues = [&delay, &localdz, &sensMap](int first, int second, int comparison)
 			{
 				//gets value representing the thumbstick value in the range of sensitivity_min to sensitivity_max
-				int xPercent = delay.GetRangedThumbstickValue(first, localdz);
-				int yPercent = delay.GetRangedThumbstickValue(second, localdz);
+				const int xPercent = delay.GetRangedThumbstickValue(first, localdz);
+				const int yPercent = delay.GetRangedThumbstickValue(second, localdz);
 
 				//gets delay value for each thumbstick value after the above translation
 				const int currentX = sensMap[xPercent];
@@ -119,27 +119,27 @@ namespace XNMTest
 			//	last = result;
 			//};
 			////test certain values resulting in certain results
-			//testValues(SMax, deadzone, 100);
+			//testValues(SMax, DefaultDeadzone, 100);
 			//testValues(SMax, 0, 100);
-			//int fiftyPercent = (SMax / 2) + (deadzone / 2);
-			//testValues(fiftyPercent, deadzone, 50);
-			//testValues(deadzone + 1, deadzone, 1);
+			//int fiftyPercent = (SMax / 2) + (DefaultDeadzone / 2);
+			//testValues(fiftyPercent, DefaultDeadzone, 50);
+			//testValues(DefaultDeadzone + 1, DefaultDeadzone, 1);
 
 			////test negative and zero thumbstick values
-			//testValues(0, deadzone, 1);
-			//testValues(-1, deadzone, 1);
-			//testValues(SMin, -deadzone, 100);
+			//testValues(0, DefaultDeadzone, 1);
+			//testValues(-1, DefaultDeadzone, 1);
+			//testValues(SMin, -DefaultDeadzone, 100);
 			//for (int i = 1; i < SMax; i++)
 			//{
-			//	testGreaterEqualToLast(i, deadzone, last);
+			//	testGreaterEqualToLast(i, DefaultDeadzone, last);
 			//}
 			////build a list of returned values, then remove duplicates and print the list
 			////to the test output
 			//std::vector<int> valuesList;
 			//for (int i = 1; i < SMax; i++)
 			//{
-			//	valuesList.push_back(delay.GetRangedThumbstickValue(i, deadzone));
-			//	//testGreaterEqualToLast(i, deadzone, last);
+			//	valuesList.push_back(delay.GetRangedThumbstickValue(i, DefaultDeadzone));
+			//	//testGreaterEqualToLast(i, DefaultDeadzone, last);
 			//}
 			//auto newEnd = std::unique(valuesList.begin(), valuesList.end());
 			//std::for_each(valuesList.begin(), newEnd, [](int i)
@@ -150,7 +150,7 @@ namespace XNMTest
 			//valuesList.clear();
 			//for (int i = SMin; i < 0; i++)
 			//{
-			//	valuesList.push_back(delay.GetRangedThumbstickValue(i, deadzone));
+			//	valuesList.push_back(delay.GetRangedThumbstickValue(i, DefaultDeadzone));
 			//}
 			//newEnd = std::unique(valuesList.begin(), valuesList.end());
 			//std::for_each(valuesList.begin(), newEnd, [](int i)

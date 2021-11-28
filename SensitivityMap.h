@@ -27,7 +27,6 @@ namespace sds
 			const int us_delay_max, 
 			const int us_delay_min_max) const
 		{
-			//TODO complete the microsecond delay minimum maximum param logic
 			//arg error checking
 			const std::string m_except_message = "Exception in SensitivityMap::BuildSensitivityMap(): ";
 			if (sens_min >= sens_max || us_delay_min >= us_delay_max || user_sens < sens_min || user_sens > sens_max)
