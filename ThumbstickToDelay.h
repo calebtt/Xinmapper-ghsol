@@ -1,6 +1,6 @@
 #pragma once
 #include "stdafx.h"
-
+#include "SensitivityMap.h"
 
 namespace sds
 {
@@ -17,52 +17,8 @@ namespace sds
 		int m_yAxisDeadzone;
 		int m_axisSensitivity;
 		const std::string BAD_DELAY_MSG = "Bad timer delay value, exception.";
-		
-
+		SensitivityMap m_sensMapper;
 		std::map<int, int> m_sharedSensitivityMap;
-
-		void BuildSensitivityMap()
-		{
-			//const int step = XinSettings::MICROSECONDS_MAX / XinSettings::SENSITIVITY_MAX;
-			const int step = (XinSettings::MICROSECONDS_MAX - XinSettings::MICROSECONDS_MIN) / (XinSettings::SENSITIVITY_MAX - XinSettings::SENSITIVITY_MIN);
-			for (int i = XinSettings::SENSITIVITY_MIN, j = XinSettings::SENSITIVITY_MAX; i <= XinSettings::SENSITIVITY_MAX; i++, j--)
-			{
-				if (i * step < XinSettings::MICROSECONDS_MIN)
-				{
-					m_sharedSensitivityMap[j] = XinSettings::MICROSECONDS_MIN;
-				}
-				else
-				{
-					m_sharedSensitivityMap[j] = i * step;
-				}
-			}
-		}
-		/// <summary>
-		/// 3x MICROSECONDS_MIN is the "lowest" sensitivity delay
-		///	1x MICROSECONDS_MIN is the "highest" sensitivity delay
-		/// </summary>
-		/// <param name="sens"></param>
-		/// <returns></returns>
-		int SensitivityToMinimum(int sens)
-		{
-			//Inverse relationship of sensitivity value to MICROSECONDS_MIN
-			std::map<int, int> minimumMap;
-			//TODO complete this section to correlate the "sens" variable inversely with microseconds_min to microseconds_min*3
-
-			const int step = (XinSettings::MICROSECONDS_MAX - XinSettings::MICROSECONDS_MIN) / (XinSettings::SENSITIVITY_MAX - XinSettings::SENSITIVITY_MIN);
-			for (int i = XinSettings::SENSITIVITY_MIN, j = XinSettings::SENSITIVITY_MAX; i <= XinSettings::SENSITIVITY_MAX; i++, j--)
-			{
-				if (i * step < XinSettings::MICROSECONDS_MIN)
-				{
-					m_sharedSensitivityMap[j] = XinSettings::MICROSECONDS_MIN;
-				}
-				else
-				{
-					m_sharedSensitivityMap[j] = i * step;
-				}
-			}
-			return 0;
-		}
 	public:
 		/// <summary>
 		/// Ctor for dual axis sensitivity and deadzone processing.
@@ -105,7 +61,12 @@ namespace sds
 			if (!XinSettings::IsValidDeadzoneValue(cdy))
 				m_yAxisDeadzone = XinSettings::DEADZONE_DEFAULT;
 
-			BuildSensitivityMap();
+			m_sharedSensitivityMap = m_sensMapper.BuildSensitivityMap(sensitivity,
+				XinSettings::SENSITIVITY_MIN,
+				XinSettings::SENSITIVITY_MAX,
+				XinSettings::MICROSECONDS_MIN,
+				XinSettings::MICROSECONDS_MAX,
+				XinSettings::MICROSECONDS_MIN*3);
 		}
 
 		/// <summary>
@@ -132,10 +93,7 @@ namespace sds
 			m_isDeadzoneActivated = false;
 
 			//error checking sensitivity arg range
-			if (sensitivity > XinSettings::SENSITIVITY_MAX)
-				m_axisSensitivity = XinSettings::SENSITIVITY_MAX;
-			else if (sensitivity < XinSettings::SENSITIVITY_MIN)
-				m_axisSensitivity = XinSettings::SENSITIVITY_MIN;
+			m_axisSensitivity = RangeBindSensitivityValue(sensitivity, XinSettings::SENSITIVITY_MIN, XinSettings::SENSITIVITY_MAX);
 
 			//error checking axis dz arg range, because it might crash the program if the
 			//delay returned is some silly value
@@ -144,7 +102,21 @@ namespace sds
 			if (!XinSettings::IsValidDeadzoneValue(yAxisDz))
 				m_yAxisDeadzone = XinSettings::DEADZONE_DEFAULT;
 
-			BuildSensitivityMap();
+			m_sharedSensitivityMap = m_sensMapper.BuildSensitivityMap(sensitivity,
+				XinSettings::SENSITIVITY_MIN,
+				XinSettings::SENSITIVITY_MAX,
+				XinSettings::MICROSECONDS_MIN,
+				XinSettings::MICROSECONDS_MAX,
+				XinSettings::MICROSECONDS_MIN * 3);
+		}
+
+		/// <summary>
+		/// returns a copy of the internal sensitivity map
+		/// </summary>
+		/// <returns>std map of int, int</returns>
+		std::map<int, int> GetCopyOfSensitivityMap() const
+		{
+			return m_sharedSensitivityMap;
 		}
 
 		/// <summary>
@@ -191,17 +163,10 @@ namespace sds
 		{
 			const int curr = (!m_isDeadzoneActivated) ? (isX ? m_xAxisDeadzone : m_yAxisDeadzone) : (isX ? m_xAxisDeadzone*m_altDeadzoneMultiplier : m_yAxisDeadzone*m_altDeadzoneMultiplier);
 			val = GetRangedThumbstickValue( val, curr );
-			if (val > m_axisSensitivity)
-				val = m_axisSensitivity;
+
 			int rval = 0;
 			//error checking to make sure the key is in the map
-			auto it = std::find_if(m_sharedSensitivityMap.begin(), m_sharedSensitivityMap.end(), [&val](const std::pair<int, int> &elem)
-				{
-					return elem.first == val;
-				});
-			if (it != m_sharedSensitivityMap.end())
-				rval = it->second;
-			else
+			if(!m_sensMapper.IsInMap(val, m_sharedSensitivityMap, rval))
 			{
 				//this should not happen, but in case it does I want a plain string telling me it did.
 				throw std::string("Exception in ThumbstickToDelay::GetDelayFromThumbstickValue(): " + BAD_DELAY_MSG);
@@ -211,20 +176,6 @@ namespace sds
 			if (rval >= XinSettings::MICROSECONDS_MIN && rval <= XinSettings::MICROSECONDS_MAX)
 				return rval;
 			return XinSettings::MICROSECONDS_MAX;
-		}
-
-		/// <summary>
-		/// Verifies that the value maps to a delay value in the sensitivity map.
-		/// </summary>
-		/// <param name="txVal">key value to check</param>
-		/// <returns>true if found, false otherwise</returns>
-		bool IsInSensitivityMap(int txVal)
-		{
-			auto itx = std::find_if(m_sharedSensitivityMap.begin(), m_sharedSensitivityMap.end(), [&txVal](const std::pair<int, int> &elem)
-			{
-				return elem.first == txVal;
-			});
-			return (itx != m_sharedSensitivityMap.end());
 		}
 
 		/// <summary>
@@ -245,39 +196,21 @@ namespace sds
 			const int ydz = (!m_isDeadzoneActivated) ? (!isX ? m_xAxisDeadzone : m_yAxisDeadzone) : (!isX ? m_xAxisDeadzone * m_altDeadzoneMultiplier : m_yAxisDeadzone * m_altDeadzoneMultiplier);
 			x = GetRangedThumbstickValue(x, xdz);
 			y = GetRangedThumbstickValue(y, ydz);
-			//TODO fix sensitivity bug where the diagonal moves aren't restricted by sensitivity value
-			//The bug occurs where one axis is activated, and the second axis goes beyond the original deadzone value (before alt dz val multiplied)
-			if (x > m_axisSensitivity)
-				x = m_axisSensitivity;
-			if (y > m_axisSensitivity)
-				y = m_axisSensitivity;
+			//TODO fix sensitivity bug where the diagonal moves aren't as granular with regard to side to side movements as
+			//straight left/right or up/down movements are.
 
+			int txVal = 0;
+			txVal = TransformSensitivityValue(x, y, isX);
+			txVal = RangeBindSensitivityValue(txVal, XinSettings::SENSITIVITY_MIN, XinSettings::SENSITIVITY_MAX);
 
-			//add together to lessen the delay, total magnitude of both axes is considered this way
-			//long long txVal = static_cast<long long>(x) + static_cast<long long>(y);
-			int txVal = XinSettings::SENSITIVITY_MIN;
-			if (isX)
-				txVal = x + (std::sqrt(y) * 2);
-			else
-				txVal = y + (std::sqrt(x) * 2);
-
-			//if (txVal > XinSettings::SENSITIVITY_MAX)
-			//{
-			//	txVal = XinSettings::SENSITIVITY_MAX;
-			//}
-			//else 
-			if (txVal > m_axisSensitivity)
-				txVal = m_axisSensitivity;
-
-			//error checking to make sure the value is in the map,
-			//and uses the iterator if found to get the mapped value
-			if (!IsInSensitivityMap(txVal))
+			//error checking to make sure the value is in the map
+			int rval = 0;
+			if (!m_sensMapper.IsInMap(txVal,m_sharedSensitivityMap,rval))
 			{
 				//this should not happen, but in case it does I want a plain string telling me it did.
 				throw std::string("Exception in ThumbstickToDelay::GetDelayFromThumbstickValue(): " + BAD_DELAY_MSG);
 			}
-
-			txVal = m_sharedSensitivityMap[txVal];
+			txVal = rval;
 
 			if (txVal >= XinSettings::MICROSECONDS_MIN && txVal <= XinSettings::MICROSECONDS_MAX)
 				return txVal;
@@ -311,19 +244,30 @@ namespace sds
 				percentage = XinSettings::SENSITIVITY_MIN;
 			else if (percentage > XinSettings::SENSITIVITY_MAX)
 				percentage = XinSettings::SENSITIVITY_MAX;
-			return percentage;
+			return static_cast<int>(percentage);
 		}
-
-		/// <summary>
-		/// returns a copy of the internal sensitivity map
-		/// </summary>
-		/// <returns>std map of int, int</returns>
-		std::map<int, int> GetCopyOfSensitivityMap() const
+	private:
+		//The transformation function applied to consider the value of both axes in the calculation.
+		int TransformSensitivityValue(int x, int y, bool isX) const
 		{
-			return m_sharedSensitivityMap;
+			int txVal = XinSettings::SENSITIVITY_MIN;
+			if (isX)
+				txVal = x + (std::sqrt(y) * 2);
+			else
+				txVal = y + (std::sqrt(x) * 2);
+			return txVal;
 		}
 
-
+		//Keep microsecond delay value within overall min and max
+		int RangeBindSensitivityValue(int user_sens, const int sens_min, const int sens_max) const
+		{
+			//bounds check result
+			if (user_sens > sens_max)
+				user_sens = sens_max;
+			else if (user_sens < sens_min)
+				user_sens = sens_min;
+			return user_sens;
+		}
 	};
 }
 

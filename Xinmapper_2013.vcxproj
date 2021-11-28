@@ -99,6 +99,7 @@
     <ClInclude Include="MultiBool.h" />
     <ClInclude Include="PlayerInfo.h" />
     <ClInclude Include="SendKey.h" />
+    <ClInclude Include="SensitivityMap.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="ButtonStateDown.h" />
     <ClInclude Include="ThumbstickToDelay.h" />

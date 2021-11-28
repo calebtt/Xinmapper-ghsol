@@ -58,7 +58,7 @@ namespace sds
 		/// Constructor, requires pointer to: Mapper, XInputTranslater, XInputBoostMouse
 		/// Throws std::string with error message if nullptr given.
 		/// </summary>
-		/// 
+		/// <exception cref="std::string">throws a string if null pointers are given to the ctor.</exception>
 		/// <param name="mapper"></param>
 		/// <param name="transl"></param>
 		/// <param name="mouse"></param>

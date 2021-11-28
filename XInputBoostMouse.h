@@ -115,6 +115,7 @@ namespace sds
 			const int tdy = m_stickMapInfo == MouseMap::RIGHT_STICK ? m_localPlayerInfo.right_y_dz : m_localPlayerInfo.left_y_dz;
 			ThumbstickToDelay moveDetermine(m_mouseSensitivity, tdx, tdy);
 
+			//TODO consider removing the "does require move" test here.
 			if( moveDetermine.DoesRequireMove(tsx,tsy) )
 			{
 				//update state.

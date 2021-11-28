@@ -5,6 +5,7 @@
 #include "TestMouse.h"
 #include "TestThumbstickToMovement.h"
 #include "TestThumbstickToDelay.h"
+#include "TestSensitivityMap.h"
 #include "BuildRandomStrings.h"
 #include <string>
 #include <vector>
