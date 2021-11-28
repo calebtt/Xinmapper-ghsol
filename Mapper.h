@@ -6,7 +6,7 @@
 namespace sds
 {
 	/// <summary>
-	/// Contains the logic for determining if a key press or mouse click should occur, uses sds::SendKey keySend to send the input.
+	/// Contains the logic for determining if a key press or mouse click should occur, uses sds::SendKey m_keySend to send the input.
 	/// Processes the ActionDetails utility class.
 	/// Further design considerations may incorporate a queue for sending input, as SendInput will allow an entire array to be
 	/// sent in one call.
