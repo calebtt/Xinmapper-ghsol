@@ -87,7 +87,7 @@ namespace sds
 			return false;
 		}
 
-		auto BuildThumbstickMap(const XINPUT_STATE &state)-> std::map<std::string, std::tuple<int, int, std::variant<std::less<>, std::greater<>>>>
+		auto BuildThumbstickMap(const XINPUT_STATE &state) const -> std::map<std::string, std::tuple<int, int, std::variant<std::less<>, std::greater<>>>>
 		{
 			using sds::sdsActionDescriptors;
 			using std::string;
