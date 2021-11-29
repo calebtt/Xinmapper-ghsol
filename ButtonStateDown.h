@@ -75,13 +75,16 @@ namespace sds
 		/// <returns>true if thumbstick+direction is pressed</returns>
 		bool ThumbstickDown(const XINPUT_STATE& state, const std::string token) const
 		{
+			using MyVariant = std::variant<std::less<>, std::greater<>>;
+			using MyTuple = std::tuple<int, int, MyVariant>;
 			auto &&m_thumbstickMap = BuildThumbstickMap(state);
-			if(MapFunctions::IsInMap(token,m_thumbstickMap))
+			MyTuple myTup;
+			if (MapFunctions::IsInMap<std::string,MyTuple,int,MyVariant>(token, m_thumbstickMap,myTup))
 			{
-				const int dzVal = std::get<0>(m_thumbstickMap[token]);
-				const int thumbVal = std::get<1>(m_thumbstickMap[token]);
-				auto f = std::get<2>(m_thumbstickMap[token]);
-				const bool testResult = std::visit([&dzVal,&thumbVal](auto thisWillBeEitherLessOrGreater) { return thisWillBeEitherLessOrGreater(thumbVal, dzVal); }, f);
+				const int dzVal = std::get<0>(myTup);
+				const int thumbVal = std::get<1>(myTup);
+				auto f = std::get<2>(myTup);
+				const bool testResult = std::visit([&dzVal, &thumbVal](auto thisWillBeEitherLessOrGreater) { return thisWillBeEitherLessOrGreater(thumbVal, dzVal); }, f);
 				return testResult;
 			}
 			return false;
