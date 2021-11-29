@@ -91,24 +91,28 @@ namespace XNMTest
 		}
 
 		//Method to test the overload of GetDelayFromThumbstickValue
-		TEST_METHOD(TestGetDelayFromThumbstickValues)
+		TEST_METHOD(TestGetDelayFromThumbstickValue)
 		{
 			const sds::PlayerInfo pl;
 			const sds::MouseMap mp = sds::MouseMap::RIGHT_STICK;
 			sds::ThumbstickToDelay delay(SensMax, pl, mp);
 			std::map<int, int> sensMap = delay.GetCopyOfSensitivityMap();
 			const int localdz = DefaultDeadzone;
-			auto testValues = [&delay, &localdz, &sensMap](int first, int second, size_t comparison)
+			auto testValues = [&delay, &localdz, &sensMap](const int thumbValueX, const int thumbValueY, const bool isX, const size_t comparison)
 			{
 				//do a computation to get the transformed value expected from GetDelayFromThumbstickValues
-				const size_t dualResult = delay.GetDelayFromThumbstickValue(first, second, true);
-				Assert::IsTrue(dualResult == comparison);
+				const size_t dualResult = delay.GetDelayFromThumbstickValue(thumbValueX, thumbValueY, isX);
+				std::wstring msg = L"Tested: X" + std::to_wstring(thumbValueX);
+				msg += L" Y:" + std::to_wstring(thumbValueY);
+				msg += L" with result: " + std::to_wstring(dualResult);
+				Assert::IsTrue(dualResult == comparison, msg.c_str());
 			};
+			testValues(SMax, 0, true, 500);
 			//known good test, half magnitude positive both axes
 			//should yield a delay magnitude of Sens or sensitivity max,
 			//remember the max sensitivity will be truncated per the sensitivity you
 			//decide to use.
-			testValues(SMax / 2, SMax / 2, sensMap[Sens]);
+			//testValues(SMax / 2, SMax / 2, sensMap[Sens]);
 		}
 	};
 }

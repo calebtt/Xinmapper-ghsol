@@ -4,6 +4,7 @@
 #include "..\stdafx.h"
 #include "..\ThumbstickToDelay.h"
 #include "..\SensitivityMap.h"
+#include "TemplatesForTest.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
@@ -14,14 +15,11 @@ namespace XNMTest
 
 		TEST_METHOD(TestBuildSensitivityMap)
 		{
+			using namespace TemplatesForTest;
 			const std::wstring TestFuncName = L"TestBuildSensitivityMap()";
 			Logger::WriteMessage(std::wstring(L"Begin "+ TestFuncName).c_str());
 			
 			sds::SensitivityMap mp;
-			auto IsWithin = [](const int result, const int testVal, const int within = 50)
-			{
-				return ((result > (testVal - within)) && (result < (testVal + within)));
-			};
 			auto GetResultMap = [&mp](const int sensVal)
 			{
 				std::map<int, int> result = mp.BuildSensitivityMap(sensVal,
@@ -33,15 +31,18 @@ namespace XNMTest
 				return result;
 			};
 			const std::map<int, int> result = GetResultMap(100);
-			bool testCond = IsWithin(result.crbegin()->second, sds::XinSettings::MICROSECONDS_MIN);
+			bool testCond = IsWithin(result.crbegin()->second, sds::XinSettings::MICROSECONDS_MIN, 50);
 			Assert::IsTrue(testCond, L"TestBuildSensitivityMap() : 100");
-			testCond = IsWithin(result.cbegin()->second, sds::XinSettings::MICROSECONDS_MAX);
+			testCond = IsWithin(result.cbegin()->second, sds::XinSettings::MICROSECONDS_MAX, 50);
 			Assert::IsTrue(testCond, L"TestBuildSensitivityMap() : 1");
 			Logger::WriteMessage(std::wstring(L"End " + TestFuncName).c_str());
 		}
 
 		TEST_METHOD(TestSensitivityToMinimum)
 		{
+			using namespace TemplatesForTest;
+			const std::wstring TestFuncName = L"TestSensitivityToMinimum()";
+			Logger::WriteMessage(std::wstring(L"Begin " + TestFuncName).c_str());
 			sds::SensitivityMap mp;
 			
 			auto TestResultWithin = [&mp](const int sensVal, const int testVal, const int within=50)
@@ -57,7 +58,7 @@ namespace XNMTest
 					+ std::to_wstring(result)
 					+ L" Expected: "
 					+ std::to_wstring(testVal);
-				const bool isWithin = ((result > (testVal - within)) && (result < (testVal + within)));
+				const bool isWithin = IsWithin(result,testVal,within);
 				Assert::IsTrue(isWithin, out.c_str());
 			};
 			try
@@ -76,7 +77,7 @@ namespace XNMTest
 				Logger::WriteMessage(e.c_str());
 				Assert::IsTrue(false);
 			}
-
+			Logger::WriteMessage(std::wstring(L"End " + TestFuncName).c_str());
 		}
 	};
 }

@@ -168,6 +168,7 @@
     <ClCompile Include="XNMTest.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="TemplatesForTest.h" />
     <ClInclude Include="BuildVKList.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="BuildRandomStrings.h" />
