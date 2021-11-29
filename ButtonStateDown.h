@@ -12,29 +12,9 @@ namespace sds
 	/// </summary>
 	class ButtonStateDown
 	{
-		//std::map<std::string, std::tuple<int, int, std::variant<std::less<>, std::greater<>>>> m_thumbstickMap;
 		sds::PlayerInfo m_localPlayer;
 	public:
-		ButtonStateDown()
-		{
-			//using sds::sdsActionDescriptors;
-			//using std::string;
-			//string temp = sds::sdsActionDescriptors.lThumb + sds::sdsActionDescriptors.moreInfo;
-			////left thumbstick tokens
-			//m_tokenMap[temp + sdsActionDescriptors.left] = -m_localPlayer.left_x_dz;
-			//m_tokenMap[temp + sdsActionDescriptors.right] = m_localPlayer.left_x_dz;
-			//m_tokenMap[temp + sdsActionDescriptors.down] = -m_localPlayer.left_y_dz;
-			//m_tokenMap[temp + sdsActionDescriptors.up] = m_localPlayer.left_y_dz;
-			//
-			////right thumbstick tokens
-			//temp = sds::sdsActionDescriptors.rThumb + sds::sdsActionDescriptors.moreInfo;
-			//m_tokenMap[temp + sdsActionDescriptors.left] = -m_localPlayer.right_x_dz;
-			//m_tokenMap[temp + sdsActionDescriptors.right] = m_localPlayer.right_x_dz;
-			//m_tokenMap[temp + sdsActionDescriptors.down] = -m_localPlayer.right_y_dz;
-			//m_tokenMap[temp + sdsActionDescriptors.up] = m_localPlayer.right_y_dz;
-			
-			//TODO finish using this map to simplify thumbstick function
-		}
+		ButtonStateDown() = default;
 		ButtonStateDown(const sds::PlayerInfo &player)
 		{
 			m_localPlayer = player;
