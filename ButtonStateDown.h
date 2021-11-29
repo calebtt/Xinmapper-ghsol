@@ -73,7 +73,7 @@ namespace sds
 		/// <param name="token"> is a two-part token containing normally a button and a direction for the thumbsticks,
 		/// colon delimited</param>
 		/// <returns>true if thumbstick+direction is pressed</returns>
-		bool ThumbstickDown(const XINPUT_STATE& state, const std::string token)
+		bool ThumbstickDown(const XINPUT_STATE& state, const std::string token) const
 		{
 			auto &&m_thumbstickMap = BuildThumbstickMap(state);
 			if(MapFunctions::IsInMap(token,m_thumbstickMap))
