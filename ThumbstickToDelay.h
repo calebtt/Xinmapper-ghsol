@@ -160,7 +160,7 @@ namespace sds
 		/// a hanging program.
 		/// </summary>
 		/// <returns>delay in microseconds</returns>
-		size_t GetDelayFromThumbstickValue(int val, const bool isX)
+		size_t GetDelayFromThumbstickValue(int val, const bool isX) const
 		{
 			constexpr auto ToFloat = [](auto something) { return static_cast<float>(something); };
 			const int curr = static_cast<int>((!m_isDeadzoneActivated) ?
@@ -194,7 +194,7 @@ namespace sds
 		/// <param name="y">Y value</param>
 		/// <param name="isX"> is it the X axis? </param>
 		/// <returns>delay in microseconds</returns>
-		size_t GetDelayFromThumbstickValue(int x, int y, bool isX)
+		size_t GetDelayFromThumbstickValue(int x, int y, bool isX) const
 		{
 			constexpr auto ToFloat = [](auto something) { return static_cast<float>(something); };
 			const int xdz = static_cast<int>((!m_isDeadzoneActivated) ?

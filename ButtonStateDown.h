@@ -101,7 +101,7 @@ namespace sds
 			//Right thumbstick.
 			if (token == temp + sds::sdsActionDescriptors.left)
 			{
-				//Test lThumb left.
+				//Test rThumb left.
 				if (state.Gamepad.sThumbRX < (-m_localPlayer.right_x_dz))
 					return true;
 			}
