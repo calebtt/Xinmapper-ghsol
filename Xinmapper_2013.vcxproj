@@ -94,6 +94,7 @@
     <ClInclude Include="GamepadUser.h" />
     <ClInclude Include="Globals.h" />
     <ClInclude Include="InputPoller.h" />
+    <ClInclude Include="MapFunctions.h" />
     <ClInclude Include="Mapper.h" />
     <ClInclude Include="MouseMap.h" />
     <ClInclude Include="MultiBool.h" />

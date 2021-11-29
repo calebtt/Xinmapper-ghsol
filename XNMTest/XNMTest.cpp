@@ -121,7 +121,7 @@ namespace XNMTest
 			//Copy map to a local const
 			const map<const string, int> &r = testMap;
 			//assert the map size is greater than 0
-			Assert::IsTrue(r.size());
+			Assert::IsFalse(r.empty());
 			
 			//Lambda helper function to Assert test "testState" and a token
 			auto tsv = [&ba, &r, &testState](const string &st)

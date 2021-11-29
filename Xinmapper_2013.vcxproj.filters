@@ -78,6 +78,9 @@
     <ClInclude Include="SensitivityMap.h">
       <Filter>Header Files\MouseMovement</Filter>
     </ClInclude>
+    <ClInclude Include="MapFunctions.h">
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

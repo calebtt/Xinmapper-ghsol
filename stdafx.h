@@ -41,7 +41,7 @@
 #include <locale>
 #include <format>
 #include <chrono>
-
+#include <variant>
 
 
 // Include some commonly used global stuff.

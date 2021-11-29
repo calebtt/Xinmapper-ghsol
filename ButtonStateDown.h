@@ -1,5 +1,8 @@
 #pragma once
 #include "stdafx.h"
+#include "MapFunctions.h"
+#include <map>
+
 
 namespace sds
 {
@@ -9,10 +12,28 @@ namespace sds
 	/// </summary>
 	class ButtonStateDown
 	{
+		//std::map<std::string, std::tuple<int, int, std::variant<std::less<>, std::greater<>>>> m_thumbstickMap;
 		sds::PlayerInfo m_localPlayer;
 	public:
 		ButtonStateDown()
 		{
+			//using sds::sdsActionDescriptors;
+			//using std::string;
+			//string temp = sds::sdsActionDescriptors.lThumb + sds::sdsActionDescriptors.moreInfo;
+			////left thumbstick tokens
+			//m_tokenMap[temp + sdsActionDescriptors.left] = -m_localPlayer.left_x_dz;
+			//m_tokenMap[temp + sdsActionDescriptors.right] = m_localPlayer.left_x_dz;
+			//m_tokenMap[temp + sdsActionDescriptors.down] = -m_localPlayer.left_y_dz;
+			//m_tokenMap[temp + sdsActionDescriptors.up] = m_localPlayer.left_y_dz;
+			//
+			////right thumbstick tokens
+			//temp = sds::sdsActionDescriptors.rThumb + sds::sdsActionDescriptors.moreInfo;
+			//m_tokenMap[temp + sdsActionDescriptors.left] = -m_localPlayer.right_x_dz;
+			//m_tokenMap[temp + sdsActionDescriptors.right] = m_localPlayer.right_x_dz;
+			//m_tokenMap[temp + sdsActionDescriptors.down] = -m_localPlayer.right_y_dz;
+			//m_tokenMap[temp + sdsActionDescriptors.up] = m_localPlayer.right_y_dz;
+			
+			//TODO finish using this map to simplify thumbstick function
 		}
 		ButtonStateDown(const sds::PlayerInfo &player)
 		{
@@ -72,55 +93,45 @@ namespace sds
 		/// <param name="token"> is a two-part token containing normally a button and a direction for the thumbsticks,
 		/// colon delimited</param>
 		/// <returns>true if thumbstick+direction is pressed</returns>
-		bool ThumbstickDown(const XINPUT_STATE& state, const std::string token) const
+		bool ThumbstickDown(const XINPUT_STATE& state, const std::string token)
 		{
-			//No string in switch, unfortunate.
-			std::string temp = sds::sdsActionDescriptors.lThumb + sds::sdsActionDescriptors.moreInfo;
-			if (token == temp + sds::sdsActionDescriptors.left)
+			auto &&m_thumbstickMap = BuildThumbstickMap(state);
+			if(MapFunctions::IsInMap(token,m_thumbstickMap))
 			{
-				//Test lThumb left.
-				if (state.Gamepad.sThumbLX < (-m_localPlayer.left_x_dz))
-					return true;
-			}
-			else if (token == temp + sds::sdsActionDescriptors.right)
-			{
-				if (state.Gamepad.sThumbLX > m_localPlayer.left_x_dz)
-					return true;
-			}
-			else if (token == temp + sds::sdsActionDescriptors.down)
-			{
-				if (state.Gamepad.sThumbLY < (-m_localPlayer.left_y_dz))
-					return true;
-			}
-			else if (token == temp + sds::sdsActionDescriptors.up)
-			{
-				if (state.Gamepad.sThumbLY > m_localPlayer.left_y_dz)
-					return true;
-			}
-			temp = sds::sdsActionDescriptors.rThumb + sds::sdsActionDescriptors.moreInfo;
-			//Right thumbstick.
-			if (token == temp + sds::sdsActionDescriptors.left)
-			{
-				//Test rThumb left.
-				if (state.Gamepad.sThumbRX < (-m_localPlayer.right_x_dz))
-					return true;
-			}
-			else if (token == temp + sds::sdsActionDescriptors.right)
-			{
-				if (state.Gamepad.sThumbRX > m_localPlayer.right_x_dz)
-					return true;
-			}
-			else if (token == temp + sds::sdsActionDescriptors.down)
-			{
-				if (state.Gamepad.sThumbRY < (-m_localPlayer.right_y_dz))
-					return true;
-			}
-			else if (token == temp + sds::sdsActionDescriptors.up)
-			{
-				if (state.Gamepad.sThumbRY > m_localPlayer.right_y_dz)
-					return true;
+				const int dzVal = std::get<0>(m_thumbstickMap[token]);
+				const int thumbVal = std::get<1>(m_thumbstickMap[token]);
+				auto f = std::get<2>(m_thumbstickMap[token]);
+				const bool testResult = std::visit([&dzVal,&thumbVal](auto thisWillBeEitherLessOrGreater) { return thisWillBeEitherLessOrGreater(thumbVal, dzVal); }, f);
+				return testResult;
 			}
 			return false;
+		}
+
+		auto BuildThumbstickMap(const XINPUT_STATE &state)-> std::map<std::string, std::tuple<int, int, std::variant<std::less<>, std::greater<>>>>
+		{
+			using sds::sdsActionDescriptors;
+			using std::string;
+			using std::map;
+			using std::variant;
+			using std::tuple;
+			using std::make_tuple;
+			//map each string to each deadzone, current value, and operation "functor"
+			map<string, tuple<int,int,variant<std::less<>, std::greater<>>>> someOtherMap;
+
+			string temp = sds::sdsActionDescriptors.lThumb + sds::sdsActionDescriptors.moreInfo;
+			//left thumbstick tokens
+			someOtherMap[temp + sdsActionDescriptors.left] = make_tuple(-static_cast<int>(m_localPlayer.left_x_dz), state.Gamepad.sThumbLX, std::less<>());
+			someOtherMap[temp + sdsActionDescriptors.right] = make_tuple(static_cast<int>(m_localPlayer.left_x_dz), state.Gamepad.sThumbLX, std::greater<>());
+			someOtherMap[temp + sdsActionDescriptors.down] = make_tuple(-static_cast<int>(m_localPlayer.left_y_dz), state.Gamepad.sThumbLY, std::less<>());
+			someOtherMap[temp + sdsActionDescriptors.up] = make_tuple(static_cast<int>(m_localPlayer.left_y_dz), state.Gamepad.sThumbLY, std::greater<>());
+
+			//right thumbstick tokens
+			temp = sds::sdsActionDescriptors.rThumb + sds::sdsActionDescriptors.moreInfo;
+			someOtherMap[temp + sdsActionDescriptors.left] = make_tuple(-static_cast<int>(m_localPlayer.right_x_dz), state.Gamepad.sThumbRX, std::less<>());
+			someOtherMap[temp + sdsActionDescriptors.right] = make_tuple(static_cast<int>(m_localPlayer.right_x_dz), state.Gamepad.sThumbRX, std::greater<>());
+			someOtherMap[temp + sdsActionDescriptors.down] = make_tuple(-static_cast<int>(m_localPlayer.right_y_dz), state.Gamepad.sThumbRY, std::less<>());
+			someOtherMap[temp + sdsActionDescriptors.up] = make_tuple(static_cast<int>(m_localPlayer.right_y_dz), state.Gamepad.sThumbRY, std::greater<>());
+			return someOtherMap;
 		}
 	};
 }
