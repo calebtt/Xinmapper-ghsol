@@ -9,7 +9,7 @@ namespace sds
 		/// Verifies that the key value is in the map{T,H} where H is tuple{E,E,F}
 		/// </summary>
 		/// <param name="keyValue">key value to check</param>
-		///	<param name="curMap">map of int,int to check the key</param>
+		///	<param name="curMap">map of T,H to check the key</param>
 		///	<param name="retVal">will be set to the value the key points to, if found</param>
 		/// <returns>true if found, false otherwise</returns>
 		template<class T, class H, class E, class F>
@@ -30,7 +30,7 @@ namespace sds
 		/// Verifies that the key value is in the map.
 		/// </summary>
 		/// <param name="keyValue">key value to check</param>
-		///	<param name="curMap">map of int,int to check the key</param>
+		///	<param name="curMap">map of T,H to check the key</param>
 		/// <returns>true if found, false otherwise</returns>
 		template<class T, class H>
 		static bool IsInMap(const T keyValue, const std::map<T, H> &curMap)

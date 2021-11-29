@@ -13,6 +13,8 @@ namespace sds
 	class ButtonStateDown
 	{
 		sds::PlayerInfo m_localPlayer;
+		using MyVariant = std::variant<std::less<>, std::greater<>>;
+		using MyTuple = std::tuple<int, int, MyVariant>;
 	public:
 		ButtonStateDown() = default;
 		ButtonStateDown(const sds::PlayerInfo &player)
@@ -75,8 +77,6 @@ namespace sds
 		/// <returns>true if thumbstick+direction is pressed</returns>
 		bool ThumbstickDown(const XINPUT_STATE& state, const std::string token) const
 		{
-			using MyVariant = std::variant<std::less<>, std::greater<>>;
-			using MyTuple = std::tuple<int, int, MyVariant>;
 			auto &&m_thumbstickMap = BuildThumbstickMap(state);
 			MyTuple myTup;
 			if (MapFunctions::IsInMap<std::string,MyTuple,int,MyVariant>(token, m_thumbstickMap,myTup))
@@ -90,16 +90,20 @@ namespace sds
 			return false;
 		}
 
+		/// <summary>
+		/// Builds a map of string tokens to the tuple type with deadzone, current value, and functor
+		///	from an XINPUT_STATE arg.
+		/// </summary>
+		/// <param name="state">XINPUT_STATE for processing</param>
+		/// <returns>a map that maps string to tuple of deadzone,current value,functor</returns>
 		auto BuildThumbstickMap(const XINPUT_STATE &state) const -> std::map<std::string, std::tuple<int, int, std::variant<std::less<>, std::greater<>>>>
 		{
 			using sds::sdsActionDescriptors;
 			using std::string;
 			using std::map;
-			using std::variant;
-			using std::tuple;
 			using std::make_tuple;
 			//map each string to each deadzone, current value, and operation "functor"
-			map<string, tuple<int,int,variant<std::less<>, std::greater<>>>> someOtherMap;
+			map<string, MyTuple> someOtherMap;
 
 			string temp = sds::sdsActionDescriptors.lThumb + sds::sdsActionDescriptors.moreInfo;
 			//left thumbstick tokens
