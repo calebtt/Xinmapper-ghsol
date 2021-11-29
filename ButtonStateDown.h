@@ -29,14 +29,9 @@ namespace sds
 		/// <returns>true if the button is depressed, false otherwise</returns>
 		bool ButtonDown(const XINPUT_STATE& state, const std::string token) const
 		{
-			//std::const_iterator used for access
-			for (auto it = sds::sdsActionDescriptors.xin_buttons.cbegin(); it != sds::sdsActionDescriptors.xin_buttons.cend(); ++it)
+			if(MapFunctions::IsInMap<const std::string,int>(token,sds::sdsActionDescriptors.xin_buttons))
 			{
-				if (it->first == token)
-				{
-					if (state.Gamepad.wButtons & it->second)
-						return true;
-				}
+				return state.Gamepad.wButtons & sds::sdsActionDescriptors.xin_buttons.at(token);
 			}
 			return false;
 		}

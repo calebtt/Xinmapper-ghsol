@@ -17,8 +17,7 @@ namespace sds
 		{
 			auto itx = std::find_if(curMap.begin(), curMap.end(), [&keyValue](const std::pair<std::string,std::tuple<E,E,F>> &elem)
 				{
-					auto first = elem.first;
-					return first == keyValue;
+					return elem.first == keyValue;
 
 				});
 			if (itx != curMap.end())
