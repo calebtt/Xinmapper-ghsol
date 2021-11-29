@@ -84,31 +84,11 @@ namespace sds
 			std::vector<double> delayVec;
 			for (auto i = sens_min, j = 0; i <= sens_max; i++, j++)
 				delayVec.push_back((double)(us_delay_min) + ((double)j * step));
-			//std::reverse(delayVec.begin(), delayVec.end());
+
 			//adapt user_sens and sensitivityRange to vector indexes
 			const int elementIndex = sens_max - user_sens;
 			return static_cast<int>(delayVec.at(elementIndex));
 		}
-
-		/// <summary>
-		/// Verifies that the key value is in the map.
-		/// </summary>
-		/// <param name="txVal">key value to check</param>
-		///	<param name="curMap">map of int,int to check the key</param>
-		///	<param name="retVal">will be set to the value the key points to, if found</param>
-		/// <returns>true if found, false otherwise</returns>
-		bool IsInMap(const int txVal, const std::map<int, int> &curMap, int &retVal) const
-		{
-			auto itx = std::find_if(curMap.begin(), curMap.end(), [&txVal](const std::pair<int, int> &elem)
-				{
-					return elem.first == txVal;
-				});
-			if (itx != curMap.end())
-				retVal = itx->second;
-			return (itx != curMap.end());
-		}
-
-
 	};
 }
 

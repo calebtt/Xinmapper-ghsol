@@ -1,6 +1,7 @@
 #pragma once
 #include "stdafx.h"
 #include "SensitivityMap.h"
+#include "MapFunctions.h"
 
 namespace sds
 {
@@ -170,7 +171,7 @@ namespace sds
 
 			int rval = 0;
 			//error checking to make sure the key is in the map
-			if(!m_sensMapper.IsInMap(val, m_sharedSensitivityMap, rval))
+			if(!sds::MapFunctions::IsInMap<int, int>(val, m_sharedSensitivityMap, rval))
 			{
 				//this should not happen, but in case it does I want a plain string telling me it did.
 				throw std::string("Exception in ThumbstickToDelay::GetDelayFromThumbstickValue(): " + BAD_DELAY_MSG);
@@ -214,7 +215,7 @@ namespace sds
 
 			//error checking to make sure the value is in the map
 			int rval = 0;
-			if (!m_sensMapper.IsInMap(txVal,m_sharedSensitivityMap,rval))
+			if (! sds::MapFunctions::IsInMap<int,int>(txVal, m_sharedSensitivityMap, rval) )
 			{
 				//this should not happen, but in case it does I want a plain string telling me it did.
 				throw std::string("Exception in ThumbstickToDelay::GetDelayFromThumbstickValue(): " + BAD_DELAY_MSG);
