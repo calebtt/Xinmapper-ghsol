@@ -15,7 +15,6 @@ namespace sds
 	/// as concurrency helpers with std::lock_guard{std::mutex}
 	/// Instantiate with the type you would like to have mutex protected access to within a running thread.
 	/// </summary>
-
 	template <class InternalData> class CPPThreadRunner
 	{
 		std::shared_ptr<std::thread> localThread;
@@ -84,7 +83,6 @@ namespace sds
 		{
 			//Get this setting out of the way.
 			this->isStopRequested = true;
-
 			//If there is a thread obj..
 			if(this->localThread != nullptr)
 			{
