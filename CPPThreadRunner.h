@@ -18,26 +18,19 @@ namespace sds
 
 	template <class InternalData> class CPPThreadRunner
 	{
-		
 		std::shared_ptr<std::thread> localThread;
 	protected:
 		//Interestingly, accessibility modifiers (public/private/etc.) work on "using" typedefs!
 		using lock = std::lock_guard<std::mutex>;
-
-		
-
 		std::atomic<bool> isThreadRunning;
 		std::atomic<bool> isStopRequested;
-
 		InternalData local_state;
 		std::mutex stateMutex;
-		
 		/// <summary>
 		/// Pure virtual worker thread, intended to be overridden with something useful by an inheriting class.
 		/// Protected visibility.
 		/// </summary>
-		virtual void workThread() = 0;//<<-- thread to be running.
-
+		virtual void workThread() = 0; //<<-- thread to be running.
 		/// <summary>
 		/// Starts running a new "workThread".
 		/// </summary>
@@ -65,7 +58,6 @@ namespace sds
 				}
 			}
 		}
-
 		/// <summary>
 		/// Non-blocking way to stop a running thread.
 		/// </summary>
@@ -85,7 +77,6 @@ namespace sds
 				}
 			}
 		}
-
 		/// <summary>
 		/// Blocking way to stop a running thread, joins to current thread and waits.
 		/// </summary>
@@ -112,7 +103,6 @@ namespace sds
 				}
 			}
 		}
-
 		/// <summary>
 		/// Utility function to update the InternalData with mutex locking thread safety.
 		/// </summary>
@@ -122,7 +112,6 @@ namespace sds
 			lock l1(stateMutex);
 			local_state = state;
 		}
-
 		/// <summary>
 		/// Returns a copy of the internal InternalData obj with mutex locking thread safety.
 		/// </summary>
@@ -132,7 +121,6 @@ namespace sds
 			lock l1(stateMutex);
 			return local_state;
 		}
-		
 	public:
 		/// <summary>
 		/// Constructor, default overridden, does not initialize the internal InternalData
@@ -143,7 +131,10 @@ namespace sds
 			isThreadRunning = false;
 			isStopRequested = false;
 		}
-		
+		CPPThreadRunner(const CPPThreadRunner& other) = delete;
+		CPPThreadRunner(CPPThreadRunner&& other) = delete;
+		CPPThreadRunner& operator=(const CPPThreadRunner& other) = delete;
+		CPPThreadRunner& operator=(CPPThreadRunner&& other) = delete;
 		/// <summary>
 		/// Virtual destructor, the running thread should be stopped in the inherited class,
 		/// before the member function "workThread" is destructed.
