@@ -99,6 +99,7 @@
     <ClInclude Include="MouseMap.h" />
     <ClInclude Include="MultiBool.h" />
     <ClInclude Include="PlayerInfo.h" />
+    <ClInclude Include="resource1.h" />
     <ClInclude Include="SendKey.h" />
     <ClInclude Include="SensitivityMap.h" />
     <ClInclude Include="stdafx.h" />
@@ -119,6 +120,9 @@
   <ItemGroup>
     <None Include="ClassDiagram.cd" />
     <None Include="xinmapper_drawing.pdf" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Xinmapper-gh.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />

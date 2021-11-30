@@ -81,6 +81,9 @@
     <ClInclude Include="MapFunctions.h">
       <Filter>Header Files\Utility</Filter>
     </ClInclude>
+    <ClInclude Include="resource1.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -93,5 +96,10 @@
   <ItemGroup>
     <None Include="xinmapper_drawing.pdf" />
     <None Include="ClassDiagram.cd" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Xinmapper-gh.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>
