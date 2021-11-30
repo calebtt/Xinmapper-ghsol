@@ -32,7 +32,6 @@ namespace sds
 		std::vector<WordData> m_mapTokenInfo;
 		MapInformation m_map;
 	public:
-
 		/// <summary>
 		/// Function to process an sds::ActionDetails string created by sds::XInputTranslater
 		/// </summary>
@@ -45,12 +44,11 @@ namespace sds
 			//Delegate processing.
 			ProcessTokens(tokens);
 		}
-
 		/// <summary>
 		/// Returns a copy of the local, existing MapInformation string.
 		/// </summary>
 		/// <returns></returns>
-		MapInformation GetMapInfo() const
+		[[nodiscard]] MapInformation GetMapInfo() const
 		{
 			return m_map;
 		}
@@ -62,7 +60,7 @@ namespace sds
 		/// </summary>
 		/// <param name="newMap">MapInformation string containing info on how to map controller input to kbd/mouse.</param>
 		/// <returns>A std::string indicating the presence of an error, and the error message.</returns>
-		std::string SetMapInfo(const MapInformation &newMap)
+		[[nodiscard]] std::string SetMapInfo(const MapInformation &newMap)
 		{
 			auto errText = [](const std::string &s)
 			{
@@ -74,7 +72,7 @@ namespace sds
 			}
 
 			// Check if s consists only of whitespaces
-			bool whiteSpacesOnly = std::all_of(newMap.begin(), newMap.end(), isspace);
+			const bool whiteSpacesOnly = std::all_of(newMap.begin(), newMap.end(), isspace);
 			if (whiteSpacesOnly)
 				return errText("[1]Empty map string, consists entirely of white spaces.");
 
@@ -98,7 +96,7 @@ namespace sds
 					return errText("[2]Failed to parse a token.\n Previous token: " + previousToken + "\n");
 				}
 				//validate token pieces
-				bool goodToken = ValidateTokenPieces(data);
+				const bool goodToken = ValidateTokenPieces(data);
 				if (goodToken)
 				{
 					tempVec.push_back(data);
@@ -117,7 +115,7 @@ namespace sds
 			return "";
 		}
 	private:
-		bool ValidateTokenPieces(WordData &data) const
+		bool ValidateTokenPieces(const WordData &data) const
 		{
 			bool testArray[4] = { false,false,false,false };
 			
@@ -175,7 +173,6 @@ namespace sds
 			//Pass on the tokenized and processed info in the form of the vector<WordData> to the input simulation helper func
 			ProcessStates(this->m_mapTokenInfo);
 		}
-
 		/// <summary>
 		/// Use the tokenized and processed form of the info we got from XInputTranslater to simulate the proper input.
 		///	Does modify the vector of WordData, states
@@ -194,7 +191,6 @@ namespace sds
 					Rapid(*it);
 			}
 		}
-
 		/// <summary>
 		/// Normal keypress simulation logic. The enum "MultiBool" is used to good effect for
 		/// tracking the current state of the keypress logic.
@@ -304,7 +300,6 @@ namespace sds
 
 			}
 		}
-
 		/// <summary>
 		/// Tokenizes a string into a vector&lt;string&gt;
 		/// They are in the form of btn / trigr / thumb : more info : input sim type : value mapped to
@@ -320,7 +315,6 @@ namespace sds
 			while( ss >> t )
 				tokenOut.push_back(t);
 		}
-
 		/// <summary>
 		/// Searches the input string "std::string in" and returns the Virtual Keycode as an integer.
 		/// Note that it only extracts the VK code from the string, it doesn't translate to a scancode!
