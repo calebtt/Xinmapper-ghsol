@@ -1,6 +1,5 @@
 #pragma once
 #include "stdafx.h"
-#include "SendKey.h"
 
 /*
 Responsible for tokens used in an ActionDetails
@@ -152,7 +151,7 @@ namespace sds
 				if (theFirst == vk)
 				{
 					//grab everything after "VK"
-					std::string val = s.substr(vk.size());//everything after "VK"
+					const std::string val = s.substr(vk.size());//everything after "VK"
 					int vki = 0;
 					//be sure to catch the "out of range exception" if some massive value is attempted
 					try

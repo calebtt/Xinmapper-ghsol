@@ -1,12 +1,12 @@
 #pragma once
 #include "stdafx.h"
 #include "MultiBool.h"
-//#include "SendKey.h"
+#include "SendKey.h"
 
 namespace sds
 {
 	/// <summary>
-	/// Contains the logic for determining if a key press or mouse click should occur, uses sds::SendKey keySend to send the input.
+	/// Contains the logic for determining if a key press or mouse click should occur, uses sds::SendKey m_keySend to send the input.
 	/// Processes the ActionDetails utility class.
 	/// Further design considerations may incorporate a queue for sending input, as SendInput will allow an entire array to be
 	/// sent in one call.
@@ -28,11 +28,10 @@ namespace sds
 			WordData() : down(false) {}
 		};
 
-		SendKey keySend;
-		std::vector<WordData> mapTokenInfo;
-		MapInformation map;
+		SendKey m_keySend;
+		std::vector<WordData> m_mapTokenInfo;
+		MapInformation m_map;
 	public:
-
 		/// <summary>
 		/// Function to process an sds::ActionDetails string created by sds::XInputTranslater
 		/// </summary>
@@ -45,14 +44,13 @@ namespace sds
 			//Delegate processing.
 			ProcessTokens(tokens);
 		}
-
 		/// <summary>
 		/// Returns a copy of the local, existing MapInformation string.
 		/// </summary>
 		/// <returns></returns>
-		MapInformation GetMapInfo() const
+		[[nodiscard]] MapInformation GetMapInfo() const
 		{
-			return map;
+			return m_map;
 		}
 		/// <summary>
 		/// Takes a "MapInformation" string and internalizes (copies) it to adjust how controller input is mapped
@@ -62,16 +60,21 @@ namespace sds
 		/// </summary>
 		/// <param name="newMap">MapInformation string containing info on how to map controller input to kbd/mouse.</param>
 		/// <returns>A std::string indicating the presence of an error, and the error message.</returns>
-		std::string SetMapInfo(const MapInformation &newMap)
+		[[nodiscard]] std::string SetMapInfo(const MapInformation &newMap)
 		{
 			auto errText = [](const std::string &s)
 			{
 				return "Error in sds::Mapper::SetMapInfo()\n" + s;
 			};
-			if (newMap.size() == 0)
+			if (newMap.empty())
 			{
 				return errText("MapInformation newMap size() is 0.");
 			}
+
+			// Check if s consists only of whitespaces
+			const bool whiteSpacesOnly = std::all_of(newMap.begin(), newMap.end(), isspace);
+			if (whiteSpacesOnly)
+				return errText("[1]Empty map string, consists entirely of white spaces.");
 
 			//Set WordData vector.
 			std::vector<WordData> tempVec;
@@ -85,14 +88,15 @@ namespace sds
 				WordData data;
 				std::replace(t.begin(), t.end(), sds::sdsActionDescriptors.moreInfo, ' ');
 				std::stringstream(t) >> data.control >> data.info >> data.sim_type >> data.value;
+
 				//if all of those pieces don't have something in them
-				if (!(data.control.size() && data.info.size() && data.sim_type.size() && data.value.size()))
+				if (data.control.empty() && data.info.empty() && data.sim_type.empty() && data.value.empty())
 				{
 					//return error message
-					return errText("[1]Failed to parse a token.\n Previous token: " + previousToken + "\n");
+					return errText("[2]Failed to parse a token.\n Previous token: " + previousToken + "\n");
 				}
 				//validate token pieces
-				bool goodToken = ValidateTokenPieces(data);
+				const bool goodToken = ValidateTokenPieces(data);
 				if (goodToken)
 				{
 					tempVec.push_back(data);
@@ -100,18 +104,18 @@ namespace sds
 				}
 				else
 				{
-					return errText("[2]Failed to parse a token.\n Previous token: " + previousToken + "\n");
+					return errText("[3]Failed to parse a token.\n Previous token: " + previousToken + "\n");
 				}
 			}
 			//Reset map token info.
-			mapTokenInfo = tempVec;
+			m_mapTokenInfo = tempVec;
 			//Set MapInformation
-			map = newMap;
+			m_map = newMap;
 
 			return "";
 		}
 	private:
-		bool ValidateTokenPieces(WordData &data)
+		bool ValidateTokenPieces(const WordData &data) const
 		{
 			bool testArray[4] = { false,false,false,false };
 			
@@ -136,7 +140,7 @@ namespace sds
 			//set all worddata "down" fields to false, the "down" member denotes that the button is currently being pressed
 			//according to the current info from the XINPUT lib, translated and sent here. A finite state machine type is used
 			//to keep track of the state of the key press
-			std::for_each(mapTokenInfo.begin(), mapTokenInfo.end(), [](WordData& d) 
+			std::for_each(m_mapTokenInfo.begin(), m_mapTokenInfo.end(), [](WordData& d) 
 				{
 					d.down = false;
 				});
@@ -156,7 +160,7 @@ namespace sds
 				//iterate the vector of worddata internal to this class, 
 				//if controlButton matches the current "worddata" AND the extra detail is NONE or matches the current "worddata"
 				//then set "down" to true
-				for(auto ij = mapTokenInfo.begin(); ij != mapTokenInfo.end(); ++ij)
+				for(auto ij = m_mapTokenInfo.begin(); ij != m_mapTokenInfo.end(); ++ij)
 				{
 					if (controlButton == ij->control 
 						&& (buttonExtraDetail + sds::sdsActionDescriptors.none == ij->info 
@@ -167,11 +171,11 @@ namespace sds
 				}
 			}
 			//Pass on the tokenized and processed info in the form of the vector<WordData> to the input simulation helper func
-			ProcessStates(this->mapTokenInfo);
+			ProcessStates(this->m_mapTokenInfo);
 		}
-
 		/// <summary>
-		/// Use the tokenized and processed form of the info we got from XInputTranslater to simulate the proper input
+		/// Use the tokenized and processed form of the info we got from XInputTranslater to simulate the proper input.
+		///	Does modify the vector of WordData, states
 		/// </summary>
 		/// <param name="states">is a ref to a vector of WordData used to finally simulate the input contained within</param>
 		void ProcessStates(std::vector<WordData> &states)
@@ -187,7 +191,6 @@ namespace sds
 					Rapid(*it);
 			}
 		}
-
 		/// <summary>
 		/// Normal keypress simulation logic. The enum "MultiBool" is used to good effect for
 		/// tracking the current state of the keypress logic.
@@ -208,10 +211,10 @@ namespace sds
 					int keyCode = GetVkFromTokenString(detail.value);
 					if( keyCode >= 0 )
 					{
-						keySend.Send(keyCode,true);
+						m_keySend.Send(keyCode,true);
 					}
 					else
-						keySend.Send(detail.value,true);
+						m_keySend.Send(detail.value,true);
 					detail.fsm.current_state = MultiBool::BUTTONSTATE::STATE_TWO;
 				}
 			}
@@ -223,10 +226,10 @@ namespace sds
 					int keyCode = GetVkFromTokenString(detail.value);
 					if( keyCode >= 0 )
 					{
-						keySend.Send(keyCode,false);
+						m_keySend.Send(keyCode,false);
 					}
 					else
-						keySend.Send(detail.value,false);
+						m_keySend.Send(detail.value,false);
 					detail.fsm.ResetState();
 				}
 			}
@@ -246,18 +249,18 @@ namespace sds
 					//Check for VK
 					int keyCode = GetVkFromTokenString(detail.value);
 					if(keyCode >= 0)
-						keySend.Send(keyCode,true);
+						m_keySend.Send(keyCode,true);
 					else
-						keySend.Send(detail.value,true);
+						m_keySend.Send(detail.value,true);
 					detail.fsm.current_state = MultiBool::BUTTONSTATE::STATE_TWO;
 				}
 				if( detail.fsm.current_state == MultiBool::BUTTONSTATE::STATE_THREE )
 				{
 					int keyCode = GetVkFromTokenString(detail.value);
 					if(keyCode >= 0)
-						keySend.Send(keyCode,false);
+						m_keySend.Send(keyCode,false);
 					else
-						keySend.Send(detail.value,false);
+						m_keySend.Send(detail.value,false);
 					detail.fsm.current_state = MultiBool::BUTTONSTATE::STATE_FOUR;
 				}
 			}
@@ -286,18 +289,17 @@ namespace sds
 				int keyCode = GetVkFromTokenString(detail.value);
 				if( keyCode >= 0 )
 				{
-					keySend.Send(keyCode,true);
-					keySend.Send(keyCode,false);
+					m_keySend.Send(keyCode,true);
+					m_keySend.Send(keyCode,false);
 				}
 				else
 				{
-					keySend.Send(detail.value,true);
-					keySend.Send(detail.value,false);
+					m_keySend.Send(detail.value,true);
+					m_keySend.Send(detail.value,false);
 				}
 
 			}
 		}
-
 		/// <summary>
 		/// Tokenizes a string into a vector&lt;string&gt;
 		/// They are in the form of btn / trigr / thumb : more info : input sim type : value mapped to
@@ -305,7 +307,7 @@ namespace sds
 		/// </summary>
 		/// <param name="details">is the string to tokenize</param>
 		/// <param name="tokenOut">is a vector&lt;string&gt; to receive the tokens</param>
-		void GetTokens(const std::string &details, std::vector<std::string> &tokenOut)
+		void GetTokens(const std::string &details, std::vector<std::string> &tokenOut) const
 		{
 			tokenOut.clear();
 			std::string t;
@@ -313,7 +315,6 @@ namespace sds
 			while( ss >> t )
 				tokenOut.push_back(t);
 		}
-
 		/// <summary>
 		/// Searches the input string "std::string in" and returns the Virtual Keycode as an integer.
 		/// Note that it only extracts the VK code from the string, it doesn't translate to a scancode!
@@ -321,7 +322,7 @@ namespace sds
 		/// </summary>
 		/// <param name="in">std::string in is a token containing a Virtual Keycode in string form</param>
 		/// <returns>Returns the virtual keycode in decimal integer form, or -1 for error.</returns>
-		int GetVkFromTokenString(std::string in)//Returns -1 if no translation.
+		int GetVkFromTokenString(std::string in) const
 		{
 			int keyCode = -1;
 			if( in.find(sds::sdsActionDescriptors.vk) != std::string::npos )

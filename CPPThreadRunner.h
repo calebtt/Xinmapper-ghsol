@@ -18,26 +18,19 @@ namespace sds
 
 	template <class InternalData> class CPPThreadRunner
 	{
-		
-
+		std::shared_ptr<std::thread> localThread;
 	protected:
 		//Interestingly, accessibility modifiers (public/private/etc.) work on "using" typedefs!
 		using lock = std::lock_guard<std::mutex>;
-
-		std::shared_ptr<std::thread> thread;
-
 		std::atomic<bool> isThreadRunning;
 		std::atomic<bool> isStopRequested;
-
 		InternalData local_state;
 		std::mutex stateMutex;
-		
 		/// <summary>
 		/// Pure virtual worker thread, intended to be overridden with something useful by an inheriting class.
 		/// Protected visibility.
 		/// </summary>
-		virtual void workThread() = 0;//<<-- thread to be running.
-
+		virtual void workThread() = 0; //<<-- thread to be running.
 		/// <summary>
 		/// Starts running a new "workThread".
 		/// </summary>
@@ -45,34 +38,32 @@ namespace sds
 		{
 			if( ! this->isThreadRunning )
 			{
-				if (this->thread == nullptr)
+				if (this->localThread == nullptr)
 				{
 					this->isStopRequested = false;
 					this->isThreadRunning = true;
-					this->thread = std::shared_ptr<std::thread>
-						(new std::thread(std::bind(&CPPThreadRunner::workThread, this)));
+					this->localThread = std::make_shared<std::thread>([this] { workThread(); });
 				}
 				else
 				{
-					if (this->thread->joinable())
+					if (this->localThread->joinable())
 					{
 						this->isStopRequested = true;
-						this->thread->join();
+						this->localThread->join();
 					}
-					this->thread.reset();
+					this->localThread.reset(); //reset the shared_ptr (call's dtor, deletes object if unique)
 					this->isStopRequested = false;
 					this->isThreadRunning = true;
-					this->thread = std::shared_ptr<std::thread>(new std::thread(std::bind(&CPPThreadRunner::workThread, this)));
+					this->localThread = std::make_shared<std::thread>([this] { workThread(); });
 				}
 			}
 		}
-
 		/// <summary>
 		/// Non-blocking way to stop a running thread.
 		/// </summary>
 		void requestStop()
 		{
-			if( this->thread != nullptr )
+			if( this->localThread != nullptr )
 			{
 				//if thread not running, return
 				if (!this->isThreadRunning)
@@ -86,7 +77,6 @@ namespace sds
 				}
 			}
 		}
-
 		/// <summary>
 		/// Blocking way to stop a running thread, joins to current thread and waits.
 		/// </summary>
@@ -96,24 +86,23 @@ namespace sds
 			this->isStopRequested = true;
 
 			//If there is a thread obj..
-			if(this->thread != nullptr)
+			if(this->localThread != nullptr)
 			{
 				//if it is not joinable, set to nullptr
-				if (!this->thread->joinable())
+				if (!this->localThread->joinable())
 				{
-					this->thread = nullptr;
+					this->localThread = nullptr;
 					this->isThreadRunning = false;
 					return;
 				}
 				else
 				{
-					this->thread->join();
-					this->thread = nullptr;
+					this->localThread->join();
+					this->localThread = nullptr;
 					this->isThreadRunning = false;
 				}
 			}
 		}
-
 		/// <summary>
 		/// Utility function to update the InternalData with mutex locking thread safety.
 		/// </summary>
@@ -123,7 +112,6 @@ namespace sds
 			lock l1(stateMutex);
 			local_state = state;
 		}
-
 		/// <summary>
 		/// Returns a copy of the internal InternalData obj with mutex locking thread safety.
 		/// </summary>
@@ -133,7 +121,6 @@ namespace sds
 			lock l1(stateMutex);
 			return local_state;
 		}
-		
 	public:
 		/// <summary>
 		/// Constructor, default overridden, does not initialize the internal InternalData
@@ -144,10 +131,13 @@ namespace sds
 			isThreadRunning = false;
 			isStopRequested = false;
 		}
-		
+		CPPThreadRunner(const CPPThreadRunner& other) = delete;
+		CPPThreadRunner(CPPThreadRunner&& other) = delete;
+		CPPThreadRunner& operator=(const CPPThreadRunner& other) = delete;
+		CPPThreadRunner& operator=(CPPThreadRunner&& other) = delete;
 		/// <summary>
-		/// Virtual destructor, to be overridden by an inheriting class.
-		/// Make sure you call stopThread() in the inherited class's destructor, not here.
+		/// Virtual destructor, the running thread should be stopped in the inherited class,
+		/// before the member function "workThread" is destructed.
 		/// </summary>
 		virtual ~CPPThreadRunner()
 		{

@@ -13,64 +13,65 @@ namespace sds
 	/// </summary>
 	class InputPoller : public CPPThreadRunner<XINPUT_STATE>
 	{
-		const int THREAD_DELAY = 10;
-		Mapper *m;
-		XInputTranslater *t;
-		XInputBoostMouse *mse;
-
-	protected://member functions
+		Mapper &m_mapper;
+		XInputTranslater &m_translater;
+		XInputBoostMouse &m_mouse;
+		PlayerInfo m_localPlayer;
+	protected:
 		/// <summary>
 		/// Worker thread overriding the base pure virtual workThread,
 		/// uses a sds::Mapper, sds::XInputTranslater, sds::XInputBoostMouse
 		/// runs a constant loop of getting state information in the form of an XINPUT_STATE
 		/// it then processes with either the XInputBoostMouse or the Mapper.
 		/// </summary>
-		virtual void workThread()
+		void workThread() override
 		{
 			//creating a local scope for a scoped lock to protect access to the local_state
 			{
 				lock l(this->stateMutex);
 				memset(&local_state, 0, sizeof(local_state));
 			}
-
 			while( ! this->isStopRequested )
-			{
+			{	
 				{
 					lock l2(this->stateMutex);
-					DWORD error = XInputGetState(sds::sdsPlayerOne.player_id, &local_state);
+					const DWORD error = XInputGetState(m_localPlayer.player_id, &local_state);
 					if (error != ERROR_SUCCESS)
 					{
 						continue;
 					}
 				}
-
-				mse->ProcessState(this->getCurrentState());
-				m->ProcessActionDetails(t->ProcessState(this->getCurrentState()));
-				//mse->ProcessState(local_state);
-				//m->ProcessActionDetails( t->ProcessState(local_state) );
-				Sleep(THREAD_DELAY);
+				m_mouse.ProcessState(this->getCurrentState());
+				m_mapper.ProcessActionDetails(m_translater.ProcessState(this->getCurrentState()));
+				std::this_thread::sleep_for(std::chrono::milliseconds(XinSettings::THREAD_DELAY_POLLER));
 			}
 			this->isThreadRunning = false;
 		}
 
 	public:
 		/// <summary>
-		/// Constructor, requires pointer to: Mapper, XInputTranslater, XInputBoostMouse
-		/// Throws std::string with error message if nullptr given.
+		/// Constructor, requires ref to objects: Mapper, XInputTranslater, XInputBoostMouse
 		/// </summary>
-		/// 
 		/// <param name="mapper"></param>
 		/// <param name="transl"></param>
 		/// <param name="mouse"></param>
-		InputPoller(Mapper *mapper, XInputTranslater *transl, XInputBoostMouse *mouse)
-			: CPPThreadRunner(), m(mapper), t(transl), mse(mouse)
+		InputPoller(Mapper &mapper, XInputTranslater &transl, XInputBoostMouse &mouse)
+			: CPPThreadRunner(), m_mapper(mapper), m_translater(transl), m_mouse(mouse)
 		{
-			if (mapper == nullptr || transl == nullptr || mouse == nullptr)
-			{
-				//At present this new exception type is only available in the preview features "C++ latest" setting.
-				//throw std::format_error("NULL POINTERS in InputPoller::InputPoller() constructor.");
-				throw std::string("NULL POINTERS in InputPoller::InputPoller() constructor.");
-			}
+		}
+
+		/// <summary>
+		/// Alt constructor, requires ref to objects: Mapper, XInputTranslater, XInputBoostMouse
+		///	and a PlayerInfo object.
+		/// </summary>
+		/// <param name="mapper"></param>
+		/// <param name="transl"></param>
+		/// <param name="mouse"></param>
+		/// <param name="p">custom playerinfo object</param>
+		InputPoller(Mapper &mapper, XInputTranslater &transl, XInputBoostMouse &mouse, const PlayerInfo &p)
+			: CPPThreadRunner(), m_mapper(mapper), m_translater(transl), m_mouse(mouse)
+		{
+			m_localPlayer = p;
 		}
 
 		/// <summary>
@@ -78,9 +79,10 @@ namespace sds
 		/// </summary>
 		InputPoller() = delete;
 
+		
 		/// <summary>
-		/// Destructor overriding the base virtual destructor, the thread should be stopped
-		/// in this class's destructor, not the base destructor.
+		/// Destructor override, ensures the running thread function is stopped
+		/// inside of this class and not the base.
 		/// </summary>
 		~InputPoller() override
 		{
@@ -111,7 +113,7 @@ namespace sds
 		/// Gets the running status of the worker thread
 		/// </summary>
 		/// <returns> true if thread is running, false otherwise</returns>
-		bool IsRunning()
+		bool IsRunning() const
 		{
 			return this->isThreadRunning;
 		}
@@ -119,10 +121,20 @@ namespace sds
 		/// Returns status of XINPUT library detecting a controller.
 		/// </summary>
 		/// <returns> true if controller is connected, false otherwise</returns>
-		bool IsControllerConnected()
+		bool IsControllerConnected() const
 		{
-			XINPUT_STATE ss = {0};
-			return XInputGetState(sds::sdsPlayerOne.player_id, &ss) == ERROR_SUCCESS;
+			XINPUT_STATE ss = {};
+			return XInputGetState(m_localPlayer.player_id, &ss) == ERROR_SUCCESS;
+		}
+		/// <summary>
+		/// Returns status of XINPUT library detecting a controller.
+		/// overload that uses the player_id value in a PlayerInfo struct
+		/// </summary>
+		/// <returns> true if controller is connected, false otherwise</returns>
+		bool IsControllerConnected(const PlayerInfo &p) const
+		{
+			XINPUT_STATE ss = {};
+			return XInputGetState(p.player_id, &ss) == ERROR_SUCCESS;
 		}
 	};
 

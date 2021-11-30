@@ -10,23 +10,25 @@ namespace sds
 	/// </summary>
 	class SendKey
 	{
-		INPUT keyInput;
-		INPUT mouseClickInput;
-		INPUT mouseMoveInput;
+		INPUT m_keyInput = {};
+		INPUT m_mouseClickInput = {};
+		INPUT m_mouseMoveInput = {};
 	public:
 		/// <summary>
 		/// Default Constructor
 		/// </summary>
 		SendKey()
 		{
-			memset(&keyInput, 0, sizeof(INPUT));
-			memset(&mouseClickInput, 0, sizeof(INPUT));
-			memset(&mouseMoveInput, 0, sizeof(INPUT));
-			keyInput.type = INPUT_KEYBOARD;
-			mouseClickInput.type = INPUT_MOUSE;
-			mouseMoveInput.type = INPUT_MOUSE;
-			mouseMoveInput.mi.dwFlags = MOUSEEVENTF_MOVE;
+			m_keyInput.type = INPUT_KEYBOARD;
+			m_mouseClickInput.type = INPUT_MOUSE;
+			m_mouseMoveInput.type = INPUT_MOUSE;
+			m_mouseMoveInput.mi.dwFlags = MOUSEEVENTF_MOVE;
 		}
+		SendKey(const SendKey& other) = delete;
+		SendKey(SendKey&& other) = delete;
+		SendKey& operator=(const SendKey& other) = delete;
+		SendKey& operator=(SendKey&& other) = delete;
+		~SendKey() = default;
 		/// <summary>
 		/// Sends mouse movement specified by X and Y number of pixels to move.
 		/// </summary>
@@ -34,12 +36,32 @@ namespace sds
 		/// <param name="y">number of pixels in Y</param>
 		void SendMouseMove(const int x, const int y)
 		{
-			mouseMoveInput.mi.dx = static_cast<LONG>(x);
-			mouseMoveInput.mi.dy = static_cast<LONG>(y);
-			mouseMoveInput.mi.dwExtraInfo = GetMessageExtraInfo();
+			m_mouseMoveInput.mi.dx = static_cast<LONG>(x);
+			m_mouseMoveInput.mi.dy = static_cast<LONG>(y);
+			m_mouseMoveInput.mi.dwExtraInfo = GetMessageExtraInfo();
 
 			//Finally, send the input
-			SendInput(1, &mouseMoveInput, sizeof(INPUT));
+			SendInput(1, &m_mouseMoveInput, sizeof(INPUT));
+		}
+		/// <summary>
+		/// Sends mouse movement specified by vector of tuple(int,int) X and Y number of pixels to move.
+		/// </summary>
+		void SendMouseMove(const std::vector<std::tuple<int,int>> &tup) const
+		{
+			std::vector<INPUT> inputVec;
+			std::for_each(tup.cbegin(), tup.cend(), [&inputVec](const std::tuple<int, int> &t)
+				{
+					INPUT i = { }; // zeroed struct
+					i.type = INPUT_MOUSE;
+					i.mi.dwFlags = MOUSEEVENTF_MOVE;
+					i.mi.dx = static_cast<LONG>(std::get<0>(t));
+					i.mi.dy = static_cast<LONG>(std::get<1>(t));
+					i.mi.dwExtraInfo = GetMessageExtraInfo();
+					inputVec.push_back(i);
+				});
+
+			//Finally, send the input
+			SendInput(inputVec.size(), inputVec.data(), sizeof(INPUT));
 		}
 		/// <summary>
 		/// Sends input, if a VK Virtual Keycode of 0 is used, it is assumed to
@@ -51,12 +73,12 @@ namespace sds
 		void Send(const int vk, const bool down)
 		{
 			if (down)
-				keyInput.ki.dwFlags = KEYEVENTF_SCANCODE;
+				m_keyInput.ki.dwFlags = KEYEVENTF_SCANCODE;
 			else
-				keyInput.ki.dwFlags = KEYEVENTF_SCANCODE | KEYEVENTF_KEYUP;
+				m_keyInput.ki.dwFlags = KEYEVENTF_SCANCODE | KEYEVENTF_KEYUP;
 
-			WORD scanCode = GetScanCode(vk);
-			keyInput.ki.wScan = scanCode;
+			const WORD scanCode = GetScanCode(vk);
+			m_keyInput.ki.wScan = scanCode;
 			if (scanCode == 0)
 			{
 				//Assume mouse.
@@ -64,30 +86,30 @@ namespace sds
 				{
 				case VK_LBUTTON:
 					if (down)
-						mouseClickInput.mi.dwFlags = MOUSEEVENTF_LEFTDOWN;
+						m_mouseClickInput.mi.dwFlags = MOUSEEVENTF_LEFTDOWN;
 					else
-						mouseClickInput.mi.dwFlags = MOUSEEVENTF_LEFTUP;
+						m_mouseClickInput.mi.dwFlags = MOUSEEVENTF_LEFTUP;
 					break;
 				case VK_RBUTTON:
 					if (down)
-						mouseClickInput.mi.dwFlags = MOUSEEVENTF_RIGHTDOWN;
+						m_mouseClickInput.mi.dwFlags = MOUSEEVENTF_RIGHTDOWN;
 					else
-						mouseClickInput.mi.dwFlags = MOUSEEVENTF_RIGHTUP;
+						m_mouseClickInput.mi.dwFlags = MOUSEEVENTF_RIGHTUP;
 					break;
 				case VK_MBUTTON:
 					if (down)
-						mouseClickInput.mi.dwFlags = MOUSEEVENTF_MIDDLEDOWN;
+						m_mouseClickInput.mi.dwFlags = MOUSEEVENTF_MIDDLEDOWN;
 					else
-						mouseClickInput.mi.dwFlags = MOUSEEVENTF_MIDDLEUP;
+						m_mouseClickInput.mi.dwFlags = MOUSEEVENTF_MIDDLEUP;
 					break;
 				default:
 					break;
 				}
 			}
 
-			mouseClickInput.mi.dwExtraInfo = GetMessageExtraInfo();
-			keyInput.ki.dwExtraInfo = GetMessageExtraInfo();
-			UINT ret = SendInput(1, (scanCode != 0 ? &keyInput : &mouseClickInput), sizeof(INPUT));
+			m_mouseClickInput.mi.dwExtraInfo = GetMessageExtraInfo();
+			m_keyInput.ki.dwExtraInfo = GetMessageExtraInfo();
+			UINT ret = SendInput(1, (scanCode != 0 ? &m_keyInput : &m_mouseClickInput), sizeof(INPUT));
 			//assert(ret != 0);
 		}
 		/// <summary>
@@ -100,13 +122,12 @@ namespace sds
 			for (auto it = str.cbegin(); it != str.cend(); ++it)
 				Send(*it, down);
 		}
-
 		/// <summary>
 		/// Utility function to map a Virtual Keycode to a scancode
 		/// </summary>
 		/// <param name="vk"> integer virtual keycode</param>
 		/// <returns></returns>
-		WORD GetScanCode(const int vk)
+		WORD GetScanCode(const int vk) const
 		{
 			if (vk > std::numeric_limits<unsigned char>::max() || vk < std::numeric_limits<unsigned char>::min())
 				return 0;
@@ -117,17 +138,15 @@ namespace sds
 
 			return ret;
 		}
-
 		/// <summary>
 		/// Utility function to map a character to a scancode
 		/// If the "char" is a character, it is translated to a VK before returning the Scan Code.
 		/// </summary>
 		/// <param name="vk">char character such as 'a'</param>
 		/// <returns>0 on error, ScanCode otherwise. Retval of 0 indicates no translation available.</returns>
-		WORD GetScanCode(const char vk)
+		WORD GetScanCode(const char vk) const
 		{
-			char someCharacter = vk;
-			WORD ret = 0;
+			const char someCharacter = vk;
 			bool isSomeCharacter = static_cast<bool>(std::isprint(vk));
 			if (isSomeCharacter)
 			{
@@ -138,7 +157,6 @@ namespace sds
 				return MapVirtualKeyExA(VkKeyScanA(someCharacter), MAPVK_VK_TO_VSC, GetKeyboardLayout(0));
 			}
 		}
-
 		/// <summary>
 		/// Utility function to map a Virtual Keycode to a scancode
 		/// The virtual keycode is represented as a string of characters.
@@ -146,7 +164,7 @@ namespace sds
 		/// </summary>
 		/// <param name="vk"> integer virtual keycode as a string</param>
 		/// <returns>0 on error, ScanCode otherwise. Retval of 0 indicates no translation available.</returns>
-		WORD GetScanCode(const std::string vk)
+		WORD GetScanCode(const std::string vk) const
 		{
 			std::stringstream ss(vk);
 			int vki = 0;

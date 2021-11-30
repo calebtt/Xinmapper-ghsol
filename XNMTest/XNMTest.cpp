@@ -3,6 +3,9 @@
 #include "TestSendKey.h"
 #include "TestMapper.h"
 #include "TestMouse.h"
+#include "TestThumbstickToMovement.h"
+#include "TestThumbstickToDelay.h"
+#include "TestSensitivityMap.h"
 #include "BuildRandomStrings.h"
 #include <string>
 #include <vector>
@@ -31,7 +34,7 @@ namespace XNMTest
 		/// <summary>
 		/// Constructor, initializes some useful stuff like testTokens.
 		/// </summary>
-		XNMTest()
+		XNMTest() 
 		{
 			//seed random generator
 			std::random_device rd;
@@ -103,9 +106,7 @@ namespace XNMTest
 
 
 			//Xinput lib struct
-			XINPUT_STATE testState;
-			//zero it
-			memset(&testState, 0, sizeof(XINPUT_STATE));
+			XINPUT_STATE testState = {};
 			//subject of our test, ButtonStateDown
 			sds::ButtonStateDown ba;
 
@@ -118,7 +119,7 @@ namespace XNMTest
 			//Copy map to a local const
 			const map<const string, int> &r = testMap;
 			//assert the map size is greater than 0
-			Assert::IsTrue(r.size());
+			Assert::IsFalse(r.empty());
 			
 			//Lambda helper function to Assert test "testState" and a token
 			auto tsv = [&ba, &r, &testState](const string &st)
@@ -180,14 +181,14 @@ namespace XNMTest
 			//Static member sds::sdsActionDescriptors tested here.
 			Logger::WriteMessage("Begin TestActionDescriptorsInit()");
 			//Test strings for size > 0
-			std::for_each(testTokens.begin(), testTokens.end(), [](std::string &tr) { Assert::IsTrue(tr.size() > 0); });
+			std::for_each(testTokens.begin(), testTokens.end(), [](const std::string &tr) { Assert::IsFalse(tr.empty()); });
 
 			//Test 'char' for value > 0
-			Assert::IsTrue(sds::sdsActionDescriptors.delimiter);
-			Assert::IsTrue(sds::sdsActionDescriptors.moreInfo);
+			Assert::IsTrue(sds::sdsActionDescriptors.delimiter > 0);
+			Assert::IsTrue(sds::sdsActionDescriptors.moreInfo > 0);
 
 			//Test std::map<string,int> for size > 0
-			Assert::IsTrue(sds::sdsActionDescriptors.xin_buttons.size() > 0);
+			Assert::IsFalse(sds::sdsActionDescriptors.xin_buttons.empty());
 			Logger::WriteMessage("End TestActionDescriptorsInit()");
 		}
 	};

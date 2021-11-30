@@ -13,12 +13,18 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\MouseMovement">
+      <UniqueIdentifier>{277ec959-8ac6-4c88-83a4-81ed8f62e2c1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Utility">
+      <UniqueIdentifier>{66b5f681-ee0d-444e-97da-b7de1b903aa9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Config">
+      <UniqueIdentifier>{30201953-344d-49f5-b74a-b900de8a89e1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ActionDescriptors.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GamepadUser.h">
@@ -33,16 +39,7 @@
     <ClInclude Include="Mapper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MultiBool.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="PlayerInfo.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SendKey.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="XInputBoostMouse.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="XInputTranslater.h">
@@ -51,20 +48,50 @@
     <ClInclude Include="CPPThreadRunner.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ThumbstickToDelay.h">
+      <Filter>Header Files\MouseMovement</Filter>
+    </ClInclude>
+    <ClInclude Include="XInputBoostMouse.h">
+      <Filter>Header Files\MouseMovement</Filter>
+    </ClInclude>
+    <ClInclude Include="ThumbstickAxisThread.h">
+      <Filter>Header Files\MouseMovement</Filter>
+    </ClInclude>
+    <ClInclude Include="MultiBool.h">
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
     <ClInclude Include="ButtonStateDown.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="SendKey.h">
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="MouseMap.h">
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="ActionDescriptors.h">
+      <Filter>Header Files\Config</Filter>
+    </ClInclude>
+    <ClInclude Include="XinSettings.h">
+      <Filter>Header Files\Config</Filter>
+    </ClInclude>
+    <ClInclude Include="SensitivityMap.h">
+      <Filter>Header Files\MouseMovement</Filter>
+    </ClInclude>
+    <ClInclude Include="MapFunctions.h">
+      <Filter>Header Files\Utility</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Xinmapper_2013.cpp">
+    <ClCompile Include="Xinmapper_2022.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="ClassDiagram.cd" />
     <None Include="xinmapper_drawing.pdf" />
+    <None Include="ClassDiagram.cd" />
   </ItemGroup>
 </Project>

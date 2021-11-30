@@ -23,7 +23,7 @@
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>v142</PlatformToolset>
-    <EnableASAN>true</EnableASAN>
+    <EnableASAN>false</EnableASAN>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -94,13 +94,19 @@
     <ClInclude Include="GamepadUser.h" />
     <ClInclude Include="Globals.h" />
     <ClInclude Include="InputPoller.h" />
+    <ClInclude Include="MapFunctions.h" />
     <ClInclude Include="Mapper.h" />
+    <ClInclude Include="MouseMap.h" />
     <ClInclude Include="MultiBool.h" />
     <ClInclude Include="PlayerInfo.h" />
     <ClInclude Include="SendKey.h" />
+    <ClInclude Include="SensitivityMap.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="ButtonStateDown.h" />
+    <ClInclude Include="ThumbstickToDelay.h" />
+    <ClInclude Include="XinSettings.h" />
     <ClInclude Include="XInputBoostMouse.h" />
+    <ClInclude Include="ThumbstickAxisThread.h" />
     <ClInclude Include="XInputTranslater.h" />
   </ItemGroup>
   <ItemGroup>
@@ -108,7 +114,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Xinmapper_2013.cpp" />
+    <ClCompile Include="Xinmapper_2022.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />
