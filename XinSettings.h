@@ -34,6 +34,8 @@ namespace sds
 		constexpr static const int MICROSECONDS_MIN = 500;
 		//Microseconds Max is the maximum delay for the thumbstick axis thread loop at the lowest thumbstick value.
 		constexpr static const int MICROSECONDS_MAX = 12000;
+		//Microseconds Min Max is the minimum delay's maximum value for the thumbstick axis thread loop at the lowest sensitivity value.
+		constexpr static const int MICROSECONDS_MIN_MAX = MICROSECONDS_MIN * 3;
 		//Deadzone Min is the minimum allowable value for a thumbstick deadzone.
 		constexpr static const int DEADZONE_MIN = 1;
 		//Deadzone Max is the maximum allowable value for a thumbstick deadzone.
@@ -57,6 +59,9 @@ namespace sds
 		static_assert(SENSITIVITY_MIN < SENSITIVITY_MAX);
 		static_assert(DEADZONE_MIN > 0);
 		static_assert(DEADZONE_MAX < std::numeric_limits<SHORT>::max());
+		static_assert(MICROSECONDS_MIN < MICROSECONDS_MAX);
+		static_assert(MICROSECONDS_MIN_MAX < MICROSECONDS_MAX);
+		static_assert(MICROSECONDS_MIN_MAX > MICROSECONDS_MIN);
 
 		static bool IsValidSensitivityValue(int newSens)
 		{

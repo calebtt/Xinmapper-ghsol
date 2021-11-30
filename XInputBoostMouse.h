@@ -55,7 +55,10 @@ namespace sds
 			m_threadX = 0;
 			m_threadY = 0;
 		}
-
+		XInputBoostMouse(const XInputBoostMouse& other) = delete;
+		XInputBoostMouse(XInputBoostMouse&& other) = delete;
+		XInputBoostMouse& operator=(const XInputBoostMouse& other) = delete;
+		XInputBoostMouse& operator=(XInputBoostMouse&& other) = delete;
 		/// <summary>
 		/// Destructor override, ensures the running thread function is stopped
 		/// inside of this class and not the base.
@@ -113,18 +116,10 @@ namespace sds
 
 			const int tdx = m_stickMapInfo == MouseMap::RIGHT_STICK ? m_localPlayerInfo.right_x_dz : m_localPlayerInfo.left_x_dz;
 			const int tdy = m_stickMapInfo == MouseMap::RIGHT_STICK ? m_localPlayerInfo.right_y_dz : m_localPlayerInfo.left_y_dz;
-			ThumbstickToDelay moveDetermine(m_mouseSensitivity, tdx, tdy);
 
-			//TODO consider removing the "does require move" test here.
-			if( moveDetermine.DoesRequireMove(tsx,tsy) )
-			{
-				//update state.
-				this->updateState(state);
-
-				//check for thread is running.
-				if( !isThreadRunning )
-					this->startThread();
-			}
+			this->updateState(state);
+			if(!this->isThreadRunning)
+				this->startThread();
 		}
 
 		/// <summary>

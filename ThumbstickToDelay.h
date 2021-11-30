@@ -10,7 +10,7 @@ namespace sds
 	/// A single instance for a single thumbstick axis is to be used.
 	/// This class must be re-instantiated to use new deadzone values.
 	/// </summary>
-	///	<exception cref="std::string"> throws string on exception. </exception>
+	///	<exception cref="std::string">throws string on exception with error message. </exception>
 	class ThumbstickToDelay
 	{
 		inline static std::atomic<bool> m_isDeadzoneActivated;
@@ -21,6 +21,40 @@ namespace sds
 		const std::string BAD_DELAY_MSG = "Bad timer delay value, exception.";
 		SensitivityMap m_sensMapper;
 		std::map<int, int> m_sharedSensitivityMap;
+		//Used to make some assertions about the settings values this class depends upon.
+		inline void AssertSettings()
+		{
+			//Assertions about the settings values used by this class.
+			if (XinSettings::MICROSECONDS_MIN_MAX >= XinSettings::MICROSECONDS_MAX)
+				throw std::string("Exception in ThumbstickToDelay() ctor, MICROSECONDS_MIN_MAX >= MICROSECONDS_MAX");
+			if (XinSettings::MICROSECONDS_MIN_MAX <= XinSettings::MICROSECONDS_MIN)
+				throw std::string("Exception in ThumbstickToDelay() ctor, MICROSECONDS_MIN_MAX <= MICROSECONDS_MIN");
+			if (XinSettings::MICROSECONDS_MIN >= XinSettings::MICROSECONDS_MAX)
+				throw std::string("Exception in ThumbstickToDelay() ctor, MICROSECONDS_MIN >= MICROSECONDS_MAX");
+			if (XinSettings::SENSITIVITY_MIN >= XinSettings::SENSITIVITY_MAX)
+				throw std::string("Exception in ThumbstickToDelay() ctor, SENSITIVITY_MIN >= SENSITIVITY_MAX");
+			if (XinSettings::SENSITIVITY_MIN <= 0)
+				throw std::string("Exception in ThumbstickToDelay() ctor, SENSITIVITY_MIN <= 0");
+			if (XinSettings::SENSITIVITY_MAX > 100)
+				throw std::string("Exception in ThumbstickToDelay() ctor, SENSITIVITY_MAX > 100");
+		}
+		inline void InitFirstPiece(int sensitivity, int xAxisDz, int yAxisDz)
+		{
+			m_axisSensitivity = RangeBindValue(sensitivity, XinSettings::SENSITIVITY_MIN, XinSettings::SENSITIVITY_MAX);
+			m_altDeadzoneMultiplier = XinSettings::ALT_DEADZONE_MULT_DEFAULT;
+			m_isDeadzoneActivated = false;
+			m_xAxisDeadzone = xAxisDz;
+			m_yAxisDeadzone = yAxisDz;
+		}
+		inline int RangeBindValue(const int user_sens, const int sens_min, const int sens_max) const
+		{
+			//bounds check result
+			if (user_sens > sens_max)
+				return sens_max;
+			else if (user_sens < sens_min)
+				return sens_min;
+			return user_sens;
+		}
 	public:
 		/// <summary>
 		/// Ctor for dual axis sensitivity and deadzone processing.
@@ -33,44 +67,31 @@ namespace sds
 		/// <param name="whichStick">MouseMap enum denoting which thumbstick</param>
 		ThumbstickToDelay(int sensitivity, const PlayerInfo &player, MouseMap whichStick)
 		{
-			//assertion for the sensitivity function used in this class,
-			//if microseconds_min *3 is greater than microseconds_max there is no way to continue
-			if (XinSettings::MICROSECONDS_MIN * 3 > XinSettings::MICROSECONDS_MAX)
-				throw std::string("Exception in ThumbstickToDelay() ctor, MICROSECONDS_MIN*3 > MICROSECONDS_MAX");
-
-			m_altDeadzoneMultiplier = XinSettings::ALT_DEADZONE_MULT_DEFAULT;
-			m_isDeadzoneActivated = false;
-			m_axisSensitivity = sensitivity;
-			m_xAxisDeadzone = whichStick == MouseMap::LEFT_STICK ? player.left_x_dz : player.right_x_dz;
-			m_yAxisDeadzone = whichStick == MouseMap::LEFT_STICK ? player.left_y_dz : player.right_y_dz;
-
-			//error checking sensitivity arg range
-			if (sensitivity > XinSettings::SENSITIVITY_MAX)
-				m_axisSensitivity = XinSettings::SENSITIVITY_MAX;
-			else if (sensitivity < XinSettings::SENSITIVITY_MIN)
-				m_axisSensitivity = XinSettings::SENSITIVITY_MIN;
-			
+			AssertSettings();
 			//error checking mousemap stick setting
 			if (whichStick == MouseMap::NEITHER_STICK)
 				whichStick = MouseMap::RIGHT_STICK;
+			InitFirstPiece(sensitivity, 
+				whichStick == MouseMap::LEFT_STICK ? player.left_x_dz : player.right_x_dz, 
+				whichStick == MouseMap::LEFT_STICK ? player.left_y_dz : player.right_y_dz);
 
 			//error checking axisDeadzone arg range, because it might crash the program if the
 			//delay returned is some silly value
 			int cdx = whichStick == MouseMap::LEFT_STICK ? player.left_x_dz : player.right_x_dz;
 			int cdy = whichStick == MouseMap::LEFT_STICK ? player.left_y_dz : player.right_y_dz;
+
 			if (!XinSettings::IsValidDeadzoneValue(cdx))
 				m_xAxisDeadzone = XinSettings::DEADZONE_DEFAULT;
 			if (!XinSettings::IsValidDeadzoneValue(cdy))
 				m_yAxisDeadzone = XinSettings::DEADZONE_DEFAULT;
 
-			m_sharedSensitivityMap = m_sensMapper.BuildSensitivityMap(sensitivity,
+			m_sharedSensitivityMap = m_sensMapper.BuildSensitivityMap(m_axisSensitivity,
 				XinSettings::SENSITIVITY_MIN,
 				XinSettings::SENSITIVITY_MAX,
 				XinSettings::MICROSECONDS_MIN,
 				XinSettings::MICROSECONDS_MAX,
-				XinSettings::MICROSECONDS_MIN*3);
+				XinSettings::MICROSECONDS_MIN_MAX);
 		}
-
 		/// <summary>
 		/// Ctor for dual axis sensitivity and deadzone processing.
 		/// Allows getting high precision timer delay values for the current axis, from using info about each axis.
@@ -83,20 +104,8 @@ namespace sds
 		/// <returns></returns>
 		ThumbstickToDelay(int sensitivity, int xAxisDz, int yAxisDz)
 		{
-			//assertion for the sensitivity function used in this class,
-			//if microseconds_min *3 is greater than microseconds_max there is no way to continue
-			if (XinSettings::MICROSECONDS_MIN * 3 > XinSettings::MICROSECONDS_MAX)
-				throw std::string("Exception in ThumbstickToDelay() ctor, MICROSECONDS_MIN*3 > MICROSECONDS_MAX");
-
-			m_axisSensitivity = sensitivity;
-			m_xAxisDeadzone = xAxisDz;
-			m_yAxisDeadzone = yAxisDz;
-			m_altDeadzoneMultiplier = XinSettings::ALT_DEADZONE_MULT_DEFAULT;
-			m_isDeadzoneActivated = false;
-
-			//error checking sensitivity arg range
-			m_axisSensitivity = RangeBindSensitivityValue(sensitivity, XinSettings::SENSITIVITY_MIN, XinSettings::SENSITIVITY_MAX);
-
+			AssertSettings();
+			InitFirstPiece(sensitivity, xAxisDz, yAxisDz);
 			//error checking axis dz arg range, because it might crash the program if the
 			//delay returned is some silly value
 			if (!XinSettings::IsValidDeadzoneValue(xAxisDz))
@@ -104,13 +113,19 @@ namespace sds
 			if (!XinSettings::IsValidDeadzoneValue(yAxisDz))
 				m_yAxisDeadzone = XinSettings::DEADZONE_DEFAULT;
 
-			m_sharedSensitivityMap = m_sensMapper.BuildSensitivityMap(sensitivity,
+			m_sharedSensitivityMap = m_sensMapper.BuildSensitivityMap(m_axisSensitivity,
 				XinSettings::SENSITIVITY_MIN,
 				XinSettings::SENSITIVITY_MAX,
 				XinSettings::MICROSECONDS_MIN,
 				XinSettings::MICROSECONDS_MAX,
-				XinSettings::MICROSECONDS_MIN * 3);
+				XinSettings::MICROSECONDS_MIN_MAX);
 		}
+		ThumbstickToDelay() = delete;
+		ThumbstickToDelay(const ThumbstickToDelay& other) = delete;
+		ThumbstickToDelay(ThumbstickToDelay&& other) = delete;
+		ThumbstickToDelay& operator=(const ThumbstickToDelay& other) = delete;
+		ThumbstickToDelay& operator=(ThumbstickToDelay&& other) = delete;
+		~ThumbstickToDelay() = default;
 
 		/// <summary>
 		/// returns a copy of the internal sensitivity map
@@ -195,7 +210,7 @@ namespace sds
 		/// <param name="y">Y value</param>
 		/// <param name="isX"> is it the X axis? </param>
 		/// <returns>delay in microseconds</returns>
-		size_t GetDelayFromThumbstickValue(int x, int y, bool isX) const
+		size_t GetDelayFromThumbstickValue(int x, int y, const bool isX) const
 		{
 			constexpr auto ToFloat = [](auto something) { return static_cast<float>(something); };
 			const int xdz = static_cast<int>((!m_isDeadzoneActivated) ?
@@ -211,7 +226,7 @@ namespace sds
 
 			int txVal = 0;
 			txVal = TransformSensitivityValue(x, y, isX);
-			txVal = RangeBindSensitivityValue(txVal, XinSettings::SENSITIVITY_MIN, XinSettings::SENSITIVITY_MAX);
+			txVal = RangeBindValue(txVal, XinSettings::SENSITIVITY_MIN, XinSettings::SENSITIVITY_MAX);
 
 			//error checking to make sure the value is in the map
 			int rval = 0;
@@ -267,17 +282,6 @@ namespace sds
 			else
 				txVal = ToDub(y) + (std::sqrt(x) * 2.0);
 			return static_cast<int>(txVal);
-		}
-
-		//Keep microsecond delay value within overall min and max
-		int RangeBindSensitivityValue(int user_sens, const int sens_min, const int sens_max) const
-		{
-			//bounds check result
-			if (user_sens > sens_max)
-				user_sens = sens_max;
-			else if (user_sens < sens_min)
-				user_sens = sens_min;
-			return user_sens;
 		}
 	};
 }

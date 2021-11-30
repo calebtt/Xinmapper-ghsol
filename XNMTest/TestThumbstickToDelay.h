@@ -1,6 +1,7 @@
 #pragma once
 #include "pch.h"
 #include "CppUnitTest.h"
+#include "TemplatesForTest.h"
 #include "..\stdafx.h"
 #include "..\Mapper.h"
 #include "..\SendKey.h"
@@ -17,8 +18,8 @@ namespace XNMTest
 		const int SensMax = 100;
 		const int DefaultDeadzone = XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE;
 
-		const short SMax = std::numeric_limits<SHORT>::max();
-		const short SMin = std::numeric_limits<SHORT>::min();
+		inline static constexpr const short SMax = std::numeric_limits<SHORT>::max();
+		inline static constexpr const short SMin = std::numeric_limits<SHORT>::min();
 
 		void PrintUniqueToLoggerAndClear(std::vector<int> &valuesList) const
 		{
@@ -93,21 +94,28 @@ namespace XNMTest
 		//Method to test the overload of GetDelayFromThumbstickValue
 		TEST_METHOD(TestGetDelayFromThumbstickValue)
 		{
-			const sds::PlayerInfo pl;
-			const sds::MouseMap mp = sds::MouseMap::RIGHT_STICK;
-			sds::ThumbstickToDelay delay(SensMax, pl, mp);
-			std::map<int, int> sensMap = delay.GetCopyOfSensitivityMap();
+			using namespace TemplatesForTest;
+			//std::map<int, int> sensMap = delay.GetCopyOfSensitivityMap();
 			const int localdz = DefaultDeadzone;
-			auto testValues = [&delay, &localdz, &sensMap](const int thumbValueX, const int thumbValueY, const bool isX, const size_t comparison)
+			const int localSensMax = SensMax;
+			auto testValues = [&localSensMax, &localdz](const int thumbValueX, const int thumbValueY, const bool isX, const size_t comparison, const int within = 50)
 			{
+				const sds::PlayerInfo pl;
+				const sds::MouseMap mp = sds::MouseMap::RIGHT_STICK;
+				sds::ThumbstickToDelay delay(localSensMax, pl, mp);
+
 				//do a computation to get the transformed value expected from GetDelayFromThumbstickValues
 				const size_t dualResult = delay.GetDelayFromThumbstickValue(thumbValueX, thumbValueY, isX);
 				std::wstring msg = L"Tested: X" + std::to_wstring(thumbValueX);
 				msg += L" Y:" + std::to_wstring(thumbValueY);
 				msg += L" with result: " + std::to_wstring(dualResult);
-				Assert::IsTrue(dualResult == comparison, msg.c_str());
+				const bool resultWithin = IsWithin(dualResult, comparison, within);
+				Assert::IsTrue(resultWithin, msg.c_str());
 			};
-			testValues(SMax, 0, true, 500);
+			//Test that thumbstick max value delay returned is XinSettings::MICROSECONDS_MIN +/- 50
+			testValues(SMax, 0, true, sds::XinSettings::MICROSECONDS_MIN);
+			//Test that thumbstick deadzone+1 value delay returned is XinSettings::MICROSECONDS_MAX +/- 50
+			testValues(DefaultDeadzone+1, 0, true, sds::XinSettings::MICROSECONDS_MAX);
 			//known good test, half magnitude positive both axes
 			//should yield a delay magnitude of Sens or sensitivity max,
 			//remember the max sensitivity will be truncated per the sensitivity you
