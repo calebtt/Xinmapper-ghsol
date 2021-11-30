@@ -24,7 +24,6 @@ namespace sds
 				retVal = itx->second;
 			return (itx != curMap.end());
 		}
-
 		/// <summary>
 		/// Verifies that the key value is in the map.
 		/// </summary>
@@ -40,7 +39,6 @@ namespace sds
 				});
 			return (itx != curMap.end());
 		}
-
 		/// <summary>
 		/// Verifies that the key value is in the map{T,H} and sets a reference arg to the value
 		///	if found.
