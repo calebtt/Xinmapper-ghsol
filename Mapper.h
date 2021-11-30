@@ -27,7 +27,6 @@ namespace sds
 			bool down;
 			WordData() : down(false) {}
 		};
-
 		SendKey m_keySend;
 		std::vector<WordData> m_mapTokenInfo;
 		MapInformation m_map;
@@ -36,7 +35,7 @@ namespace sds
 		/// Function to process an sds::ActionDetails string created by sds::XInputTranslater
 		/// </summary>
 		/// <param name="details">An sds::ActionDetails containing actions to perform, translated from controller input.</param>
-		void ProcessActionDetails(ActionDetails details)
+		void ProcessActionDetails(const ActionDetails &details)
 		{
 			std::vector<std::string> tokens;
 			//Get input tokens.
@@ -70,12 +69,10 @@ namespace sds
 			{
 				return errText("MapInformation newMap size() is 0.");
 			}
-
 			// Check if s consists only of whitespaces
 			const bool whiteSpacesOnly = std::all_of(newMap.begin(), newMap.end(), isspace);
 			if (whiteSpacesOnly)
 				return errText("[1]Empty map string, consists entirely of white spaces.");
-
 			//Set WordData vector.
 			std::vector<WordData> tempVec;
 			std::string previousToken;
@@ -84,11 +81,9 @@ namespace sds
 			while( ss >> t )
 			{
 				std::string aToken = t;//copy
-
 				WordData data;
 				std::replace(t.begin(), t.end(), sds::sdsActionDescriptors.moreInfo, ' ');
 				std::stringstream(t) >> data.control >> data.info >> data.sim_type >> data.value;
-
 				//if all of those pieces don't have something in them
 				if (data.control.empty() && data.info.empty() && data.sim_type.empty() && data.value.empty())
 				{
@@ -111,19 +106,16 @@ namespace sds
 			m_mapTokenInfo = tempVec;
 			//Set MapInformation
 			m_map = newMap;
-
 			return "";
 		}
 	private:
-		bool ValidateTokenPieces(const WordData &data) const
+		constexpr bool ValidateTokenPieces(const WordData &data) const
 		{
 			bool testArray[4] = { false,false,false,false };
-			
 			testArray[0] = sdsActionDescriptors.IsFirstFieldKeyword(data.control);
 			testArray[1] = sdsActionDescriptors.IsSecondFieldKeyword(data.info);
 			testArray[2] = sdsActionDescriptors.IsThirdFieldKeyword(data.sim_type);
 			testArray[3] = sdsActionDescriptors.IsFourthFieldKeyword(data.value);
-
 			return (testArray[0] && testArray[1] && testArray[2] && testArray[3]);
 		}
 		/// <summary>
@@ -136,7 +128,6 @@ namespace sds
 			//using wit_type = std::vector<WordData>::iterator;
 			//using sit_type = std::vector<std::string>::iterator;
 			using std::string;
-
 			//set all worddata "down" fields to false, the "down" member denotes that the button is currently being pressed
 			//according to the current info from the XINPUT lib, translated and sent here. A finite state machine type is used
 			//to keep track of the state of the key press
@@ -144,8 +135,6 @@ namespace sds
 				{
 					d.down = false;
 				});
-
-
 			//This section sets a bool if the map is in the input;
 			//meaning if the button is reported as being pressed from the XINPUT library
 			string controlButton, buttonExtraDetail;
@@ -156,7 +145,6 @@ namespace sds
 				std::replace(it->begin(), it->end(), sds::sdsActionDescriptors.moreInfo, ' ');
 				//grab two tokens from the input string "detail", i.e., "LTHUMB" and "LEFT"
 				std::stringstream(*it) >> controlButton >> buttonExtraDetail;
-
 				//iterate the vector of worddata internal to this class, 
 				//if controlButton matches the current "worddata" AND the extra detail is NONE or matches the current "worddata"
 				//then set "down" to true
@@ -196,7 +184,7 @@ namespace sds
 		/// tracking the current state of the keypress logic.
 		/// </summary>
 		/// <param name="detail"> (WordData) is a utility structure to hold info pertaining to a key binding aka MapInformation token</param>
-		void Normal(WordData &detail) 
+		void Normal(WordData &detail)
 		{
 			/*
 			Normal keypress logic.
@@ -208,7 +196,7 @@ namespace sds
 				if (detail.fsm.current_state == MultiBool::BUTTONSTATE::STATE_ONE)
 				{
 					//Check for VK.
-					int keyCode = GetVkFromTokenString(detail.value);
+					const int keyCode = GetVkFromTokenString(detail.value);
 					if( keyCode >= 0 )
 					{
 						m_keySend.Send(keyCode,true);
@@ -223,7 +211,7 @@ namespace sds
 				if( detail.fsm.current_state == MultiBool::BUTTONSTATE::STATE_TWO )
 				{
 					//Check for VK.
-					int keyCode = GetVkFromTokenString(detail.value);
+					const int keyCode = GetVkFromTokenString(detail.value);
 					if( keyCode >= 0 )
 					{
 						m_keySend.Send(keyCode,false);
@@ -247,7 +235,7 @@ namespace sds
 				if( detail.fsm.current_state == MultiBool::BUTTONSTATE::STATE_ONE )
 				{
 					//Check for VK
-					int keyCode = GetVkFromTokenString(detail.value);
+					const int keyCode = GetVkFromTokenString(detail.value);
 					if(keyCode >= 0)
 						m_keySend.Send(keyCode,true);
 					else
@@ -256,7 +244,7 @@ namespace sds
 				}
 				if( detail.fsm.current_state == MultiBool::BUTTONSTATE::STATE_THREE )
 				{
-					int keyCode = GetVkFromTokenString(detail.value);
+					const int keyCode = GetVkFromTokenString(detail.value);
 					if(keyCode >= 0)
 						m_keySend.Send(keyCode,false);
 					else
@@ -280,13 +268,13 @@ namespace sds
 		/// Experimental, probably doesn't work right.
 		/// </summary>
 		/// <param name="detail"></param>
-		void Rapid(WordData &detail) 
+		void Rapid(const WordData &detail) 
 		{
 			//Rapid keypress logic.
 			std::string strVal;
 			if(detail.down)
 			{
-				int keyCode = GetVkFromTokenString(detail.value);
+				const int keyCode = GetVkFromTokenString(detail.value);
 				if( keyCode >= 0 )
 				{
 					m_keySend.Send(keyCode,true);
@@ -322,7 +310,7 @@ namespace sds
 		/// </summary>
 		/// <param name="in">std::string in is a token containing a Virtual Keycode in string form</param>
 		/// <returns>Returns the virtual keycode in decimal integer form, or -1 for error.</returns>
-		int GetVkFromTokenString(std::string in) const
+		constexpr int GetVkFromTokenString(std::string in) const
 		{
 			int keyCode = -1;
 			if( in.find(sds::sdsActionDescriptors.vk) != std::string::npos )
