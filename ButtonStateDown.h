@@ -35,7 +35,6 @@ namespace sds
 			}
 			return false;
 		}
-
 		/// <summary>
 		/// Utility function that returns true if the trigger "token" is reported as depressed
 		/// by the XINPUT_STATE "state" with regard to deadzone information, false otherwise.
@@ -61,7 +60,6 @@ namespace sds
 			}
 			return false;
 		}
-
 		/// <summary>
 		/// Utility function that returns true if the thumbstick + direction token's reported value is above the deadzone value
 		/// in sdsPlayerInfo. False otherwise.
@@ -84,14 +82,13 @@ namespace sds
 			}
 			return false;
 		}
-
 		/// <summary>
 		/// Builds a map of string tokens to the tuple type with deadzone, current value, and functor
 		///	from an XINPUT_STATE arg.
 		/// </summary>
 		/// <param name="state">XINPUT_STATE for processing</param>
 		/// <returns>a map that maps string to tuple of deadzone,current value,functor</returns>
-		auto BuildThumbstickMap(const XINPUT_STATE &state) const -> std::map<std::string, std::tuple<int, int, std::variant<std::less<>, std::greater<>>>>
+		[[nodiscard]] auto BuildThumbstickMap(const XINPUT_STATE &state) const -> std::map<std::string, std::tuple<int, int, std::variant<std::less<>, std::greater<>>>>
 		{
 			using sds::sdsActionDescriptors;
 			using std::string;

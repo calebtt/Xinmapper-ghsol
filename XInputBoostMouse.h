@@ -86,7 +86,6 @@ namespace sds
 				this->startThread();
 			}
 		}
-
 		/// <summary>
 		/// Called to check XINPUT_STATE values for mouse movement requirements.
 		/// Will start the workThread running if required.
@@ -113,7 +112,6 @@ namespace sds
 			m_threadX = static_cast<SHORT>(tsx);
 			m_threadY = static_cast<SHORT>(tsy);
 
-
 			const int tdx = m_stickMapInfo == MouseMap::RIGHT_STICK ? m_localPlayerInfo.right_x_dz : m_localPlayerInfo.left_x_dz;
 			const int tdy = m_stickMapInfo == MouseMap::RIGHT_STICK ? m_localPlayerInfo.right_y_dz : m_localPlayerInfo.left_y_dz;
 
@@ -121,7 +119,6 @@ namespace sds
 			if(!this->isThreadRunning)
 				this->startThread();
 		}
-
 		/// <summary>
 		/// Setter for sensitivity value, blocks while work thread stops and restarts.
 		/// </summary>
@@ -150,7 +147,7 @@ namespace sds
 	private:
 		/// <summary>
 		/// Worker thread, private visibility, gets updated data from ProcessState() function to use.
-		/// Accesses the std::atomic threadX and threadY members.
+		/// Accesses the std::atomic m_threadX and m_threadY members.
 		/// </summary>
 		void workThread() override
 		{
@@ -161,7 +158,7 @@ namespace sds
 			yThread.Start();
 
 			//thread main loop
-			while(!isStopRequested)//<--Danger! From the base class.
+			while(!isStopRequested)
 			{
 				xThread.ProcessState(m_threadX, m_threadY);
 				yThread.ProcessState(m_threadX, m_threadY);
