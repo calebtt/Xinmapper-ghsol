@@ -1,17 +1,12 @@
 #pragma once
 #include "stdafx.h"
-
 /*
 Responsible for tokens used in an ActionDetails
 string.
 Inevitably tokens must be mapped to values (some of them).
 */
-
-
-
 namespace sds
 {
-
 	/// <summary>
 	/// ActionDescriptors is a big structure full of keywords that are used by other classes to enable
 	/// processing of an sds::ActionDetails string into meaningful information for the program.
@@ -51,18 +46,14 @@ namespace sds
 		{
 			x,y,a,b,lThumb,rThumb,lTrigger,rTrigger,lShoulder,rShoulder,dpad,start,back
 		};
-
 		const std::vector<std::string> SecondFieldValidKeywords
 		{
 			left,down,up,right,none
 		};
-
 		const std::vector<std::string> ThirdFieldValidKeywords
 		{
 			norm,toggle,rapid
 		};
-
-
 		//Maps the tokens above to XINPUT library #defines
 		//Because the XINPUT lib doesn't send a "down" signal 
 		//to be tested against with a define bitmask, it
@@ -86,7 +77,6 @@ namespace sds
 			{lThumb, XINPUT_GAMEPAD_LEFT_THUMB},
 			{rThumb, XINPUT_GAMEPAD_RIGHT_THUMB}
 		};
-
 		/// <summary>
 		/// This member function can be used to verify that a string is
 		/// a member const keyword included in this struct.
@@ -98,7 +88,6 @@ namespace sds
 			std::for_each(s.begin(), s.end(), [](char &c) { c = static_cast<char>(std::toupper(c)); });
 			return (std::find(FirstFieldValidKeywords.cbegin(), FirstFieldValidKeywords.cend(), s) != FirstFieldValidKeywords.cend());
 		}
-
 		/// <summary>
 		/// This member function can be used to verify that a string is
 		/// a member const keyword included in this struct.
@@ -110,7 +99,6 @@ namespace sds
 			std::for_each(s.begin(), s.end(), [](char &c) { c = static_cast<char>(std::toupper(c)); });
 			return (std::find(SecondFieldValidKeywords.cbegin(), SecondFieldValidKeywords.cend(), s) != SecondFieldValidKeywords.cend());
 		}
-
 		/// <summary>
 		/// This member function can be used to verify that a string is
 		/// a member const keyword included in this struct.
@@ -122,7 +110,6 @@ namespace sds
 			std::for_each(s.begin(), s.end(), [](char &c) { c = static_cast<char>(std::toupper(c)); });
 			return (std::find(ThirdFieldValidKeywords.cbegin(), ThirdFieldValidKeywords.cend(), s) != ThirdFieldValidKeywords.cend());
 		}
-
 		/// <summary>
 		/// This member function can be used to verify that a string is
 		/// a member const keyword included in this struct.
