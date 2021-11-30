@@ -25,6 +25,7 @@ namespace sds
 		ButtonStateDown(ButtonStateDown&& other) = delete;
 		ButtonStateDown& operator=(const ButtonStateDown& other) = delete;
 		ButtonStateDown& operator=(ButtonStateDown&& other) = delete;
+		~ButtonStateDown() = default;
 		/// <summary>
 		/// Utility function that aids in determining if the button is pressed in the XINPUT_STATE
 		/// </summary>
