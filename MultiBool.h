@@ -21,15 +21,24 @@ namespace sds
 			STATE_SIX
 		} current_state;
 
-		MultiBool() : current_state(BUTTONSTATE::STATE_ONE) {}
-		MultiBool( const MultiBool &rhs )
+		MultiBool() : current_state(BUTTONSTATE::STATE_ONE) { }
+		MultiBool(const MultiBool &other) = default;
+		MultiBool(MultiBool &&other) noexcept : current_state(other.current_state) { }
+		MultiBool& operator=(const MultiBool &other)
 		{
-			this->current_state = rhs.current_state;
+			if (this == &other)
+				return *this;
+			current_state = other.current_state;
+			return *this;
 		}
-		MultiBool(const BUTTONSTATE s)
+		MultiBool& operator=(MultiBool &&other) noexcept
 		{
-			current_state = s;
+			if (this == &other)
+				return *this;
+			current_state = other.current_state;
+			return *this;
 		}
+		~MultiBool() = default;
 		void ResetState()
 		{
 			current_state = BUTTONSTATE::STATE_ONE;

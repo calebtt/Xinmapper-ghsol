@@ -24,6 +24,11 @@ namespace sds
 			m_mouseMoveInput.type = INPUT_MOUSE;
 			m_mouseMoveInput.mi.dwFlags = MOUSEEVENTF_MOVE;
 		}
+		SendKey(const SendKey& other) = delete;
+		SendKey(SendKey&& other) = delete;
+		SendKey& operator=(const SendKey& other) = delete;
+		SendKey& operator=(SendKey&& other) = delete;
+		~SendKey() = default;
 		/// <summary>
 		/// Sends mouse movement specified by X and Y number of pixels to move.
 		/// </summary>
@@ -38,7 +43,6 @@ namespace sds
 			//Finally, send the input
 			SendInput(1, &m_mouseMoveInput, sizeof(INPUT));
 		}
-
 		/// <summary>
 		/// Sends mouse movement specified by vector of tuple(int,int) X and Y number of pixels to move.
 		/// </summary>
@@ -59,7 +63,6 @@ namespace sds
 			//Finally, send the input
 			SendInput(inputVec.size(), inputVec.data(), sizeof(INPUT));
 		}
-
 		/// <summary>
 		/// Sends input, if a VK Virtual Keycode of 0 is used, it is assumed to
 		/// be mouse input, and keyboard input otherwise.
@@ -119,7 +122,6 @@ namespace sds
 			for (auto it = str.cbegin(); it != str.cend(); ++it)
 				Send(*it, down);
 		}
-
 		/// <summary>
 		/// Utility function to map a Virtual Keycode to a scancode
 		/// </summary>
@@ -136,7 +138,6 @@ namespace sds
 
 			return ret;
 		}
-
 		/// <summary>
 		/// Utility function to map a character to a scancode
 		/// If the "char" is a character, it is translated to a VK before returning the Scan Code.
@@ -156,7 +157,6 @@ namespace sds
 				return MapVirtualKeyExA(VkKeyScanA(someCharacter), MAPVK_VK_TO_VSC, GetKeyboardLayout(0));
 			}
 		}
-
 		/// <summary>
 		/// Utility function to map a Virtual Keycode to a scancode
 		/// The virtual keycode is represented as a string of characters.
