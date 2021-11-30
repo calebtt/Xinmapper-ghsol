@@ -19,8 +19,8 @@ namespace sds
 		/// <param name="us_delay_min">minimum delay in microseconds</param>
 		/// <param name="us_delay_max">maximum delay in microseconds</param>
 		///	<param name="us_delay_min_max">minimum microsecond delay maximum value, used by the user sensitivity adjustment function</param>
-		/// <returns></returns>
-		std::map<int, int> BuildSensitivityMap(const int user_sens, 
+		/// <returns>map int,int mapping sensitivity values to microsecond delay values</returns>
+		[[nodiscard]] std::map<int, int> BuildSensitivityMap(const int user_sens, 
 			const int sens_min, 
 			const int sens_max, 
 			const int us_delay_min, 

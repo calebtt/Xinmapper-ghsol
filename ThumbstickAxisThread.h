@@ -50,6 +50,10 @@ namespace sds
             m_localY = 0;
 
         }
+        ThumbstickAxisThread(const ThumbstickAxisThread& other) = delete;
+        ThumbstickAxisThread(ThumbstickAxisThread&& other) = delete;
+        ThumbstickAxisThread& operator=(const ThumbstickAxisThread& other) = delete;
+        ThumbstickAxisThread& operator=(ThumbstickAxisThread&& other) = delete;
         /// <summary>
         /// Destructor override, ensures the running thread function is stopped
         /// inside of this class and not the base.
@@ -73,7 +77,6 @@ namespace sds
                 this->startThread();
             }
 		}
-
         /// <summary>
         /// Called to update the internal thumbstick values with new values.
         /// Note the params are X and Y.
@@ -120,7 +123,6 @@ namespace sds
         virtual void workThread() override
         {
             this->isThreadRunning = true;
-
             using namespace std::chrono;
             SendKey keySend;
             m_moveDetermine = std::make_shared<ThumbstickToDelay>(this->m_sensitivity, this->m_localPlayer, this->m_localStick);
@@ -155,7 +157,6 @@ namespace sds
                 //invert if Y axis
                 invertIfY(localValX, true);
                 invertIfY(localValY, false);
-
 
                 testxval = m_isX ? static_cast<int>(localValX) : XinSettings::PIXELS_NOMOVE;
                 testyval = m_isX ? XinSettings::PIXELS_NOMOVE : static_cast<int>(localValY);
