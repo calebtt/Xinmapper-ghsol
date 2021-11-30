@@ -21,6 +21,10 @@ namespace sds
 		{
 			m_localPlayer = player;
 		}
+		ButtonStateDown(const ButtonStateDown& other) = delete;
+		ButtonStateDown(ButtonStateDown&& other) = delete;
+		ButtonStateDown& operator=(const ButtonStateDown& other) = delete;
+		ButtonStateDown& operator=(ButtonStateDown&& other) = delete;
 		/// <summary>
 		/// Utility function that aids in determining if the button is pressed in the XINPUT_STATE
 		/// </summary>
