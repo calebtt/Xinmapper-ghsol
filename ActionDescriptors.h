@@ -123,8 +123,6 @@ namespace sds
 			//single character case, good
 			if (s.size() == 1)
 				return true;
-			
-
 			//check for starting with "VK" but also has a decimal value after
 			if (s.size() > vk.size())
 			{
@@ -154,10 +152,8 @@ namespace sds
 					{
 						return false;
 					}
-
 				}
 			}
-
 			return false;
 		}
 	};
