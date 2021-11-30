@@ -17,7 +17,7 @@ namespace sds
 		constexpr static const int PIXELS_NOMOVE = 0;
 		//Thread Delay Micro is the value in microseconds the worker thread in
 		//ThumbstickAxisThread sleeps when the previous iteration performed no action.
-		constexpr static const int THREAD_DELAY_MICRO = 1500;
+		constexpr static const int THREAD_DELAY_MICRO = 3000;
 		//Input Poller thread delay, in milliseconds.
 		constexpr static const int THREAD_DELAY_POLLER = 10;
 		//SMax is the value of the Microsoft type "SHORT"'s maximum possible value.
@@ -44,7 +44,7 @@ namespace sds
 		constexpr static const int DEADZONE_DEFAULT = XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE;
 		//Move Thread Sleep Micro is the delay in microseconds for the XInputBoostMouse work thread loop
 		//the value determines how often the axis threads are told to process a new state (pair of x,y values).
-		constexpr static const int MOVE_THREAD_SLEEP_MICRO = 4000;
+		constexpr static const int MOVE_THREAD_SLEEP_MICRO = 6000;
 		//Multiplier Min is the minimum alt deadzone multiplier value allowed.
 		constexpr static const float MULTIPLIER_MIN = 0.01f;
 		//Multiplier Max is the maximum alt deadzone multiplier value allowed.

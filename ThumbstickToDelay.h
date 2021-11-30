@@ -13,16 +13,16 @@ namespace sds
 	///	<exception cref="std::string">throws string on exception with error message. </exception>
 	class ThumbstickToDelay
 	{
+		const std::string BAD_DELAY_MSG = "Bad timer delay value, exception.";
 		inline static std::atomic<bool> m_isDeadzoneActivated;
 		float m_altDeadzoneMultiplier;
+		int m_axisSensitivity;
 		int m_xAxisDeadzone;
 		int m_yAxisDeadzone;
-		int m_axisSensitivity;
-		const std::string BAD_DELAY_MSG = "Bad timer delay value, exception.";
 		SensitivityMap m_sensMapper;
 		std::map<int, int> m_sharedSensitivityMap;
 		//Used to make some assertions about the settings values this class depends upon.
-		inline void AssertSettings()
+		static void AssertSettings()
 		{
 			//Assertions about the settings values used by this class.
 			if (XinSettings::MICROSECONDS_MIN_MAX >= XinSettings::MICROSECONDS_MAX)
@@ -38,15 +38,15 @@ namespace sds
 			if (XinSettings::SENSITIVITY_MAX > 100)
 				throw std::string("Exception in ThumbstickToDelay() ctor, SENSITIVITY_MAX > 100");
 		}
-		inline void InitFirstPiece(int sensitivity, int xAxisDz, int yAxisDz)
+		void InitFirstPiece(int sensitivity, int xAxisDz, int yAxisDz)
 		{
-			m_axisSensitivity = RangeBindValue(sensitivity, XinSettings::SENSITIVITY_MIN, XinSettings::SENSITIVITY_MAX);
-			m_altDeadzoneMultiplier = XinSettings::ALT_DEADZONE_MULT_DEFAULT;
+			this->m_axisSensitivity = RangeBindValue(sensitivity, XinSettings::SENSITIVITY_MIN, XinSettings::SENSITIVITY_MAX);
+			this->m_altDeadzoneMultiplier = XinSettings::ALT_DEADZONE_MULT_DEFAULT;
 			m_isDeadzoneActivated = false;
-			m_xAxisDeadzone = xAxisDz;
-			m_yAxisDeadzone = yAxisDz;
+			this->m_xAxisDeadzone = xAxisDz;
+			this->m_yAxisDeadzone = yAxisDz;
 		}
-		inline int RangeBindValue(const int user_sens, const int sens_min, const int sens_max) const
+		static int RangeBindValue(const int user_sens, const int sens_min, const int sens_max)
 		{
 			//bounds check result
 			if (user_sens > sens_max)
@@ -54,6 +54,17 @@ namespace sds
 			else if (user_sens < sens_min)
 				return sens_min;
 			return user_sens;
+		}
+		//The transformation function applied to consider the value of both axes in the calculation.
+		static int TransformSensitivityValue(int x, int y, bool isX)
+		{
+			constexpr auto ToDub = [](auto something) { return static_cast<double>(something); };
+			double txVal = XinSettings::SENSITIVITY_MIN;
+			if (isX)
+				txVal = ToDub(x) + (std::sqrt(y) * 2.0);
+			else
+				txVal = ToDub(y) + (std::sqrt(x) * 2.0);
+			return static_cast<int>(txVal);
 		}
 	public:
 		/// <summary>
@@ -65,26 +76,21 @@ namespace sds
 		/// <param name="sensitivity">int sensitivity value</param>
 		/// <param name="player">PlayerInfo struct full of deadzone information</param>
 		/// <param name="whichStick">MouseMap enum denoting which thumbstick</param>
-		ThumbstickToDelay(int sensitivity, const PlayerInfo &player, MouseMap whichStick)
+		ThumbstickToDelay(const int sensitivity, const PlayerInfo &player, MouseMap whichStick)
 		{
 			AssertSettings();
 			//error checking mousemap stick setting
 			if (whichStick == MouseMap::NEITHER_STICK)
 				whichStick = MouseMap::RIGHT_STICK;
-			InitFirstPiece(sensitivity, 
-				whichStick == MouseMap::LEFT_STICK ? player.left_x_dz : player.right_x_dz, 
-				whichStick == MouseMap::LEFT_STICK ? player.left_y_dz : player.right_y_dz);
-
 			//error checking axisDeadzone arg range, because it might crash the program if the
 			//delay returned is some silly value
 			int cdx = whichStick == MouseMap::LEFT_STICK ? player.left_x_dz : player.right_x_dz;
 			int cdy = whichStick == MouseMap::LEFT_STICK ? player.left_y_dz : player.right_y_dz;
-
 			if (!XinSettings::IsValidDeadzoneValue(cdx))
-				m_xAxisDeadzone = XinSettings::DEADZONE_DEFAULT;
+				cdx = XinSettings::DEADZONE_DEFAULT;
 			if (!XinSettings::IsValidDeadzoneValue(cdy))
-				m_yAxisDeadzone = XinSettings::DEADZONE_DEFAULT;
-
+				cdy = XinSettings::DEADZONE_DEFAULT;
+			InitFirstPiece(sensitivity, cdx, cdy);
 			m_sharedSensitivityMap = m_sensMapper.BuildSensitivityMap(m_axisSensitivity,
 				XinSettings::SENSITIVITY_MIN,
 				XinSettings::SENSITIVITY_MAX,
@@ -102,7 +108,7 @@ namespace sds
 		/// <param name="xAxisDz">x axis deadzone value</param>
 		/// <param name="yAxisDz">y axis deadzone value</param>
 		/// <returns></returns>
-		ThumbstickToDelay(int sensitivity, int xAxisDz, int yAxisDz)
+		ThumbstickToDelay(const int sensitivity, int xAxisDz, int yAxisDz)
 		{
 			AssertSettings();
 			InitFirstPiece(sensitivity, xAxisDz, yAxisDz);
@@ -112,7 +118,6 @@ namespace sds
 				m_xAxisDeadzone = XinSettings::DEADZONE_DEFAULT;
 			if (!XinSettings::IsValidDeadzoneValue(yAxisDz))
 				m_yAxisDeadzone = XinSettings::DEADZONE_DEFAULT;
-
 			m_sharedSensitivityMap = m_sensMapper.BuildSensitivityMap(m_axisSensitivity,
 				XinSettings::SENSITIVITY_MIN,
 				XinSettings::SENSITIVITY_MAX,
@@ -131,7 +136,7 @@ namespace sds
 		/// returns a copy of the internal sensitivity map
 		/// </summary>
 		/// <returns>std map of int, int</returns>
-		std::map<int, int> GetCopyOfSensitivityMap() const
+		[[nodiscard]] std::map<int, int> GetCopyOfSensitivityMap() const
 		{
 			return m_sharedSensitivityMap;
 		}
@@ -252,11 +257,8 @@ namespace sds
 		/// <returns>positive value between (inclusive) SENSITIVITY_MIN and SENSITIVITY_MAX, or SENSITIVITY_MIN for thumbstick less than deadzone</returns>
 		int GetRangedThumbstickValue(int thumbstick, int axisDeadzone) const
 		{
-			if (thumbstick > XinSettings::SMax)
-				thumbstick = XinSettings::SMax;
-			else if (thumbstick < XinSettings::SMin)
-				thumbstick = XinSettings::SMin;
-			else if (thumbstick == 0)
+			thumbstick = RangeBindValue(thumbstick, XinSettings::SMin, XinSettings::SMax);
+			if (thumbstick == 0)
 				return XinSettings::SENSITIVITY_MIN;
 			//error checking deadzone arg range
 			if (!XinSettings::IsValidDeadzoneValue(axisDeadzone))
@@ -264,24 +266,9 @@ namespace sds
 			const int absThumb = std::abs(thumbstick);
 			if (absThumb < axisDeadzone)
 				return XinSettings::SENSITIVITY_MIN;
-			unsigned int percentage = (absThumb - axisDeadzone) / ((XinSettings::SMax - axisDeadzone) / XinSettings::SENSITIVITY_MAX);
-			if (percentage < XinSettings::SENSITIVITY_MIN)
-				percentage = XinSettings::SENSITIVITY_MIN;
-			else if (percentage > XinSettings::SENSITIVITY_MAX)
-				percentage = XinSettings::SENSITIVITY_MAX;
+			int percentage = (absThumb - axisDeadzone) / ((XinSettings::SMax - axisDeadzone) / XinSettings::SENSITIVITY_MAX);
+			percentage = RangeBindValue(percentage, XinSettings::SENSITIVITY_MIN, XinSettings::SENSITIVITY_MAX);
 			return static_cast<int>(percentage);
-		}
-	private:
-		//The transformation function applied to consider the value of both axes in the calculation.
-		int TransformSensitivityValue(int x, int y, bool isX) const
-		{
-			constexpr auto ToDub = [](auto something) { return static_cast<double>(something); };
-			double txVal = XinSettings::SENSITIVITY_MIN;
-			if (isX)
-				txVal = ToDub(x) + (std::sqrt(y) * 2.0);
-			else
-				txVal = ToDub(y) + (std::sqrt(x) * 2.0);
-			return static_cast<int>(txVal);
 		}
 	};
 }
