@@ -61,7 +61,7 @@ namespace sds
 				});
 
 			//Finally, send the input
-			SendInput(inputVec.size(), inputVec.data(), sizeof(INPUT));
+			SendInput(static_cast<UINT>(inputVec.size()), inputVec.data(), sizeof(INPUT));
 		}
 		/// <summary>
 		/// Sends input, if a VK Virtual Keycode of 0 is used, it is assumed to

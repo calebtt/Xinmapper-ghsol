@@ -22,7 +22,6 @@ namespace sds
 			std::string info; //LEFT
 			std::string sim_type; //NORM
 			std::string value; //'a'
-
 			sds::MultiBool fsm;
 			bool down;
 			WordData() : down(false) {}

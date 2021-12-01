@@ -9,7 +9,7 @@
 int _tmain(int argc, _TCHAR* argv[])
 {
 	using namespace sds;
-	auto errInfo = [](const std::string e, int retVal)
+	auto errInfo = [](const std::string e, const int retVal)
 	{
 		std::cerr << e << std::endl;
 		return retVal;
