@@ -41,7 +41,6 @@ namespace sds
 			}
 			this->isThreadRunning = false;
 		}
-
 	public:
 		/// <summary>
 		/// Constructor, requires ref to objects: Mapper, XInputTranslater, XInputBoostMouse
@@ -50,10 +49,7 @@ namespace sds
 		/// <param name="transl"></param>
 		/// <param name="mouse"></param>
 		InputPoller(Mapper &mapper, XInputTranslater &transl, XInputBoostMouse &mouse)
-			: CPPThreadRunner(), m_mapper(mapper), m_translater(transl), m_mouse(mouse)
-		{
-		}
-
+			: CPPThreadRunner(), m_mapper(mapper), m_translater(transl), m_mouse(mouse)	{ }
 		/// <summary>
 		/// Alt constructor, requires ref to objects: Mapper, XInputTranslater, XInputBoostMouse
 		///	and a PlayerInfo object.
@@ -63,17 +59,12 @@ namespace sds
 		/// <param name="mouse"></param>
 		/// <param name="p">custom playerinfo object</param>
 		InputPoller(Mapper &mapper, XInputTranslater &transl, XInputBoostMouse &mouse, const PlayerInfo &p)
-			: CPPThreadRunner(), m_mapper(mapper), m_translater(transl), m_mouse(mouse)
-		{
-			m_localPlayer = p;
-		}
-
-		/// <summary>
-		/// Explicitly deleted C++11 default constructor, intent is known there is no default constructor used here.
-		/// </summary>
+			: CPPThreadRunner(), m_mapper(mapper), m_translater(transl), m_mouse(mouse), m_localPlayer(p) { }
 		InputPoller() = delete;
-
-		
+		InputPoller(const InputPoller& other) = delete;
+		InputPoller(InputPoller&& other) = delete;
+		InputPoller& operator=(const InputPoller& other) = delete;
+		InputPoller& operator=(InputPoller&& other) = delete;
 		/// <summary>
 		/// Destructor override, ensures the running thread function is stopped
 		/// inside of this class and not the base.
@@ -82,7 +73,6 @@ namespace sds
 		{
 			this->stopThread();
 		}
-
 		/// <summary>
 		/// Start polling for input (and processing via Mapper, XInputBoostMouse, XInputTranslater)
 		/// </summary>
@@ -92,7 +82,6 @@ namespace sds
 			this->startThread();
 			return this->isThreadRunning;
 		}
-
 		/// <summary>
 		/// Stop input polling.
 		/// </summary>
@@ -102,7 +91,6 @@ namespace sds
 			this->stopThread();
 			return this->isThreadRunning;
 		}
-
 		/// <summary>
 		/// Gets the running status of the worker thread
 		/// </summary>
