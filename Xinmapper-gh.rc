@@ -68,7 +68,7 @@ BEGIN
         BLOCK "040904b0"
         BEGIN
             VALUE "CompanyName", "Caleb Taylor or calebtt on Github"
-            VALUE "FileDescription", "Enables mapping of xbox 360 controller to mouse movements and keyboard keystrokes."
+            VALUE "FileDescription", "Xinmapper - Xinput lib mapping to key and mouse"
             VALUE "FileVersion", "0.4.0.0"
             VALUE "InternalName", "Xinmapper.exe"
             VALUE "LegalCopyright", "Copyright (C) 2021"

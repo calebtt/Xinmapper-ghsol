@@ -1,8 +1,6 @@
 // Xinmapper_2022.cpp : Defines the entry point for the console application.
 //Caleb Taylor
 //Keep in mind need to run the .exe in administrator mode to work with programs running in admin mode.
-
-
 #include "stdafx.h"
 #include "GamepadUser.h"
 

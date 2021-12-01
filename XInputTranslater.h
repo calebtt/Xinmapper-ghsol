@@ -19,24 +19,15 @@ namespace sds
 	class XInputTranslater
 	{
 		//Utility class with functions that test button/thumbstick/trigger for depressed or "down" status
-		ButtonStateDown *m_bsd;
+		ButtonStateDown m_bsd;
 	public:
-		XInputTranslater()
-		{
-			m_bsd = new ButtonStateDown();
-		}
-		XInputTranslater(const sds::PlayerInfo &player)
-		{
-			m_bsd = new ButtonStateDown(player);
-		}
+		XInputTranslater() = default;
+		XInputTranslater(const sds::PlayerInfo &player) : m_bsd(player)	{ }
 		XInputTranslater(const XInputTranslater& other) = delete;
 		XInputTranslater(XInputTranslater&& other) = delete;
 		XInputTranslater& operator=(const XInputTranslater& other) = delete;
 		XInputTranslater& operator=(XInputTranslater&& other) = delete;
-		~XInputTranslater()
-		{
-			delete m_bsd;
-		}
+		~XInputTranslater() = default;
 		/// <summary>
 		/// Produces an ActionDetails string from an XINPUT_STATE struct representing the current state
 		/// of the controller, as in what buttons are depressed, what values the thumbsticks are at.
@@ -48,59 +39,57 @@ namespace sds
 		[[nodiscard]] ActionDetails ProcessState(const XINPUT_STATE &state) const
 		{
 			ActionDetails details;
-
 			//Buttons
 			for(auto it = sds::sdsActionDescriptors.xin_buttons.cbegin(); it != sds::sdsActionDescriptors.xin_buttons.cend(); ++it)
 			{
-				if( m_bsd->ButtonDown(state,it->first ) ) 
+				if( m_bsd.ButtonDown(state,it->first ) ) 
 				{
 					details += it->first + sds::sdsActionDescriptors.delimiter;
 				}
 			}
 			//Triggers
-			if( m_bsd->TriggerDown(state,sds::sdsActionDescriptors.lTrigger) )
+			if( m_bsd.TriggerDown(state,sds::sdsActionDescriptors.lTrigger) )
 			{
 				details += sds::sdsActionDescriptors.lTrigger + sds::sdsActionDescriptors.delimiter;
 			}
-			if( m_bsd->TriggerDown(state,sds::sdsActionDescriptors.rTrigger) )
+			if( m_bsd.TriggerDown(state,sds::sdsActionDescriptors.rTrigger) )
 			{
 				details += sds::sdsActionDescriptors.rTrigger + sds::sdsActionDescriptors.delimiter;
 			}
 			//Thumbsticks
 			std::string thumb = sds::sdsActionDescriptors.lThumb + sds::sdsActionDescriptors.moreInfo;
 			//lThumb
-			if( m_bsd->ThumbstickDown(state,thumb + sds::sdsActionDescriptors.up) )
+			if( m_bsd.ThumbstickDown(state,thumb + sds::sdsActionDescriptors.up) )
 			{
 				details += thumb + sds::sdsActionDescriptors.up + sds::sdsActionDescriptors.delimiter;
 			}
-			if( m_bsd->ThumbstickDown(state,thumb + sds::sdsActionDescriptors.down) )
+			if( m_bsd.ThumbstickDown(state,thumb + sds::sdsActionDescriptors.down) )
 			{
 				details += thumb + sds::sdsActionDescriptors.down + sds::sdsActionDescriptors.delimiter;
 			}
-			if( m_bsd->ThumbstickDown(state, thumb + sds::sdsActionDescriptors.left) )
+			if( m_bsd.ThumbstickDown(state, thumb + sds::sdsActionDescriptors.left) )
 			{
 				details += thumb + sds::sdsActionDescriptors.left + sds::sdsActionDescriptors.delimiter;
 			}
-			if( m_bsd->ThumbstickDown(state, thumb + sds::sdsActionDescriptors.right) )
+			if( m_bsd.ThumbstickDown(state, thumb + sds::sdsActionDescriptors.right) )
 			{
 				details += thumb + sds::sdsActionDescriptors.right + sds::sdsActionDescriptors.delimiter;
 			}
-
 			//rThumb
 			thumb = sds::sdsActionDescriptors.rThumb + sds::sdsActionDescriptors.moreInfo;
-			if( m_bsd->ThumbstickDown(state,thumb + sds::sdsActionDescriptors.up) )
+			if( m_bsd.ThumbstickDown(state,thumb + sds::sdsActionDescriptors.up) )
 			{
 				details += thumb + sds::sdsActionDescriptors.up + sds::sdsActionDescriptors.delimiter;
 			}
-			if( m_bsd->ThumbstickDown(state,thumb + sds::sdsActionDescriptors.down) )
+			if( m_bsd.ThumbstickDown(state,thumb + sds::sdsActionDescriptors.down) )
 			{
 				details += thumb + sds::sdsActionDescriptors.down + sds::sdsActionDescriptors.delimiter;
 			}
-			if( m_bsd->ThumbstickDown(state, thumb + sds::sdsActionDescriptors.left) )
+			if( m_bsd.ThumbstickDown(state, thumb + sds::sdsActionDescriptors.left) )
 			{
 				details += thumb + sds::sdsActionDescriptors.left + sds::sdsActionDescriptors.delimiter;
 			}
-			if( m_bsd->ThumbstickDown(state, thumb + sds::sdsActionDescriptors.right) )
+			if( m_bsd.ThumbstickDown(state, thumb + sds::sdsActionDescriptors.right) )
 			{
 				details += thumb + sds::sdsActionDescriptors.right + sds::sdsActionDescriptors.delimiter;
 			}
