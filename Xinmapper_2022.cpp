@@ -19,7 +19,6 @@ int _tmain(int argc, _TCHAR* argv[])
 	mapInfo = "LTHUMB:LEFT:NORM:a LTHUMB:RIGHT:NORM:d LTHUMB:UP:NORM:w LTHUMB:DOWN:NORM:s X:NONE:NORM:r A:NONE:NORM:VK32 Y:NONE:NORM:VK164 B:NONE:NORM:VK160";
 	mapInfo += " LSHOULDER:NONE:NORM:v RSHOULDER:NONE:NORM:Q LTHUMB:NONE:NORM:c RTHUMB:NONE:NORM:e START:NONE:NORM:VK27 BACK:NONE:NORM:VK8 LTRIGGER:NONE:NORM:VK2";
 	mapInfo += " RTRIGGER:NONE:NORM:VK1 DPAD:LEFT:NORM:c DPAD:DOWN:NORM:x DPAD:UP:NORM:f DPAD:RIGHT:NORM:VK1";
-	
 	std::string err = gamepadUser.mapper.SetMapInfo(mapInfo);
 	//If the string returned has a size, it is an error message.
 	if (!err.empty())
@@ -32,7 +31,6 @@ int _tmain(int argc, _TCHAR* argv[])
 	{
 		return errInfo("Error in setting the mouse sensitivity. Exiting.\n" + err, 2);
 	}
-
 	gamepadUser.mouse.EnableProcessing(MouseMap::RIGHT_STICK);
 	std::cout << "Xbox 360 controller polling started..." << std::endl;
 	std::cout << "Controller reported as: " << (gamepadUser.poller.IsControllerConnected() ? "Connected." : "Disconnected.") << std::endl;
@@ -48,8 +46,7 @@ int _tmain(int argc, _TCHAR* argv[])
 			std::cout << "Controller reported as: " << "Disconnected." << std::endl;
 			gamepadUser.poller.Stop();
 		}
-		
-		std::this_thread::yield();
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	}
 	return 0;
 }

@@ -26,23 +26,17 @@ namespace sds
 		/// </summary>
 		void workThread() override
 		{
-			//creating a local scope for a scoped lock to protect access to the local_state
-			{
-				lock l(this->stateMutex);
-				memset(&local_state, 0, sizeof(local_state));
-			}
+			//because there is only one thread modifying the local_state struct, we won't use the mutex.
+			local_state = {};
 			while( ! this->isStopRequested )
 			{	
+				const DWORD error = XInputGetState(m_localPlayer.player_id, &local_state);
+				if (error != ERROR_SUCCESS)
 				{
-					lock l2(this->stateMutex);
-					const DWORD error = XInputGetState(m_localPlayer.player_id, &local_state);
-					if (error != ERROR_SUCCESS)
-					{
-						continue;
-					}
+					continue;
 				}
-				m_mouse.ProcessState(this->getCurrentState());
-				m_mapper.ProcessActionDetails(m_translater.ProcessState(this->getCurrentState()));
+				m_mouse.ProcessState(local_state);
+				m_mapper.ProcessActionDetails(m_translater.ProcessState(local_state));
 				std::this_thread::sleep_for(std::chrono::milliseconds(XinSettings::THREAD_DELAY_POLLER));
 			}
 			this->isThreadRunning = false;
