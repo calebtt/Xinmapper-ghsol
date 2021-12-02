@@ -72,17 +72,11 @@ namespace sds
 		/// <param name="down"> is a boolean denoting if the keypress event is KEYDOWN or KEYUP</param>
 		void Send(const int vk, const bool down)
 		{
-			if (down)
+			const WORD scanCode = GetScanCode(vk);
+			//std::cerr << scanCode << std::endl;
+			if (scanCode == 0)
 			{
-				m_keyInput.ki.dwFlags = 0;
-			}
-			else
-			{
-				m_keyInput.ki.dwFlags = KEYEVENTF_KEYUP;
-			}
-			if (vk == 0)
-			{
-				//Assume mouse.
+				//do scancode version
 				switch (vk)
 				{
 				case VK_LBUTTON:
@@ -103,15 +97,28 @@ namespace sds
 					else
 						m_mouseClickInput.mi.dwFlags = MOUSEEVENTF_MIDDLEUP;
 					break;
+				case VK_XBUTTON1:
+				case VK_XBUTTON2:
+					if (down)
+						m_mouseClickInput.mi.dwFlags = MOUSEEVENTF_XDOWN;
+					else
+						m_mouseClickInput.mi.dwFlags = MOUSEEVENTF_XUP;
 				default:
 					break;
 				}
+				m_mouseClickInput.mi.dwExtraInfo = GetMessageExtraInfo();
+				SendInput(1, &m_mouseClickInput, sizeof(INPUT));
+				return;
 			}
-			m_keyInput.ki.wVk = static_cast<WORD>(vk);
-			m_mouseClickInput.mi.dwExtraInfo = GetMessageExtraInfo();
-			m_keyInput.ki.dwExtraInfo = GetMessageExtraInfo();
-			UINT ret = SendInput(1, (vk != 0 ? &m_keyInput : &m_mouseClickInput), sizeof(INPUT));
-			//assert(ret != 0);
+			//Else do keyboard version
+			else
+			{
+				m_keyInput.ki.dwFlags = (down ? 0 : KEYEVENTF_KEYUP);
+				m_keyInput.ki.wVk = static_cast<WORD>(vk);
+				m_keyInput.ki.dwExtraInfo = GetMessageExtraInfo();
+				SendInput(1, &m_keyInput, sizeof(INPUT));
+				return;
+			}
 		}
 		/// <summary>
 		/// Sends a whole string of characters at a time, keydown or keyup.
