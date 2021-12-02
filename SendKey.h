@@ -121,14 +121,22 @@ namespace sds
 			}
 		}
 		/// <summary>
-		/// Sends a whole string of characters at a time, keydown or keyup.
+		/// Sends a whole string of printable keyboard characters at a time, keydown or keyup.
 		/// </summary>
 		/// <param name="str"> a string of input to be sent</param>
 		/// <param name="down"> denotes a keyup or keydown event</param>
-		void Send(const std::string str, const bool down)
+		void Send(const std::string str, const bool down) const
 		{
-			for (auto it = str.cbegin(); it != str.cend(); ++it)
-				Send(*it, down);
+			INPUT i = {};
+			i.type = INPUT_KEYBOARD;
+
+			for (auto c = str.begin(); c != str.end(); ++c)
+			{
+				i.ki.dwFlags = (down ? 0 : KEYEVENTF_KEYUP);
+				i.ki.dwExtraInfo = GetMessageExtraInfo();
+				i.ki.wVk = VkKeyScanExA(*c, GetKeyboardLayout(0));
+				SendInput(1, &i, sizeof(INPUT));
+			}
 		}
 		/// <summary>
 		/// Utility function to map a Virtual Keycode to a scancode
