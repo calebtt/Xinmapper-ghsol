@@ -108,13 +108,18 @@ namespace sds
 			return "";
 		}
 	private:
-		constexpr bool ValidateTokenPieces(const WordData &data) const
+		bool ValidateTokenPieces(WordData &data) const
 		{
 			bool testArray[4] = { false,false,false,false };
-			testArray[0] = sdsActionDescriptors.IsFirstFieldKeyword(data.control);
-			testArray[1] = sdsActionDescriptors.IsSecondFieldKeyword(data.info);
-			testArray[2] = sdsActionDescriptors.IsThirdFieldKeyword(data.sim_type);
-			testArray[3] = sdsActionDescriptors.IsFourthFieldKeyword(data.value);
+			std::string one, two, three, four;
+			testArray[0] = sdsActionDescriptors.IsFirstFieldKeyword(data.control,one);
+			testArray[1] = sdsActionDescriptors.IsSecondFieldKeyword(data.info,two);
+			testArray[2] = sdsActionDescriptors.IsThirdFieldKeyword(data.sim_type,three);
+			testArray[3] = sdsActionDescriptors.IsFourthFieldKeyword(data.value,four);
+			data.control = one;
+			data.info = two;
+			data.sim_type = three;
+			data.value = four;
 			return (testArray[0] && testArray[1] && testArray[2] && testArray[3]);
 		}
 		/// <summary>

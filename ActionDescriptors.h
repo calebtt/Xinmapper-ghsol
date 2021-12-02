@@ -91,6 +91,20 @@ namespace sds
 		/// <summary>
 		/// This member function can be used to verify that a string is
 		/// a member const keyword included in this struct.
+		/// This version returns the case-fixed version via "fixedOut" reference.
+		/// </summary>
+		/// <param name="s">the string to test</param>
+		/// <param name="fixedOut">reference set to the case-fixed copy of the string</param>
+		/// <returns></returns>
+		constexpr bool IsFirstFieldKeyword(std::string s, std::string &fixedOut) const
+		{
+			std::for_each(s.begin(), s.end(), [](char &c) { c = static_cast<char>(std::toupper(c)); });
+			fixedOut = s;
+			return (std::find(FirstFieldValidKeywords.cbegin(), FirstFieldValidKeywords.cend(), s) != FirstFieldValidKeywords.cend());
+		}
+		/// <summary>
+		/// This member function can be used to verify that a string is
+		/// a member const keyword included in this struct.
 		/// </summary>
 		/// <param name="s">std::string s, the token you would test for acceptability in the second field.</param>
 		/// <returns>returns true if string s is in the valid second field keywords list</returns>
@@ -102,12 +116,40 @@ namespace sds
 		/// <summary>
 		/// This member function can be used to verify that a string is
 		/// a member const keyword included in this struct.
+		/// This version returns the case-fixed version via "fixedOut" reference.
+		/// </summary>
+		/// <param name="s">std::string s, the token you would test for acceptability in the second field.</param>
+		/// <param name="fixedOut">reference set to the case-fixed copy of the string</param>
+		/// <returns>returns true if string s is in the valid second field keywords list</returns>
+		constexpr bool IsSecondFieldKeyword(std::string s, std::string &fixedOut) const
+		{
+			std::for_each(s.begin(), s.end(), [](char &c) { c = static_cast<char>(std::toupper(c)); });
+			fixedOut = s;
+			return (std::find(SecondFieldValidKeywords.cbegin(), SecondFieldValidKeywords.cend(), s) != SecondFieldValidKeywords.cend());
+		}
+		/// <summary>
+		/// This member function can be used to verify that a string is
+		/// a member const keyword included in this struct.
 		/// </summary>
 		/// <param name="s">std::string s, the token you would test for acceptability in the third field.</param>
 		/// <returns>returns true if string s is in the valid third field keywords list</returns>
 		constexpr bool IsThirdFieldKeyword(std::string s) const
 		{
 			std::for_each(s.begin(), s.end(), [](char &c) { c = static_cast<char>(std::toupper(c)); });
+			return (std::find(ThirdFieldValidKeywords.cbegin(), ThirdFieldValidKeywords.cend(), s) != ThirdFieldValidKeywords.cend());
+		}
+		/// <summary>
+		/// This member function can be used to verify that a string is
+		/// a member const keyword included in this struct.
+		/// This version returns the case-fixed version via "fixedOut" reference.
+		/// </summary>
+		/// <param name="s">std::string s, the token you would test for acceptability in the third field.</param>
+		/// <param name="fixedOut">reference set to the case-fixed copy of the string</param>
+		/// <returns>returns true if string s is in the valid third field keywords list</returns>
+		constexpr bool IsThirdFieldKeyword(std::string s, std::string &fixedOut) const
+		{
+			std::for_each(s.begin(), s.end(), [](char &c) { c = static_cast<char>(std::toupper(c)); });
+			fixedOut = s;
 			return (std::find(ThirdFieldValidKeywords.cbegin(), ThirdFieldValidKeywords.cend(), s) != ThirdFieldValidKeywords.cend());
 		}
 		/// <summary>
@@ -147,6 +189,60 @@ namespace sds
 							return false;
 						else
 							return true;
+					}
+					catch (...)
+					{
+						return false;
+					}
+				}
+			}
+			return false;
+		}
+		/// <summary>
+		/// This member function can be used to verify that a string is
+		/// a member const keyword included in this struct.
+		/// For the fourth field, if it contains one character it returns true.
+		/// If it starts with VK and also contains an integer number after, it returns true.
+		/// This version returns the case-fixed version via "fixedOut" reference.
+		/// </summary>
+		/// <param name="s">std::string s, the token you would test for acceptability in the fourth field.</param>
+		/// <param name="fixedOut">reference set to the case-fixed copy of the string IF the string is of the "VK#" style,
+		/// otherwise the single character already in "s"</param>
+		/// <returns>returns true if valid field, false otherwise</returns>
+		constexpr bool IsFourthFieldKeyword(const std::string s, std::string &fixedOut) const
+		{
+			//single character case, good
+			if (s.size() == 1)
+			{
+				fixedOut = s;
+				return true;
+			}
+			//check for starting with "VK" but also has a decimal value after
+			if (s.size() > vk.size())
+			{
+				std::string theFirst = s.substr(0, vk.size());
+				std::ranges::for_each(theFirst.begin(), theFirst.end(), [](char &c)
+					{
+						if (!std::isupper(c))
+							c = static_cast<char>(std::toupper(c));
+					});
+				//if first two characters are "VK"
+				if (theFirst == vk)
+				{
+					//grab everything after "VK"
+					const std::string val = s.substr(vk.size());//everything after "VK"
+					//be sure to catch the "out of range exception" if some massive value is attempted
+					try
+					{
+						const int vki = std::stoi(val); // can throw an exception
+						// virtual keycodes fit in an unsigned character.
+						if (vki > std::numeric_limits<unsigned char>::max() || vki < std::numeric_limits<unsigned char>::min())
+							return false;
+						else
+						{
+							fixedOut = theFirst + val;
+							return true;
+						}
 					}
 					catch (...)
 					{

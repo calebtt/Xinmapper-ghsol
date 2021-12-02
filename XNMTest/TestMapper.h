@@ -64,7 +64,7 @@ namespace XNMTest
 			testMapFunctionFalse("lThumb:left:nORM:a dPAD:DoWN:nORM:x DPAd:uP:NoRM:vK3333"); // 3333 is far too large to be a virtual keycode
 			testMapFunctionFalse("lThumb:left:nORM:a dPAD:DoWN:nORM:x DPAd:uP:NoRM:vK33333333333333333333"); // 3333... might overflow an int
 			//test some good cases with lower case
-			testMapFunctionTrue("lthumb:left:NORM:a DPAD:DoWN:NORM:x DPAD:UP:NORM:vk33");
+			testMapFunctionTrue("lthumb:left:NORM:a DPAD:DoWN:NORM:x DPAD:UP:NORM:vk33 DPAD:LEFT:NORM:vk33");
 			
 
 			constexpr long long curType = static_cast<long long>(std::numeric_limits<int>::max()) + 1;

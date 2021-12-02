@@ -83,8 +83,8 @@ namespace XNMTest
 			testValues(SMin, 0, true, sds::XinSettings::MICROSECONDS_MIN);
 			testValues(0, SMax, false, sds::XinSettings::MICROSECONDS_MIN);
 			testValues(0, SMin, false, sds::XinSettings::MICROSECONDS_MIN);
-			//Test that thumbstick 0,0 values delay returned is XinSettings::MICROSECONDS_MAX +/- 300
-			testValues(0, 0, true, sds::XinSettings::MICROSECONDS_MAX,300);
+			//Test that thumbstick 0,0 values delay returned is XinSettings::MICROSECONDS_MAX +/- 500
+			testValues(0, 0, true, sds::XinSettings::MICROSECONDS_MAX,500);
 			//Compute values for 50% of the thumbstick range beyond the deadzone.
 			const int temp = SMax - ((SMax - localdz) / 2);
 			const int usTemp = sds::XinSettings::MICROSECONDS_MAX - ((sds::XinSettings::MICROSECONDS_MAX - sds::XinSettings::MICROSECONDS_MIN) / 2);

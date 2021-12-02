@@ -73,13 +73,14 @@ namespace sds
 		void Send(const int vk, const bool down)
 		{
 			if (down)
-				m_keyInput.ki.dwFlags = KEYEVENTF_SCANCODE;
+			{
+				m_keyInput.ki.dwFlags = 0;
+			}
 			else
-				m_keyInput.ki.dwFlags = KEYEVENTF_SCANCODE | KEYEVENTF_KEYUP;
-
-			const WORD scanCode = GetScanCode(vk);
-			m_keyInput.ki.wScan = scanCode;
-			if (scanCode == 0)
+			{
+				m_keyInput.ki.dwFlags = KEYEVENTF_KEYUP;
+			}
+			if (vk == 0)
 			{
 				//Assume mouse.
 				switch (vk)
@@ -106,10 +107,10 @@ namespace sds
 					break;
 				}
 			}
-
+			m_keyInput.ki.wVk = static_cast<WORD>(vk);
 			m_mouseClickInput.mi.dwExtraInfo = GetMessageExtraInfo();
 			m_keyInput.ki.dwExtraInfo = GetMessageExtraInfo();
-			UINT ret = SendInput(1, (scanCode != 0 ? &m_keyInput : &m_mouseClickInput), sizeof(INPUT));
+			UINT ret = SendInput(1, (vk != 0 ? &m_keyInput : &m_mouseClickInput), sizeof(INPUT));
 			//assert(ret != 0);
 		}
 		/// <summary>
