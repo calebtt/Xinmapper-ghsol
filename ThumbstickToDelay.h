@@ -38,15 +38,20 @@ namespace sds
 			if (XinSettings::SENSITIVITY_MAX > 100)
 				throw std::string("Exception in ThumbstickToDelay() ctor, SENSITIVITY_MAX > 100");
 		}
-		void InitFirstPiece(int sensitivity, int xAxisDz, int yAxisDz)
+		void InitFirstPiece(int sensitivity, int xAxisDz, int yAxisDz, int &outSens, float &outDzMult, int &outDzX, int &outDzY) const
 		{
-			this->m_axisSensitivity = RangeBindValue(sensitivity, XinSettings::SENSITIVITY_MIN, XinSettings::SENSITIVITY_MAX);
-			this->m_altDeadzoneMultiplier = XinSettings::ALT_DEADZONE_MULT_DEFAULT;
-			m_isDeadzoneActivated = false;
-			this->m_xAxisDeadzone = xAxisDz;
-			this->m_yAxisDeadzone = yAxisDz;
+			outSens = RangeBindValue(sensitivity, XinSettings::SENSITIVITY_MIN, XinSettings::SENSITIVITY_MAX);
+			outDzMult = XinSettings::ALT_DEADZONE_MULT_DEFAULT;
+			outDzX = xAxisDz;
+			outDzY = yAxisDz;
+			//outDzActivated = false;
+			//this->m_axisSensitivity = RangeBindValue(sensitivity, XinSettings::SENSITIVITY_MIN, XinSettings::SENSITIVITY_MAX);
+			//this->m_altDeadzoneMultiplier = XinSettings::ALT_DEADZONE_MULT_DEFAULT;
+			//m_isDeadzoneActivated = false;
+			//this->m_xAxisDeadzone = xAxisDz;
+			//this->m_yAxisDeadzone = yAxisDz;
 		}
-		static int RangeBindValue(const int user_sens, const int sens_min, const int sens_max)
+		int RangeBindValue(const int user_sens, const int sens_min, const int sens_max) const
 		{
 			//bounds check result
 			if (user_sens > sens_max)
@@ -56,14 +61,14 @@ namespace sds
 			return user_sens;
 		}
 		//The transformation function applied to consider the value of both axes in the calculation.
-		static int TransformSensitivityValue(int x, int y, bool isX)
+		int TransformSensitivityValue(const int x, const int y, const bool isX) const
 		{
 			constexpr auto ToDub = [](auto something) { return static_cast<double>(something); };
 			double txVal = XinSettings::SENSITIVITY_MIN;
-			if (isX)
-				txVal = ToDub(x) + (std::sqrt(y) * 2.0);
-			else
-				txVal = ToDub(y) + (std::sqrt(x) * 2.0);
+			if (isX && (y!=0))
+				txVal = ToDub(x) + (std::sqrt(y) * 4.0);
+			else if(x !=0)
+				txVal = ToDub(y) + (std::sqrt(x) * 4.0);
 			return static_cast<int>(txVal);
 		}
 	public:
@@ -90,7 +95,8 @@ namespace sds
 				cdx = XinSettings::DEADZONE_DEFAULT;
 			if (!XinSettings::IsValidDeadzoneValue(cdy))
 				cdy = XinSettings::DEADZONE_DEFAULT;
-			InitFirstPiece(sensitivity, cdx, cdy);
+			InitFirstPiece(sensitivity, cdx, cdy, m_axisSensitivity, m_altDeadzoneMultiplier, m_xAxisDeadzone, m_yAxisDeadzone);
+			m_isDeadzoneActivated = false;
 			m_sharedSensitivityMap = m_sensMapper.BuildSensitivityMap(m_axisSensitivity,
 				XinSettings::SENSITIVITY_MIN,
 				XinSettings::SENSITIVITY_MAX,
@@ -111,7 +117,8 @@ namespace sds
 		ThumbstickToDelay(const int sensitivity, int xAxisDz, int yAxisDz)
 		{
 			AssertSettings();
-			InitFirstPiece(sensitivity, xAxisDz, yAxisDz);
+			InitFirstPiece(sensitivity, xAxisDz, yAxisDz, m_axisSensitivity, m_altDeadzoneMultiplier, m_xAxisDeadzone, m_yAxisDeadzone);
+			m_isDeadzoneActivated = false;
 			//error checking axis dz arg range, because it might crash the program if the
 			//delay returned is some silly value
 			if (!XinSettings::IsValidDeadzoneValue(xAxisDz))
@@ -131,7 +138,6 @@ namespace sds
 		ThumbstickToDelay& operator=(const ThumbstickToDelay& other) = delete;
 		ThumbstickToDelay& operator=(ThumbstickToDelay&& other) = delete;
 		~ThumbstickToDelay() = default;
-
 		/// <summary>
 		/// returns a copy of the internal sensitivity map
 		/// </summary>
@@ -140,7 +146,6 @@ namespace sds
 		{
 			return m_sharedSensitivityMap;
 		}
-
 		/// <summary>
 		/// Determines if the X or Y values are greater than the deadzone values and would
 		/// thus require movement from the mouse.
@@ -173,7 +178,6 @@ namespace sds
 				return true;
 			}
 		}
-
 		/// <summary>
 		/// Alternate main function for use, only considers one axis and one deadzone value.
 		/// throws std::string if bad value internally because this is a function
@@ -202,7 +206,6 @@ namespace sds
 				return rval;
 			return XinSettings::MICROSECONDS_MAX;
 		}
-
 		/// <summary>
 		/// Main function for use, uses information from the other axis
 		/// to generate the delay for the current axis.
@@ -228,6 +231,7 @@ namespace sds
 			y = GetRangedThumbstickValue(y, ydz);
 			//TODO fix sensitivity bug where the diagonal moves aren't as granular with regard to side to side movements as
 			//straight left/right or up/down movements are.
+			//TODO fix diagonal movement bug where diagonal doesn't move as fast as along one axis.
 
 			int txVal = 0;
 			txVal = TransformSensitivityValue(x, y, isX);
@@ -246,7 +250,6 @@ namespace sds
 				return txVal;
 			return XinSettings::MICROSECONDS_MAX;
 		}
-
 		/// <summary>
 		/// For the case where sensitivity range is 1 to 100
 		/// this function will convert the thumbstick value to

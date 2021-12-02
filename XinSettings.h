@@ -52,6 +52,9 @@ namespace sds
 		//Alt Deadzone Default is the multiplier to use when a deadzone is already activated,
 		//the deadzone value for the other axis is lessened via this value.
 		constexpr static const float ALT_DEADZONE_MULT_DEFAULT = 0.5f;
+		//Platform Microseconds Min is the minimum microsecond value (inclusive) that the platform is able to sleep for with
+		//the typical delay functions like "Sleep()" on Windows, as the C++ lib is also bound by platform capabilities.
+		constexpr static const size_t PLATFORM_MICROSECONDS_MIN = 1000;
 
 		//Static assertions about the const members
 		static_assert(SENSITIVITY_MAX < MICROSECONDS_MAX);
