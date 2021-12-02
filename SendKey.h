@@ -41,7 +41,7 @@ namespace sds
 			m_mouseMoveInput.mi.dwExtraInfo = GetMessageExtraInfo();
 
 			//Finally, send the input
-			SendInput(1, &m_mouseMoveInput, sizeof(INPUT));
+			CallSendInput(&m_mouseMoveInput,1);
 		}
 		/// <summary>
 		/// Sends mouse movement specified by vector of tuple(int,int) X and Y number of pixels to move.
@@ -61,7 +61,7 @@ namespace sds
 				});
 
 			//Finally, send the input
-			SendInput(static_cast<UINT>(inputVec.size()), inputVec.data(), sizeof(INPUT));
+			CallSendInput(inputVec.data(), inputVec.size());
 		}
 		/// <summary>
 		/// Sends input, if a VK Virtual Keycode of 0 is used, it is assumed to
@@ -107,7 +107,7 @@ namespace sds
 					break;
 				}
 				m_mouseClickInput.mi.dwExtraInfo = GetMessageExtraInfo();
-				SendInput(1, &m_mouseClickInput, sizeof(INPUT));
+				CallSendInput(&m_mouseClickInput, 1);
 				return;
 			}
 			//Else do keyboard version
@@ -116,7 +116,7 @@ namespace sds
 				m_keyInput.ki.dwFlags = (down ? 0 : KEYEVENTF_KEYUP);
 				m_keyInput.ki.wVk = static_cast<WORD>(vk);
 				m_keyInput.ki.dwExtraInfo = GetMessageExtraInfo();
-				SendInput(1, &m_keyInput, sizeof(INPUT));
+				CallSendInput(&m_keyInput, 1);
 				return;
 			}
 		}
@@ -135,7 +135,7 @@ namespace sds
 				i.ki.dwFlags = (down ? 0 : KEYEVENTF_KEYUP);
 				i.ki.dwExtraInfo = GetMessageExtraInfo();
 				i.ki.wVk = VkKeyScanExA(*c, GetKeyboardLayout(0));
-				SendInput(1, &i, sizeof(INPUT));
+				CallSendInput(&i, 1);
 			}
 		}
 		/// <summary>
@@ -191,6 +191,16 @@ namespace sds
 				return 0;
 			}
 			return GetScanCode(vki);
+		}
+		/// <summary>
+		/// One member function calls SendInput with the eventual built INPUT struct.
+		///	This is useful for debugging or re-routing the output for logging/testing of a real-time system.
+		/// </summary>
+		/// <param name="inp">Pointer to first element of INPUT array.</param>
+		/// <param name="numSent">Number of elements in the array to send.</param>
+		void CallSendInput(INPUT *inp, size_t numSent) const
+		{
+			SendInput(static_cast<UINT>(numSent), inp, sizeof(INPUT));
 		}
 	};
 }
