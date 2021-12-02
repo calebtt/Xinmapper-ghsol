@@ -24,6 +24,7 @@ namespace sds
 			std::string value; //'a'
 			sds::MultiBool fsm;
 			bool down;
+			//TODO add a timer variable here, so we can know when to send repeat events.
 			WordData() : down(false) {}
 		};
 		SendKey m_keySend;
