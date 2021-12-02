@@ -88,7 +88,7 @@ namespace XNMTest
 			//Compute values for 50% of the thumbstick range beyond the deadzone.
 			const int temp = SMax - ((SMax - localdz) / 2);
 			const int usTemp = sds::XinSettings::MICROSECONDS_MAX - ((sds::XinSettings::MICROSECONDS_MAX - sds::XinSettings::MICROSECONDS_MIN) / 2);
-			testValues(temp, 0, true, usTemp,200);
+			testValues(temp, 0, true, usTemp,500);
 			Logger::WriteMessage(std::wstring(L"End " + TestName).c_str());
 		}
 	};
