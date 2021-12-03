@@ -14,7 +14,8 @@ namespace sds
 			do
 			{
 				std::this_thread::yield();
-			} while (std::chrono::high_resolution_clock::now() < end);
+			}
+			while (std::chrono::high_resolution_clock::now() < end);
 		}
 	}
 }
