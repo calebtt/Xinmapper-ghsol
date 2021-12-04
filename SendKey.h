@@ -19,6 +19,10 @@ namespace sds
 		/// </summary>
 		SendKey()
 		{
+			memset(&m_keyInput, 0, sizeof(INPUT));
+			memset(&m_mouseClickInput, 0, sizeof(INPUT));
+			memset(&m_mouseMoveInput, 0, sizeof(INPUT));
+
 			m_keyInput.type = INPUT_KEYBOARD;
 			m_mouseClickInput.type = INPUT_MOUSE;
 			m_mouseMoveInput.type = INPUT_MOUSE;
@@ -51,7 +55,8 @@ namespace sds
 			std::vector<INPUT> inputVec;
 			std::for_each(tup.cbegin(), tup.cend(), [&inputVec](const std::tuple<int, int> &t)
 				{
-					INPUT i = { }; // zeroed struct
+					INPUT i = { };
+					memset(&i, 0, sizeof(INPUT));
 					i.type = INPUT_MOUSE;
 					i.mi.dwFlags = MOUSEEVENTF_MOVE;
 					i.mi.dx = static_cast<LONG>(std::get<0>(t));
@@ -128,6 +133,7 @@ namespace sds
 		void Send(const std::string str, const bool down) const
 		{
 			INPUT i = {};
+			memset(&i, 0, sizeof(INPUT));
 			i.type = INPUT_KEYBOARD;
 
 			for (auto c = str.begin(); c != str.end(); ++c)
