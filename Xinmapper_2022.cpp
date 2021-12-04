@@ -16,7 +16,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	GamepadUser gamepadUser;
 	mapInfo = "LTHUMB:LEFT:NORM:a LTHUMB:RIGHT:NORM:d LTHUMB:UP:NORM:w LTHUMB:DOWN:NORM:s X:NONE:NORM:r A:NONE:NORM:VK32 Y:NONE:NORM:VK164 B:NONE:NORM:VK160";
 	mapInfo += " LSHOULDER:NONE:NORM:v RSHOULDER:NONE:NORM:Q LTHUMB:NONE:NORM:c RTHUMB:NONE:NORM:e START:NONE:NORM:VK27 BACK:NONE:NORM:VK8 LTRIGGER:NONE:NORM:VK2";
-	mapInfo += " RTRIGGER:NONE:NORM:VK1 DPAD:UP:NORM:VK33 DPAD:LEFT:NORM:VK37 DPAD:DOWN:NORM:VK32 DPAD:RIGHT:NORM:VK39";
+	mapInfo += " RTRIGGER:NONE:NORM:VK1 DPAD:UP:NORM:VK33 DPAD:LEFT:NORM:VK37 dpad:down:norm:vk32 DPAD:RIGHT:NORM:VK39";
 	//mapInfo += " RTRIGGER:NONE:NORM:VK1 DPAD:UP:NORM:VK38 DPAD:LEFT:NORM:VK37 DPAD:DOWN:NORM:VK40 DPAD:RIGHT:NORM:VK39";
 	std::string err = gamepadUser.mapper.SetMapInfo(mapInfo);
 	//If the string returned has a size, it is an error message.
@@ -25,7 +25,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		//Error in setting the map information.
 		return errInfo("Error in setting the map information. Exiting.\n" + err, 1);
 	}
-	err = gamepadUser.mouse.SetSensitivity(85);
+	err = gamepadUser.mouse.SetSensitivity(75);
 	if (!err.empty())
 	{
 		return errInfo("Error in setting the mouse sensitivity. Exiting.\n" + err, 2);

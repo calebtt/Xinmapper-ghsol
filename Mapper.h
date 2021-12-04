@@ -24,6 +24,7 @@ namespace sds
 			std::string value; //'a'
 			sds::MultiBool fsm;
 			bool down;
+			//TODO add a timer variable here, so we can know when to send repeat events.
 			WordData() : down(false) {}
 		};
 		SendKey m_keySend;
@@ -111,15 +112,10 @@ namespace sds
 		bool ValidateTokenPieces(WordData &data) const
 		{
 			bool testArray[4] = { false,false,false,false };
-			std::string one, two, three, four;
-			testArray[0] = sdsActionDescriptors.IsFirstFieldKeyword(data.control,one);
-			testArray[1] = sdsActionDescriptors.IsSecondFieldKeyword(data.info,two);
-			testArray[2] = sdsActionDescriptors.IsThirdFieldKeyword(data.sim_type,three);
-			testArray[3] = sdsActionDescriptors.IsFourthFieldKeyword(data.value,four);
-			data.control = one;
-			data.info = two;
-			data.sim_type = three;
-			data.value = four;
+			testArray[0] = sdsActionDescriptors.IsFirstFieldKeyword(data.control,data.control);
+			testArray[1] = sdsActionDescriptors.IsSecondFieldKeyword(data.info,data.info);
+			testArray[2] = sdsActionDescriptors.IsThirdFieldKeyword(data.sim_type,data.sim_type);
+			testArray[3] = sdsActionDescriptors.IsFourthFieldKeyword(data.value,data.value);
 			return (testArray[0] && testArray[1] && testArray[2] && testArray[3]);
 		}
 		/// <summary>

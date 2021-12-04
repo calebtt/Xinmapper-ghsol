@@ -44,12 +44,6 @@ namespace sds
 			outDzMult = XinSettings::ALT_DEADZONE_MULT_DEFAULT;
 			outDzX = xAxisDz;
 			outDzY = yAxisDz;
-			//outDzActivated = false;
-			//this->m_axisSensitivity = RangeBindValue(sensitivity, XinSettings::SENSITIVITY_MIN, XinSettings::SENSITIVITY_MAX);
-			//this->m_altDeadzoneMultiplier = XinSettings::ALT_DEADZONE_MULT_DEFAULT;
-			//m_isDeadzoneActivated = false;
-			//this->m_xAxisDeadzone = xAxisDz;
-			//this->m_yAxisDeadzone = yAxisDz;
 		}
 		int RangeBindValue(const int user_sens, const int sens_min, const int sens_max) const
 		{
@@ -231,12 +225,9 @@ namespace sds
 			y = GetRangedThumbstickValue(y, ydz);
 			//TODO fix sensitivity bug where the diagonal moves aren't as granular with regard to side to side movements as
 			//straight left/right or up/down movements are.
-			//TODO fix diagonal movement bug where diagonal doesn't move as fast as along one axis.
-
 			int txVal = 0;
 			txVal = TransformSensitivityValue(x, y, isX);
 			txVal = RangeBindValue(txVal, XinSettings::SENSITIVITY_MIN, XinSettings::SENSITIVITY_MAX);
-
 			//error checking to make sure the value is in the map
 			int rval = 0;
 			if (! sds::MapFunctions::IsInMap<int,int>(txVal, m_sharedSensitivityMap, rval) )
@@ -245,7 +236,6 @@ namespace sds
 				throw std::string("Exception in ThumbstickToDelay::GetDelayFromThumbstickValue(): " + BAD_DELAY_MSG);
 			}
 			txVal = rval;
-
 			if (txVal >= XinSettings::MICROSECONDS_MIN && txVal <= XinSettings::MICROSECONDS_MAX)
 				return txVal;
 			return XinSettings::MICROSECONDS_MAX;

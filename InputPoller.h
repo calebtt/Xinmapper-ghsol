@@ -27,7 +27,7 @@ namespace sds
 		void workThread() override
 		{
 			//because there is only one thread modifying the local_state struct, we won't use the mutex.
-			local_state = {};
+			memset(&local_state, 0, sizeof(XINPUT_STATE));
 			while( ! this->isStopRequested )
 			{	
 				const DWORD error = XInputGetState(m_localPlayer.player_id, &local_state);
@@ -49,7 +49,10 @@ namespace sds
 		/// <param name="transl"></param>
 		/// <param name="mouse"></param>
 		InputPoller(Mapper &mapper, XInputTranslater &transl, XInputBoostMouse &mouse)
-			: CPPThreadRunner(), m_mapper(mapper), m_translater(transl), m_mouse(mouse)	{ }
+			: CPPThreadRunner(), m_mapper(mapper), m_translater(transl), m_mouse(mouse)
+		{
+			memset(&local_state, 0, sizeof(XINPUT_STATE));
+		}
 		/// <summary>
 		/// Alt constructor, requires ref to objects: Mapper, XInputTranslater, XInputBoostMouse
 		///	and a PlayerInfo object.
@@ -59,7 +62,10 @@ namespace sds
 		/// <param name="mouse"></param>
 		/// <param name="p">custom playerinfo object</param>
 		InputPoller(Mapper &mapper, XInputTranslater &transl, XInputBoostMouse &mouse, const PlayerInfo &p)
-			: CPPThreadRunner(), m_mapper(mapper), m_translater(transl), m_mouse(mouse), m_localPlayer(p) { }
+			: CPPThreadRunner(), m_mapper(mapper), m_translater(transl), m_mouse(mouse), m_localPlayer(p)
+		{
+			memset(&local_state, 0, sizeof(XINPUT_STATE));
+		}
 		InputPoller() = delete;
 		InputPoller(const InputPoller& other) = delete;
 		InputPoller(InputPoller&& other) = delete;
@@ -106,6 +112,7 @@ namespace sds
 		bool IsControllerConnected() const
 		{
 			XINPUT_STATE ss = {};
+			memset(&ss, 0, sizeof(XINPUT_STATE));
 			return XInputGetState(m_localPlayer.player_id, &ss) == ERROR_SUCCESS;
 		}
 		/// <summary>
@@ -116,6 +123,7 @@ namespace sds
 		bool IsControllerConnected(const PlayerInfo &p) const
 		{
 			XINPUT_STATE ss = {};
+			memset(&ss, 0, sizeof(XINPUT_STATE));
 			return XInputGetState(p.player_id, &ss) == ERROR_SUCCESS;
 		}
 	};
