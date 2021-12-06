@@ -27,12 +27,6 @@
 #include <map>
 #include <utility>
 #include <limits>
-
-#include <cstdio>
-#include <cmath>
-#include <cctype>
-#include <cassert>
-
 #include <thread>
 #include <memory>
 #include <mutex>
@@ -42,6 +36,12 @@
 #include <format>
 #include <chrono>
 #include <variant>
+#include <array>
+
+#include <cstdio>
+#include <cmath>
+#include <cctype>
+#include <cassert>
 
 
 // Include some commonly used global stuff.

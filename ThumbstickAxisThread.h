@@ -4,8 +4,6 @@
 #include "SendKey.h"
 #include "ThumbstickToDelay.h"
 #include "DelayHighPrecision.h"
-#include <mutex>
-#include <chrono>
 
 namespace sds
 {

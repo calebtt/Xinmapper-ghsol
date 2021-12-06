@@ -18,14 +18,17 @@ namespace sds
 		/// </summary>
 		struct WordData
 		{
+			using ClockType = std::chrono::high_resolution_clock;
+			//using Milli = std::chrono::milliseconds;
 			std::string control; //LTHUMB
 			std::string info; //LEFT
 			std::string sim_type; //NORM
 			std::string value; //'a'
 			sds::MultiBool fsm;
 			bool down;
+			std::chrono::time_point<ClockType> lastSentTime;
 			//TODO add a timer variable here, so we can know when to send repeat events.
-			WordData() : down(false) {}
+			WordData() : down(false), lastSentTime(ClockType::now()) {}
 		};
 		SendKey m_keySend;
 		std::vector<WordData> m_mapTokenInfo;
@@ -37,6 +40,8 @@ namespace sds
 		/// <param name="details">An sds::ActionDetails containing actions to perform, translated from controller input.</param>
 		void ProcessActionDetails(const ActionDetails &details)
 		{
+			if (details.empty())
+				return;
 			std::vector<std::string> tokens;
 			//Get input tokens.
 			GetTokens(details,tokens);
@@ -111,7 +116,7 @@ namespace sds
 	private:
 		bool ValidateTokenPieces(WordData &data) const
 		{
-			bool testArray[4] = { false,false,false,false };
+			std::array<bool, 4> testArray = { false,false,false,false };
 			testArray[0] = sdsActionDescriptors.IsFirstFieldKeyword(data.control,data.control);
 			testArray[1] = sdsActionDescriptors.IsSecondFieldKeyword(data.info,data.info);
 			testArray[2] = sdsActionDescriptors.IsThirdFieldKeyword(data.sim_type,data.sim_type);
@@ -190,6 +195,7 @@ namespace sds
 			Normal keypress logic.
 			The bool down member is important.
 			*/
+			//TODO add the logic for key repeat events using the timepoint variable in the WordData struct.
 			std::string strVal;
 			if( detail.down )
 			{

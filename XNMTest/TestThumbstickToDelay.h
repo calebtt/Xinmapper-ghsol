@@ -62,7 +62,7 @@ namespace XNMTest
 			Logger::WriteMessage(std::wstring(L"Begin " + TestName).c_str());
 			const int localdz = DefaultDeadzone;
 			const int localSensMax = SensMax;
-			auto testValues = [&localSensMax, &localdz](const int thumbValueX, const int thumbValueY, const bool isX, const size_t comparison, const int within = 50)
+			auto testValues = [&localSensMax, &localdz](const int thumbValueX, const int thumbValueY, const bool isX, const size_t comparison, const int within = 100)
 			{
 				const sds::PlayerInfo pl;
 				const sds::MouseMap mp = sds::MouseMap::RIGHT_STICK;
@@ -78,17 +78,17 @@ namespace XNMTest
 				const bool resultWithin = IsWithin(dualResult, comparison, within);
 				Assert::IsTrue(resultWithin, msg.c_str());
 			};
-			//Test that thumbstick max value delay returned is XinSettings::MICROSECONDS_MIN +/- 50
+			//Test that thumbstick max value delay returned is XinSettings::MICROSECONDS_MIN +/- 100
 			testValues(SMax, 0, true, sds::XinSettings::MICROSECONDS_MIN);
 			testValues(SMin, 0, true, sds::XinSettings::MICROSECONDS_MIN);
 			testValues(0, SMax, false, sds::XinSettings::MICROSECONDS_MIN);
 			testValues(0, SMin, false, sds::XinSettings::MICROSECONDS_MIN);
 			//Test that thumbstick 0,0 values delay returned is XinSettings::MICROSECONDS_MAX +/- 500
-			testValues(0, 0, true, sds::XinSettings::MICROSECONDS_MAX,500);
+			testValues(0, 0, true, sds::XinSettings::MICROSECONDS_MAX,1000);
 			//Compute values for 50% of the thumbstick range beyond the deadzone.
 			const int temp = SMax - ((SMax - localdz) / 2);
-			const int usTemp = sds::XinSettings::MICROSECONDS_MAX - ((sds::XinSettings::MICROSECONDS_MAX - sds::XinSettings::MICROSECONDS_MIN) / 2);
-			testValues(temp, 0, true, usTemp,500);
+			constexpr int usTemp = sds::XinSettings::MICROSECONDS_MAX - ((sds::XinSettings::MICROSECONDS_MAX - sds::XinSettings::MICROSECONDS_MIN_MAX) / 2);
+			testValues(temp, 0, true, usTemp,1500);
 			Logger::WriteMessage(std::wstring(L"End " + TestName).c_str());
 		}
 	};

@@ -25,7 +25,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		//Error in setting the map information.
 		return errInfo("Error in setting the map information. Exiting.\n" + err, 1);
 	}
-	err = gamepadUser.mouse.SetSensitivity(75);
+	err = gamepadUser.mouse.SetSensitivity(100);
 	if (!err.empty())
 	{
 		return errInfo("Error in setting the mouse sensitivity. Exiting.\n" + err, 2);
@@ -45,6 +45,7 @@ int _tmain(int argc, _TCHAR* argv[])
 			std::cout << "Controller reported as: " << "Disconnected." << std::endl;
 			gamepadUser.poller.Stop();
 		}
+		std::this_thread::yield();
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	}
 	return 0;

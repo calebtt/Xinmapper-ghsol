@@ -31,7 +31,7 @@ namespace XNMTest
 				return result;
 			};
 			const std::map<int, int> result = GetResultMap(100);
-			bool testCond = IsWithin(result.crbegin()->second, sds::XinSettings::MICROSECONDS_MIN, 50);
+			bool testCond = IsWithin(result.crbegin()->second, sds::XinSettings::MICROSECONDS_MIN, 100);
 			Assert::IsTrue(testCond, L"TestBuildSensitivityMap() : 100");
 			testCond = IsWithin(result.cbegin()->second, sds::XinSettings::MICROSECONDS_MAX, 50);
 			Assert::IsTrue(testCond, L"TestBuildSensitivityMap() : 1");

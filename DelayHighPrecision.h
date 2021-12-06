@@ -7,13 +7,13 @@ namespace sds
 {
 	namespace DelayHighPrecision
 	{
-		static void SleepFor(const std::chrono::microseconds delayValueMicroseconds)
+		inline void SleepFor(const std::chrono::microseconds delayValueMicroseconds)
 		{
 			const auto start = std::chrono::high_resolution_clock::now();
 			const auto end = start + delayValueMicroseconds;
 			do
 			{
-				std::this_thread::yield();
+				//std::this_thread::yield();
 			}
 			while (std::chrono::high_resolution_clock::now() < end);
 		}

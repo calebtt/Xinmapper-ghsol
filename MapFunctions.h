@@ -13,7 +13,7 @@ namespace sds
 		///	<param name="retVal">will be set to the value the key points to, if found</param>
 		/// <returns>true if found, false otherwise</returns>
 		template<class T, class H, class E, class F>
-		static bool IsInMap(const T keyValue, const std::map<T, H> &curMap, H &retVal)
+		bool IsInMap(const T keyValue, const std::map<T, H> &curMap, H &retVal)
 		{
 			auto itx = std::find_if(curMap.begin(), curMap.end(), [&keyValue](const std::pair<std::string,std::tuple<E,E,F>> &elem)
 				{
@@ -31,7 +31,7 @@ namespace sds
 		///	<param name="curMap">map of T,H to check the key</param>
 		/// <returns>true if found, false otherwise</returns>
 		template<class T, class H>
-		static bool IsInMap(const T keyValue, const std::map<T, H> &curMap)
+		bool IsInMap(const T keyValue, const std::map<T, H> &curMap)
 		{
 			auto itx = std::find_if(curMap.begin(), curMap.end(), [&keyValue](const std::pair<T, H> &elem)
 				{
@@ -48,7 +48,7 @@ namespace sds
 		///	<param name="retVal">will be set to the value the key points to, if found</param>
 		/// <returns>true if found, false otherwise</returns>
 		template<class T, class H>
-		static bool IsInMap(const T keyValue, const std::map<T, H> &curMap, H &retVal)
+		bool IsInMap(const T keyValue, const std::map<T, H> &curMap, H &retVal)
 		{
 			auto itx = std::find_if(curMap.begin(), curMap.end(), [&keyValue](const std::pair<T, H> &elem)
 				{
