@@ -87,6 +87,9 @@
     <ClInclude Include="DelayHighPrecision.h">
       <Filter>Header Files\Utility</Filter>
     </ClInclude>
+    <ClInclude Include="MouseMoveThread.h">
+      <Filter>Header Files\MouseMovement</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

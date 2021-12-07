@@ -33,6 +33,7 @@ namespace sds
 				const DWORD error = XInputGetState(m_localPlayer.player_id, &local_state);
 				if (error != ERROR_SUCCESS)
 				{
+					std::this_thread::sleep_for(std::chrono::milliseconds(XinSettings::THREAD_DELAY_POLLER));
 					continue;
 				}
 				m_mouse.ProcessState(local_state);

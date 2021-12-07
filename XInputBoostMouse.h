@@ -10,6 +10,7 @@ and finally update GamepadUser.
 #pragma once
 #include "stdafx.h"
 #include "CPPThreadRunner.h"
+#include "MouseMoveThread.h"
 #include "ThumbstickAxisThread.h"
 
 namespace sds
@@ -151,22 +152,25 @@ namespace sds
 		/// </summary>
 		void workThread() override
 		{
+			this->isThreadRunning = true;
 			ThumbstickAxisThread xThread(this->GetSensitivity(), m_localPlayerInfo, m_stickMapInfo, true);
 			ThumbstickAxisThread yThread(this->GetSensitivity(), m_localPlayerInfo, m_stickMapInfo, false);
-			
-			xThread.Start();
-			yThread.Start();
-
+			MouseMoveThread mover;
+			bool isMoving = false;
 			//thread main loop
 			while(!isStopRequested)
 			{
-				xThread.ProcessState(m_threadX, m_threadY);
-				yThread.ProcessState(m_threadX, m_threadY);
-				
-				std::this_thread::sleep_for(std::chrono::microseconds(XinSettings::MOVE_THREAD_SLEEP_MICRO));
+				//TODO store the returned delay from axisthread for each axis
+				//then pass the delays on to MouseMoveThread, along with some information like
+				//is X or Y negative, and if the axis is moving
+				isMoving = xThread.DoesRequireMove(m_threadX, m_threadY) || yThread.DoesRequireMove(m_threadX, m_threadY);
+				size_t xDelay = xThread.GetDelayValue(m_threadX, m_threadY);
+				size_t yDelay = yThread.GetDelayValue(m_threadX, m_threadY);
+				const bool ixp = m_threadX > 0;
+				const bool iyp = m_threadY > 0;
+				mover.UpdateState(xDelay, yDelay, ixp, !iyp, isMoving); // inverted Y positive for Y axis to screen coord translation
+				std::this_thread::sleep_for(std::chrono::milliseconds(XinSettings::THREAD_DELAY_POLLER));
 			}
-			xThread.Stop();
-			yThread.Stop();
 			//mark thread status as not running.
 			isThreadRunning = false;
 		}

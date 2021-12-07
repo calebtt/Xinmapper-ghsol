@@ -173,6 +173,7 @@
     <ClInclude Include="MapFunctions.h" />
     <ClInclude Include="Mapper.h" />
     <ClInclude Include="MouseMap.h" />
+    <ClInclude Include="MouseMoveThread.h" />
     <ClInclude Include="MultiBool.h" />
     <ClInclude Include="PlayerInfo.h" />
     <ClInclude Include="resource1.h" />
