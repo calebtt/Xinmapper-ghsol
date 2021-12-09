@@ -26,17 +26,17 @@ namespace sds
 		{
 			//Assertions about the settings values used by this class.
 			if (XinSettings::MICROSECONDS_MIN_MAX >= XinSettings::MICROSECONDS_MAX)
-				throw std::string("Exception in ThumbstickToDelay() ctor, MICROSECONDS_MIN_MAX >= MICROSECONDS_MAX");
+				Utilities::XErrorLogger::LogError("Exception in ThumbstickToDelay() ctor, MICROSECONDS_MIN_MAX >= MICROSECONDS_MAX");
 			if (XinSettings::MICROSECONDS_MIN_MAX <= XinSettings::MICROSECONDS_MIN)
-				throw std::string("Exception in ThumbstickToDelay() ctor, MICROSECONDS_MIN_MAX <= MICROSECONDS_MIN");
+				Utilities::XErrorLogger::LogError("Exception in ThumbstickToDelay() ctor, MICROSECONDS_MIN_MAX <= MICROSECONDS_MIN");
 			if (XinSettings::MICROSECONDS_MIN >= XinSettings::MICROSECONDS_MAX)
-				throw std::string("Exception in ThumbstickToDelay() ctor, MICROSECONDS_MIN >= MICROSECONDS_MAX");
+				Utilities::XErrorLogger::LogError("Exception in ThumbstickToDelay() ctor, MICROSECONDS_MIN >= MICROSECONDS_MAX");
 			if (XinSettings::SENSITIVITY_MIN >= XinSettings::SENSITIVITY_MAX)
-				throw std::string("Exception in ThumbstickToDelay() ctor, SENSITIVITY_MIN >= SENSITIVITY_MAX");
+				Utilities::XErrorLogger::LogError("Exception in ThumbstickToDelay() ctor, SENSITIVITY_MIN >= SENSITIVITY_MAX");
 			if (XinSettings::SENSITIVITY_MIN <= 0)
-				throw std::string("Exception in ThumbstickToDelay() ctor, SENSITIVITY_MIN <= 0");
+				Utilities::XErrorLogger::LogError("Exception in ThumbstickToDelay() ctor, SENSITIVITY_MIN <= 0");
 			if (XinSettings::SENSITIVITY_MAX > 100)
-				throw std::string("Exception in ThumbstickToDelay() ctor, SENSITIVITY_MAX > 100");
+				Utilities::XErrorLogger::LogError("Exception in ThumbstickToDelay() ctor, SENSITIVITY_MAX > 100");
 		}
 		void InitFirstPiece(int sensitivity, int xAxisDz, int yAxisDz, int &outSens, float &outDzMult, int &outDzX, int &outDzY) const
 		{
