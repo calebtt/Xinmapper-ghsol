@@ -12,7 +12,8 @@ namespace sds
 			///	Can be disabled easily or redirected here.
 			/// </summary>
 			/// <param name="s"></param>
-			inline void LogError(std::string_view s)
+			template<std::convertible_to<std::string_view> T>
+			inline void LogError(T s)
 			{
 				std::cerr << s << std::endl;
 			}
