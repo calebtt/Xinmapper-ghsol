@@ -45,7 +45,7 @@ namespace sds
 			outDzX = xAxisDz;
 			outDzY = yAxisDz;
 		}
-		int RangeBindValue(const int user_sens, const int sens_min, const int sens_max) const
+		constexpr int RangeBindValue(const int user_sens, const int sens_min, const int sens_max) const
 		{
 			//bounds check result
 			if (user_sens > sens_max)
@@ -53,6 +53,10 @@ namespace sds
 			else if (user_sens < sens_min)
 				return sens_min;
 			return user_sens;
+		}
+		constexpr float ToFloat(auto something) const
+		{
+			return static_cast<float>(something);
 		}
 		//The transformation function applied to consider the value of both axes in the calculation.
 		int TransformSensitivityValue(const int x, const int y, const bool isX) const
@@ -152,8 +156,8 @@ namespace sds
 			bool xMove, yMove;
 			if(m_isDeadzoneActivated)
 			{
-				xMove = (x > m_xAxisDeadzone*m_altDeadzoneMultiplier || x < -m_xAxisDeadzone*m_altDeadzoneMultiplier);
-				yMove = (y > m_yAxisDeadzone*m_altDeadzoneMultiplier || y < -m_yAxisDeadzone*m_altDeadzoneMultiplier);
+				xMove = (ToFloat(x) > ToFloat(m_xAxisDeadzone)*m_altDeadzoneMultiplier || ToFloat(x) < -ToFloat(m_xAxisDeadzone)*m_altDeadzoneMultiplier);
+				yMove = (ToFloat(y) > ToFloat(m_yAxisDeadzone)*m_altDeadzoneMultiplier || ToFloat(y) < -ToFloat(m_yAxisDeadzone)*m_altDeadzoneMultiplier);
 			}
 			else
 			{
@@ -182,7 +186,6 @@ namespace sds
 		size_t GetDelayFromThumbstickValue(int val, const bool isX) const
 		{
 			using namespace Utilities::MapFunctions;
-			constexpr auto ToFloat = [](auto something) { return static_cast<float>(something); };
 			const int curr = static_cast<int>((!m_isDeadzoneActivated) ?
 				(isX ? ToFloat(m_xAxisDeadzone) : ToFloat(m_yAxisDeadzone))
 				: (isX ? ToFloat(m_xAxisDeadzone) * m_altDeadzoneMultiplier : ToFloat(m_yAxisDeadzone) * m_altDeadzoneMultiplier));
@@ -193,7 +196,8 @@ namespace sds
 			if(!IsInMap<int, int>(val, m_sharedSensitivityMap, rval))
 			{
 				//this should not happen, but in case it does I want a plain string telling me it did.
-				throw std::string("Exception in ThumbstickToDelay::GetDelayFromThumbstickValue(): " + BAD_DELAY_MSG);
+				Utilities::XErrorLogger::LogError("Exception in ThumbstickToDelay::GetDelayFromThumbstickValue(int,bool): " + BAD_DELAY_MSG);
+				return 1;
 			}
 
 			//double check the value from the map is within bounds
@@ -216,7 +220,6 @@ namespace sds
 		size_t GetDelayFromThumbstickValue(int x, int y, const bool isX) const
 		{
 			using namespace Utilities::MapFunctions;
-			constexpr auto ToFloat = [](auto something) { return static_cast<float>(something); };
 			const int xdz = static_cast<int>((!m_isDeadzoneActivated) ?
 				(isX ? ToFloat(m_xAxisDeadzone) : ToFloat(m_yAxisDeadzone))
 				: (isX ? ToFloat(m_xAxisDeadzone) * m_altDeadzoneMultiplier : ToFloat(m_yAxisDeadzone) * m_altDeadzoneMultiplier));
@@ -225,6 +228,7 @@ namespace sds
 				: (!isX ? ToFloat(m_xAxisDeadzone) * m_altDeadzoneMultiplier : ToFloat(m_yAxisDeadzone) * m_altDeadzoneMultiplier));
 			x = GetRangedThumbstickValue(x, xdz);
 			y = GetRangedThumbstickValue(y, ydz);
+
 			//TODO fix sensitivity bug where the diagonal moves aren't as granular with regard to side to side movements as
 			//straight left/right or up/down movements are.
 			int txVal = 0;
@@ -235,7 +239,8 @@ namespace sds
 			if (! IsInMap<int,int>(txVal, m_sharedSensitivityMap, rval) )
 			{
 				//this should not happen, but in case it does I want a plain string telling me it did.
-				throw std::string("Exception in ThumbstickToDelay::GetDelayFromThumbstickValue(): " + BAD_DELAY_MSG);
+				Utilities::XErrorLogger::LogError("Exception in ThumbstickToDelay::GetDelayFromThumbstickValue(int,int,bool): " + BAD_DELAY_MSG);
+				return 1;
 			}
 			txVal = rval;
 			if (txVal >= XinSettings::MICROSECONDS_MIN && txVal <= XinSettings::MICROSECONDS_MAX)
