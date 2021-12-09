@@ -13,7 +13,6 @@ namespace sds
 		/// Builds a sensitivity map that maps values from sens_min to sens_max to values between
 		/// us_delay_min and us_delay_max
 		/// </summary>
-		/// <exception cref="std::string">throws std::string on exception with detailed information.</exception>
 		/// <param name="user_sens">user sensitivity value</param>
 		/// <param name="sens_min">minimum sensitivity value</param>
 		/// <param name="sens_max">maximum sensitivity value</param>
@@ -60,7 +59,6 @@ namespace sds
 		/// on the arguments. This is used to alter the minimum microsecond delay of the sensitivity map,
 		/// when a sensitivity value is used.
 		/// </summary>
-		/// <exception cref="std::string"> throws a string containing an error message on invalid arguments given.</exception>
 		/// <param name="user_sens">a user sensitivity value</param>
 		/// <param name="sens_min">minimum possible sensitivity value</param>
 		/// <param name="sens_max">maximum possible sensitivity value</param>

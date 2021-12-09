@@ -10,7 +10,6 @@ namespace sds
 	/// A single instance for a single thumbstick axis is to be used.
 	/// This class must be re-instantiated to use new deadzone values.
 	/// </summary>
-	///	<exception cref="std::string">throws string on exception with error message. </exception>
 	class ThumbstickToDelay
 	{
 		const std::string BAD_DELAY_MSG = "Bad timer delay value, exception.";
@@ -75,7 +74,7 @@ namespace sds
 		/// Allows getting sensitivity values for the current axis, from using alternate deadzones and sensitivity values for each axis.
 		/// In effect, the delay values returned will be influenced by the state of the other axis.
 		/// </summary>
-		///	<exception cref="std::string"> throws std::string if XinSettings values are unusable. </exception>
+		///	<exception cref="std::string"> logs std::string if XinSettings values are unusable. </exception>
 		/// <param name="sensitivity">int sensitivity value</param>
 		/// <param name="player">PlayerInfo struct full of deadzone information</param>
 		/// <param name="whichStick">MouseMap enum denoting which thumbstick</param>
@@ -107,7 +106,7 @@ namespace sds
 		/// Allows getting high precision timer delay values for the current axis, from using info about each axis.
 		/// In effect, the delay values returned will be influenced by the state of the other axis.
 		/// </summary>
-		///	<exception cref="std::string"> throws std::string if XinSettings values are unusable. </exception>
+		///	<exception cref="std::string"> logs std::string if XinSettings values are unusable. </exception>
 		/// <param name="sensitivity">is the mouse sensitivity value to use</param>
 		/// <param name="xAxisDz">x axis deadzone value</param>
 		/// <param name="yAxisDz">y axis deadzone value</param>
@@ -178,7 +177,7 @@ namespace sds
 		}
 		/// <summary>
 		/// Alternate main function for use, only considers one axis and one deadzone value.
-		/// throws std::string if bad value internally because this is a function
+		/// logs error and returns 1 if bad value internally because this is a function
 		/// used in a high precision timer class controlled loop, a bad value would likely mean
 		/// a hanging program.
 		/// </summary>
@@ -208,11 +207,10 @@ namespace sds
 		/// <summary>
 		/// Main function for use, uses information from the other axis
 		/// to generate the delay for the current axis.
-		/// throws std::string if bad value internally, because this is a function
+		/// logs error and returns 1 if bad value internally, because this is a function
 		/// used in a high precision timer class controlled loop, a bad value would likely mean
 		/// a hanging program.
 		/// </summary>
-		///	<exception cref="std::string"> throws std::string if internal error of computed value outside of sensitivity map range. </exception>
 		/// <param name="x">X value</param>
 		/// <param name="y">Y value</param>
 		/// <param name="isX"> is it the X axis? </param>
