@@ -57,7 +57,7 @@ namespace sds
 			}
 			else
 			{
-				std::this_thread::sleep_for(milliseconds(XinSettings::THREAD_DELAY_POLLER));
+				//std::this_thread::sleep_for(milliseconds(XinSettings::THREAD_DELAY_POLLER));
 			}
 		}
 		this->isThreadRunning = false;
