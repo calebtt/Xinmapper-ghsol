@@ -20,7 +20,7 @@ namespace sds
 	{
 		this->isThreadRunning = true;
 		using namespace std::chrono;
-		SendKey keySend;
+		Utilities::SendKey keySend;
 		auto xTime = high_resolution_clock::now();
 		auto yTime = high_resolution_clock::now();
 		//A loop with no delay, that checks each delay value
@@ -75,7 +75,7 @@ namespace sds
 		MouseMoveThread(MouseMoveThread&& other) = delete;
 		MouseMoveThread& operator=(const MouseMoveThread& other) = delete;
 		MouseMoveThread& operator=(MouseMoveThread&& other) = delete;
-		void UpdateState(const size_t x, const size_t y, bool isXPositive, bool isYPositive, bool isMoving)
+		void UpdateState(const size_t x, const size_t y, const bool isXPositive, const bool isYPositive, const bool isMoving)
 		{
 			m_xDelay = x;
 			m_yDelay = y;

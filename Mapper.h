@@ -30,7 +30,8 @@ namespace sds
 			//TODO add a timer variable here, so we can know when to send repeat events.
 			WordData() : down(false), lastSentTime(ClockType::now()) {}
 		};
-		SendKey m_keySend;
+
+		Utilities::SendKey m_keySend;
 		std::vector<WordData> m_mapTokenInfo;
 		MapInformation m_map;
 	public:

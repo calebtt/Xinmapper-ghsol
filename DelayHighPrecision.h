@@ -5,17 +5,19 @@
 
 namespace sds
 {
-	namespace DelayHighPrecision
+	namespace Utilities
 	{
-		inline void SleepFor(const std::chrono::microseconds delayValueMicroseconds)
+		namespace DelayHighPrecision
 		{
-			const auto start = std::chrono::high_resolution_clock::now();
-			const auto end = start + delayValueMicroseconds;
-			do
+			inline void SleepFor(const std::chrono::microseconds delayValueMicroseconds)
 			{
-				//std::this_thread::yield();
+				const auto start = std::chrono::high_resolution_clock::now();
+				const auto end = start + delayValueMicroseconds;
+				do
+				{
+					//std::this_thread::yield();
+				} while (std::chrono::high_resolution_clock::now() < end);
 			}
-			while (std::chrono::high_resolution_clock::now() < end);
 		}
 	}
 }

@@ -153,23 +153,32 @@ namespace sds
 		void workThread() override
 		{
 			this->isThreadRunning = true;
-			ThumbstickAxisThread xThread(this->GetSensitivity(), m_localPlayerInfo, m_stickMapInfo, true);
-			ThumbstickAxisThread yThread(this->GetSensitivity(), m_localPlayerInfo, m_stickMapInfo, false);
-			MouseMoveThread mover;
-			bool isMoving = false;
-			//thread main loop
-			while(!isStopRequested)
+			try
 			{
-				//TODO store the returned delay from axisthread for each axis
-				//then pass the delays on to MouseMoveThread, along with some information like
-				//is X or Y negative, and if the axis is moving
-				isMoving = xThread.DoesRequireMove(m_threadX, m_threadY) || yThread.DoesRequireMove(m_threadX, m_threadY);
-				size_t xDelay = xThread.GetDelayValue(m_threadX, m_threadY);
-				size_t yDelay = yThread.GetDelayValue(m_threadX, m_threadY);
-				const bool ixp = m_threadX > 0;
-				const bool iyp = m_threadY > 0;
-				mover.UpdateState(xDelay, yDelay, ixp, !iyp, isMoving); // inverted Y positive for Y axis to screen coord translation
-				std::this_thread::sleep_for(std::chrono::milliseconds(XinSettings::THREAD_DELAY_POLLER));
+				ThumbstickAxisThread xThread(this->GetSensitivity(), m_localPlayerInfo, m_stickMapInfo, true);
+				ThumbstickAxisThread yThread(this->GetSensitivity(), m_localPlayerInfo, m_stickMapInfo, false);
+				MouseMoveThread mover;
+				bool isMoving = false;
+				//thread main loop
+				while (!isStopRequested)
+				{
+					//TODO store the returned delay from axisthread for each axis
+					//then pass the delays on to MouseMoveThread, along with some information like
+					//is X or Y negative, and if the axis is moving
+					isMoving = xThread.DoesRequireMove(m_threadX, m_threadY) || yThread.DoesRequireMove(m_threadX, m_threadY);
+					size_t xDelay = xThread.GetDelayValue(m_threadX, m_threadY);
+					size_t yDelay = yThread.GetDelayValue(m_threadX, m_threadY);
+					const bool ixp = m_threadX > 0;
+					const bool iyp = m_threadY > 0;
+					mover.UpdateState(xDelay, yDelay, ixp, !iyp, isMoving); // inverted Y positive for Y axis to screen coord translation
+					std::this_thread::sleep_for(std::chrono::milliseconds(XinSettings::THREAD_DELAY_POLLER));
+				}
+			}
+			catch(std::string &s)
+			{
+				Utilities::XErrorLogger::LogError(s);
+				isThreadRunning = false;
+				return;
 			}
 			//mark thread status as not running.
 			isThreadRunning = false;

@@ -32,7 +32,8 @@ namespace sds
 		/// <returns>true if the button is depressed, false otherwise</returns>
 		bool ButtonDown(const XINPUT_STATE& state, const std::string token) const
 		{
-			if(MapFunctions::IsInMap<const std::string,int>(token,sds::sdsActionDescriptors.xin_buttons))
+			using namespace Utilities::MapFunctions;
+			if(IsInMap<const std::string,int>(token,sds::sdsActionDescriptors.xin_buttons))
 			{
 				return state.Gamepad.wButtons & sds::sdsActionDescriptors.xin_buttons.at(token);
 			}
@@ -73,9 +74,10 @@ namespace sds
 		/// <returns>true if thumbstick+direction is pressed</returns>
 		bool ThumbstickDown(const XINPUT_STATE& state, const std::string token) const
 		{
+			using namespace Utilities::MapFunctions;
 			auto &&m_thumbstickMap = BuildThumbstickMap(state);
 			MyTuple myTup;
-			if (MapFunctions::IsInMap<std::string,MyTuple,int,MyVariant>(token, m_thumbstickMap,myTup))
+			if (IsInMap<std::string,MyTuple,int,MyVariant>(token, m_thumbstickMap,myTup))
 			{
 				const int dzVal = std::get<0>(myTup);
 				const int thumbVal = std::get<1>(myTup);

@@ -182,6 +182,7 @@
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="ButtonStateDown.h" />
     <ClInclude Include="ThumbstickToDelay.h" />
+    <ClInclude Include="XErrorLogger.h" />
     <ClInclude Include="XinSettings.h" />
     <ClInclude Include="XInputBoostMouse.h" />
     <ClInclude Include="ThumbstickAxisThread.h" />

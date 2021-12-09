@@ -181,6 +181,7 @@ namespace sds
 		/// <returns>delay in microseconds</returns>
 		size_t GetDelayFromThumbstickValue(int val, const bool isX) const
 		{
+			using namespace Utilities::MapFunctions;
 			constexpr auto ToFloat = [](auto something) { return static_cast<float>(something); };
 			const int curr = static_cast<int>((!m_isDeadzoneActivated) ?
 				(isX ? ToFloat(m_xAxisDeadzone) : ToFloat(m_yAxisDeadzone))
@@ -189,7 +190,7 @@ namespace sds
 
 			int rval = 0;
 			//error checking to make sure the key is in the map
-			if(!sds::MapFunctions::IsInMap<int, int>(val, m_sharedSensitivityMap, rval))
+			if(!IsInMap<int, int>(val, m_sharedSensitivityMap, rval))
 			{
 				//this should not happen, but in case it does I want a plain string telling me it did.
 				throw std::string("Exception in ThumbstickToDelay::GetDelayFromThumbstickValue(): " + BAD_DELAY_MSG);
@@ -214,6 +215,7 @@ namespace sds
 		/// <returns>delay in microseconds</returns>
 		size_t GetDelayFromThumbstickValue(int x, int y, const bool isX) const
 		{
+			using namespace Utilities::MapFunctions;
 			constexpr auto ToFloat = [](auto something) { return static_cast<float>(something); };
 			const int xdz = static_cast<int>((!m_isDeadzoneActivated) ?
 				(isX ? ToFloat(m_xAxisDeadzone) : ToFloat(m_yAxisDeadzone))
@@ -230,7 +232,7 @@ namespace sds
 			txVal = RangeBindValue(txVal, XinSettings::SENSITIVITY_MIN, XinSettings::SENSITIVITY_MAX);
 			//error checking to make sure the value is in the map
 			int rval = 0;
-			if (! sds::MapFunctions::IsInMap<int,int>(txVal, m_sharedSensitivityMap, rval) )
+			if (! IsInMap<int,int>(txVal, m_sharedSensitivityMap, rval) )
 			{
 				//this should not happen, but in case it does I want a plain string telling me it did.
 				throw std::string("Exception in ThumbstickToDelay::GetDelayFromThumbstickValue(): " + BAD_DELAY_MSG);

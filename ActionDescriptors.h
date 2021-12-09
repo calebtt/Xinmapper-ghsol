@@ -83,7 +83,7 @@ namespace sds
 		/// </summary>
 		/// <param name="s">std::string s, the token you would test for acceptability in the first field.</param>
 		/// <returns>returns true if string s is in the valid first field keywords list</returns>
-		constexpr bool IsFirstFieldKeyword(std::string s) const
+		bool IsFirstFieldKeyword(std::string s) const
 		{
 			std::for_each(s.begin(), s.end(), [](char &c) { c = static_cast<char>(std::toupper(c)); });
 			return (std::find(FirstFieldValidKeywords.cbegin(), FirstFieldValidKeywords.cend(), s) != FirstFieldValidKeywords.cend());
@@ -96,7 +96,7 @@ namespace sds
 		/// <param name="s">the string to test</param>
 		/// <param name="fixedOut">reference set to the case-fixed copy of the string</param>
 		/// <returns></returns>
-		constexpr bool IsFirstFieldKeyword(std::string s, std::string &fixedOut) const
+		bool IsFirstFieldKeyword(std::string s, std::string &fixedOut) const
 		{
 			std::for_each(s.begin(), s.end(), [](char &c) { c = static_cast<char>(std::toupper(c)); });
 			fixedOut = s;
@@ -108,7 +108,7 @@ namespace sds
 		/// </summary>
 		/// <param name="s">std::string s, the token you would test for acceptability in the second field.</param>
 		/// <returns>returns true if string s is in the valid second field keywords list</returns>
-		constexpr bool IsSecondFieldKeyword(std::string s) const
+		bool IsSecondFieldKeyword(std::string s) const
 		{
 			std::for_each(s.begin(), s.end(), [](char &c) { c = static_cast<char>(std::toupper(c)); });
 			return (std::find(SecondFieldValidKeywords.cbegin(), SecondFieldValidKeywords.cend(), s) != SecondFieldValidKeywords.cend());
@@ -121,7 +121,7 @@ namespace sds
 		/// <param name="s">std::string s, the token you would test for acceptability in the second field.</param>
 		/// <param name="fixedOut">reference set to the case-fixed copy of the string</param>
 		/// <returns>returns true if string s is in the valid second field keywords list</returns>
-		constexpr bool IsSecondFieldKeyword(std::string s, std::string &fixedOut) const
+		bool IsSecondFieldKeyword(std::string s, std::string &fixedOut) const
 		{
 			std::for_each(s.begin(), s.end(), [](char &c) { c = static_cast<char>(std::toupper(c)); });
 			fixedOut = s;
@@ -133,7 +133,7 @@ namespace sds
 		/// </summary>
 		/// <param name="s">std::string s, the token you would test for acceptability in the third field.</param>
 		/// <returns>returns true if string s is in the valid third field keywords list</returns>
-		constexpr bool IsThirdFieldKeyword(std::string s) const
+		bool IsThirdFieldKeyword(std::string s) const
 		{
 			std::for_each(s.begin(), s.end(), [](char &c) { c = static_cast<char>(std::toupper(c)); });
 			return (std::find(ThirdFieldValidKeywords.cbegin(), ThirdFieldValidKeywords.cend(), s) != ThirdFieldValidKeywords.cend());
@@ -146,7 +146,7 @@ namespace sds
 		/// <param name="s">std::string s, the token you would test for acceptability in the third field.</param>
 		/// <param name="fixedOut">reference set to the case-fixed copy of the string</param>
 		/// <returns>returns true if string s is in the valid third field keywords list</returns>
-		constexpr bool IsThirdFieldKeyword(std::string s, std::string &fixedOut) const
+		bool IsThirdFieldKeyword(std::string s, std::string &fixedOut) const
 		{
 			std::for_each(s.begin(), s.end(), [](char &c) { c = static_cast<char>(std::toupper(c)); });
 			fixedOut = s;
@@ -160,7 +160,7 @@ namespace sds
 		/// </summary>
 		/// <param name="s">std::string s, the token you would test for acceptability in the fourth field.</param>
 		/// <returns>returns true if valid field, false otherwise</returns>
-		constexpr bool IsFourthFieldKeyword(const std::string s) const
+		bool IsFourthFieldKeyword(const std::string s) const
 		{
 			//single character case, good
 			if (s.size() == 1)
@@ -209,7 +209,7 @@ namespace sds
 		/// <param name="fixedOut">reference set to the case-fixed copy of the string IF the string is of the "VK#" style,
 		/// otherwise the single character already in "s"</param>
 		/// <returns>returns true if valid field, false otherwise</returns>
-		constexpr bool IsFourthFieldKeyword(const std::string s, std::string &fixedOut) const
+		bool IsFourthFieldKeyword(const std::string s, std::string &fixedOut) const
 		{
 			//single character case, good
 			if (s.size() == 1)
