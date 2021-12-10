@@ -31,9 +31,6 @@ namespace sds
     	/// <summary>
     	/// Used in conjunction with MouseMoveThread.
     	/// </summary>
-    	/// <param name="x"></param>
-    	/// <param name="y"></param>
-    	/// <returns></returns>
     	size_t GetDelayValue(int x, int y) const
         {
             using namespace std::chrono;
