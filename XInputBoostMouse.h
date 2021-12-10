@@ -24,13 +24,12 @@ namespace sds
 	/// Another thread calls ProcessState(XINPUT_STATE) to update the internal XINPUT_STATE struct.
 	/// It also has public functions for getting and setting the sensitivity.
 	/// </summary>
-	class XInputBoostMouse : public CPPThreadRunner<XINPUT_STATE>
+	class XInputBoostMouse : public CPPThreadRunner<int>
 	{
 	private:
 		std::atomic<MouseMap> m_stickMapInfo;
 		std::atomic<SHORT> m_threadX, m_threadY;
 		std::atomic<int> m_mouseSensitivity;
-
 		sds::PlayerInfo m_localPlayerInfo;
 	public:
 		/// <summary>
@@ -96,9 +95,7 @@ namespace sds
 		{
 			if(m_stickMapInfo == MouseMap::NEITHER_STICK)
 				return;
-			//Holds the reported stick values and will compare to determine if movement has occurred.
 			int tsx, tsy;
-		
 			if(m_stickMapInfo == MouseMap::RIGHT_STICK)
 			{
 				tsx = state.Gamepad.sThumbRX;
@@ -112,11 +109,6 @@ namespace sds
 			//Give worker thread new values.
 			m_threadX = static_cast<SHORT>(tsx);
 			m_threadY = static_cast<SHORT>(tsy);
-
-			const int tdx = m_stickMapInfo == MouseMap::RIGHT_STICK ? m_localPlayerInfo.right_x_dz : m_localPlayerInfo.left_x_dz;
-			const int tdy = m_stickMapInfo == MouseMap::RIGHT_STICK ? m_localPlayerInfo.right_y_dz : m_localPlayerInfo.left_y_dz;
-
-			this->updateState(state);
 			if(!this->isThreadRunning)
 				this->startThread();
 		}
@@ -156,19 +148,20 @@ namespace sds
 			ThumbstickAxisThread xThread(this->GetSensitivity(), m_localPlayerInfo, m_stickMapInfo, true);
 			ThumbstickAxisThread yThread(this->GetSensitivity(), m_localPlayerInfo, m_stickMapInfo, false);
 			MouseMoveThread mover;
-			bool isMoving = false;
 			//thread main loop
 			while (!isStopRequested)
 			{
 				//TODO store the returned delay from axisthread for each axis
 				//then pass the delays on to MouseMoveThread, along with some information like
 				//is X or Y negative, and if the axis is moving
-				isMoving = xThread.DoesRequireMove(m_threadX, m_threadY) || yThread.DoesRequireMove(m_threadX, m_threadY);
-				size_t xDelay = xThread.GetDelayValue(m_threadX, m_threadY);
-				size_t yDelay = yThread.GetDelayValue(m_threadX, m_threadY);
-				const bool ixp = m_threadX > 0;
-				const bool iyp = m_threadY > 0;
-				mover.UpdateState(xDelay, yDelay, ixp, !iyp, isMoving); // inverted Y positive for Y axis to screen coord translation
+				const SHORT tx = m_threadX;
+				const SHORT ty = m_threadY;
+				const size_t xDelay = xThread.GetDelayValue(tx, ty);
+				const size_t yDelay = yThread.GetDelayValue(tx, ty);
+				const bool ixp = tx > 0;
+				const bool iyp = ty > 0;
+				// here, below, inverted Y positive for Y axis to screen coord translation
+				mover.UpdateState(xDelay, yDelay, ixp, !iyp, xThread.DoesRequireMove(tx, ty), yThread.DoesRequireMove(tx, ty));
 				std::this_thread::sleep_for(std::chrono::milliseconds(XinSettings::THREAD_DELAY_POLLER));
 			}
 			

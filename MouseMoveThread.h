@@ -12,7 +12,8 @@ namespace sds
 	{
 		std::atomic<size_t> m_xDelay;
 		std::atomic<size_t> m_yDelay;
-		std::atomic<bool> m_isMoving;
+		std::atomic<bool> m_isXMoving;
+		std::atomic<bool> m_isYMoving;
 		std::atomic<bool> m_isXPositive;
 		std::atomic<bool> m_isYPositive;
 	protected:
@@ -28,7 +29,11 @@ namespace sds
 		//and in that way, will perform the single pixel move with two different variable time delays.
 		while(!this->isStopRequested)
 		{
-			if (m_isMoving)
+			const bool isXM = m_isXMoving;
+			const bool isYM = m_isYMoving;
+			const bool isXP = m_isXPositive;
+			const bool isYP = m_isYPositive;
+			if (isXM || isYM)
 			{
 				size_t xDelay = m_xDelay;
 				size_t yDelay = m_yDelay;
@@ -36,17 +41,17 @@ namespace sds
 				//being changed and processing begins for a new one, testing of this will tell for sure.
 				const bool isXPast = high_resolution_clock::now() > xTime + microseconds(xDelay);
 				const bool isYPast = high_resolution_clock::now() > yTime + microseconds(yDelay);
-				int xVal = 0;
-				int yVal = 0;
+				int xVal = (!isXM ? XinSettings::PIXELS_NOMOVE : (isXP? XinSettings::PIXELS_MAGNITUDE : (-XinSettings::PIXELS_MAGNITUDE)));
+				int yVal = (!isYM ? XinSettings::PIXELS_NOMOVE : (isYP? XinSettings::PIXELS_MAGNITUDE : (-XinSettings::PIXELS_MAGNITUDE))); // y is inverted before it gets here.
 				if (isXPast)
 				{
-					xVal = m_isXPositive ? XinSettings::PIXELS_MAGNITUDE : -XinSettings::PIXELS_MAGNITUDE;
+					//xVal = m_isXPositive ? XinSettings::PIXELS_MAGNITUDE : -XinSettings::PIXELS_MAGNITUDE;
 					//reset clock
 					xTime = high_resolution_clock::now();
 				}
 				if (isYPast)
 				{
-					yVal = m_isYPositive ? XinSettings::PIXELS_MAGNITUDE : -XinSettings::PIXELS_MAGNITUDE;
+					//yVal = m_isYPositive ? XinSettings::PIXELS_MAGNITUDE : -XinSettings::PIXELS_MAGNITUDE;
 					//reset clock
 					yTime = high_resolution_clock::now();
 				}
@@ -63,7 +68,7 @@ namespace sds
 		this->isThreadRunning = false;
 	}
 	public:
-		MouseMoveThread() : CPPThreadRunner<int>(), m_xDelay(1), m_yDelay(1), m_isMoving(false), m_isXPositive(false), m_isYPositive(false)
+		MouseMoveThread() : CPPThreadRunner<int>(), m_xDelay(1), m_yDelay(1), m_isXMoving(false), m_isYMoving(false), m_isXPositive(false), m_isYPositive(false)
 		{
 			this->startThread();
 		}
@@ -75,13 +80,14 @@ namespace sds
 		MouseMoveThread(MouseMoveThread&& other) = delete;
 		MouseMoveThread& operator=(const MouseMoveThread& other) = delete;
 		MouseMoveThread& operator=(MouseMoveThread&& other) = delete;
-		void UpdateState(const size_t x, const size_t y, const bool isXPositive, const bool isYPositive, const bool isMoving)
+		void UpdateState(const size_t x, const size_t y, const bool isXPositive, const bool isYPositive, const bool xMoving, const bool yMoving)
 		{
 			m_xDelay = x;
 			m_yDelay = y;
 			m_isXPositive = isXPositive;
 			m_isYPositive = isYPositive;
-			m_isMoving = isMoving;
+			m_isXMoving = xMoving;
+			m_isYMoving = yMoving;
 		}
 
 	};

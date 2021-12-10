@@ -14,7 +14,6 @@ namespace sds
 	{
 		const std::string BAD_DELAY_MSG = "Bad timer delay value, exception.";
 		inline static std::atomic<bool> m_isDeadzoneActivated;
-		inline static std::atomic<bool> m_isBothActivated;
 		float m_altDeadzoneMultiplier;
 		int m_axisSensitivity;
 		int m_xAxisDeadzone;
@@ -128,7 +127,6 @@ namespace sds
 				cdy = XinSettings::DEADZONE_DEFAULT;
 			InitFirstPiece(sensitivity, cdx, cdy, m_axisSensitivity, m_altDeadzoneMultiplier, m_xAxisDeadzone, m_yAxisDeadzone);
 			m_isDeadzoneActivated = false;
-			m_isBothActivated = false;
 			m_sharedSensitivityMap = m_sensMapper.BuildSensitivityMap(m_axisSensitivity,
 				XinSettings::SENSITIVITY_MIN,
 				XinSettings::SENSITIVITY_MAX,
@@ -151,7 +149,6 @@ namespace sds
 			AssertSettings();
 			InitFirstPiece(sensitivity, xAxisDz, yAxisDz, m_axisSensitivity, m_altDeadzoneMultiplier, m_xAxisDeadzone, m_yAxisDeadzone);
 			m_isDeadzoneActivated = false;
-			m_isBothActivated = false;
 			//error checking axis dz arg range, because it might crash the program if the
 			//delay returned is some silly value
 			if (!XinSettings::IsValidDeadzoneValue(xAxisDz))
@@ -190,20 +187,10 @@ namespace sds
 		{
 			const bool xMove = IsBeyondDeadzone(x, true);
 			const bool yMove = IsBeyondDeadzone(y, false);
-			if(xMove && yMove)
-			{
-				m_isBothActivated = true;
-			}
 			if (!xMove && !yMove)
 			{
 				m_isDeadzoneActivated = false;
-				m_isBothActivated = false;
 				return false;
-			}
-			else if(!xMove || !yMove)
-			{
-				m_isBothActivated = false;
-				return true;
 			}
 			else
 			{
@@ -232,14 +219,9 @@ namespace sds
 			const auto additional = (sqrt(x * x + y * y));
 			x = x + static_cast<int>((ToDub(x) / 100.0) * additional);
 			y = y + static_cast<int>((ToDub(y) / 100.0) * additional);
-			const int totalMagnitude = x + y;
+			//const int totalMagnitude = x + y;
 			//Utilities::XErrorLogger::LogError(std::to_string(totalMagnitude));
-
 			int txVal = isX ? x : y;
-			//long long txVal = x > y ? x + (0.33f * additional) : y + (0.33f * additional);
-			//txVal += static_cast<int>(isX ? 0.33f * ToFloat(x) : 0.33f * ToFloat(y));
-			//txVal = TransformSensitivityValue(x, y, isX);
-
 			txVal = RangeBindValue(txVal, XinSettings::SENSITIVITY_MIN, XinSettings::SENSITIVITY_MAX);
 			//error checking to make sure the value is in the map
 			int rval = 0;
