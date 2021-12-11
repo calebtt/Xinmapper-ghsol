@@ -216,9 +216,24 @@ namespace sds
 			const int ydz = GetDeadzoneCurrent(false);
 			x = GetRangedThumbstickValue(x, xdz);
 			y = GetRangedThumbstickValue(y, ydz);
-			const auto additional = (sqrt(x * x + y * y));
-			x = x + static_cast<int>((ToDub(x) / 100.0) * additional);
-			y = y + static_cast<int>((ToDub(y) / 100.0) * additional);
+			//The transformation function applied to consider the value of both axes in the calculation.
+			//auto TransformSensitivityValue = [](const int x, const int y, const bool isX)
+			//{
+			//	constexpr auto ToDub = [](auto something) { return static_cast<double>(something); };
+			//	double txVal = XinSettings::SENSITIVITY_MIN;
+			//	if (isX && (y != 0))
+			//		txVal = ToDub(x) + (std::sqrt(y) * 4.0);
+			//	else if (x != 0)
+			//		txVal = ToDub(y) + (std::sqrt(x) * 4.0);
+			//	return static_cast<int>(txVal);
+			//};
+			//x = TransformSensitivityValue(x, y, true);
+			//y = TransformSensitivityValue(x, y, false);
+
+			//const auto additional = (sqrt(x * x + y * y));
+			//x = x + static_cast<int>((ToDub(x) / 100.0) * additional);
+			//y = y + static_cast<int>((ToDub(y) / 100.0) * additional);
+			//TODO compute totalMagnitude of both axes, use that as a max and adjust each axis (according to their percentage of the total) up to the total.
 			//const int totalMagnitude = x + y;
 			//Utilities::XErrorLogger::LogError(std::to_string(totalMagnitude));
 			int txVal = isX ? x : y;

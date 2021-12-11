@@ -80,14 +80,19 @@ namespace sds
 		MouseMoveThread(MouseMoveThread&& other) = delete;
 		MouseMoveThread& operator=(const MouseMoveThread& other) = delete;
 		MouseMoveThread& operator=(MouseMoveThread&& other) = delete;
-		void UpdateState(const size_t x, const size_t y, const bool isXPositive, const bool isYPositive, const bool xMoving, const bool yMoving)
+
+		/// <summary>
+		/// Called to update mouse mover thread with new microsecond delay values,
+		///	and whether the axis to move should move positive or negative.
+		/// </summary>
+		void UpdateState(const size_t x, const size_t y, const bool isXPositive, const bool isYPositive, const bool isXMoving, const bool isYMoving)
 		{
 			m_xDelay = x;
 			m_yDelay = y;
 			m_isXPositive = isXPositive;
 			m_isYPositive = isYPositive;
-			m_isXMoving = xMoving;
-			m_isYMoving = yMoving;
+			m_isXMoving = isXMoving;
+			m_isYMoving = isYMoving;
 		}
 
 	};

@@ -54,9 +54,6 @@
     <ClInclude Include="XInputBoostMouse.h">
       <Filter>Header Files\MouseMovement</Filter>
     </ClInclude>
-    <ClInclude Include="ThumbstickAxisThread.h">
-      <Filter>Header Files\MouseMovement</Filter>
-    </ClInclude>
     <ClInclude Include="MultiBool.h">
       <Filter>Header Files\Utility</Filter>
     </ClInclude>
