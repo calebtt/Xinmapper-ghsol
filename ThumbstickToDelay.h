@@ -20,6 +20,7 @@ namespace sds
 		int m_yAxisDeadzone;
 		SensitivityMap m_sensMapper;
 		std::map<int, int> m_sharedSensitivityMap;
+		const bool m_isX;
 		//Used to make some assertions about the settings values this class depends upon.
 		static void AssertSettings()
 		{
@@ -111,7 +112,8 @@ namespace sds
 		/// <param name="sensitivity">int sensitivity value</param>
 		/// <param name="player">PlayerInfo struct full of deadzone information</param>
 		/// <param name="whichStick">MouseMap enum denoting which thumbstick</param>
-		ThumbstickToDelay(const int sensitivity, const PlayerInfo &player, MouseMap whichStick)
+		///	<param name="isX">is it for the X axis?</param>
+		ThumbstickToDelay(const int sensitivity, const PlayerInfo &player, MouseMap whichStick, const bool isX) : m_altDeadzoneMultiplier(XinSettings::ALT_DEADZONE_MULT_DEFAULT), m_isX(isX)
 		{
 			AssertSettings();
 			//error checking mousemap stick setting
@@ -127,34 +129,6 @@ namespace sds
 				cdy = XinSettings::DEADZONE_DEFAULT;
 			InitFirstPiece(sensitivity, cdx, cdy, m_axisSensitivity, m_altDeadzoneMultiplier, m_xAxisDeadzone, m_yAxisDeadzone);
 			m_isDeadzoneActivated = false;
-			m_sharedSensitivityMap = m_sensMapper.BuildSensitivityMap(m_axisSensitivity,
-				XinSettings::SENSITIVITY_MIN,
-				XinSettings::SENSITIVITY_MAX,
-				XinSettings::MICROSECONDS_MIN,
-				XinSettings::MICROSECONDS_MAX,
-				XinSettings::MICROSECONDS_MIN_MAX);
-		}
-		/// <summary>
-		/// Ctor for dual axis sensitivity and deadzone processing.
-		/// Allows getting high precision timer delay values for the current axis, from using info about each axis.
-		/// In effect, the delay values returned will be influenced by the state of the other axis.
-		/// </summary>
-		///	<exception cref="std::string"> logs std::string if XinSettings values are unusable. </exception>
-		/// <param name="sensitivity">is the mouse sensitivity value to use</param>
-		/// <param name="xAxisDz">x axis deadzone value</param>
-		/// <param name="yAxisDz">y axis deadzone value</param>
-		/// <returns></returns>
-		ThumbstickToDelay(const int sensitivity, int xAxisDz, int yAxisDz)
-		{
-			AssertSettings();
-			InitFirstPiece(sensitivity, xAxisDz, yAxisDz, m_axisSensitivity, m_altDeadzoneMultiplier, m_xAxisDeadzone, m_yAxisDeadzone);
-			m_isDeadzoneActivated = false;
-			//error checking axis dz arg range, because it might crash the program if the
-			//delay returned is some silly value
-			if (!XinSettings::IsValidDeadzoneValue(xAxisDz))
-				m_xAxisDeadzone = XinSettings::DEADZONE_DEFAULT;
-			if (!XinSettings::IsValidDeadzoneValue(yAxisDz))
-				m_yAxisDeadzone = XinSettings::DEADZONE_DEFAULT;
 			m_sharedSensitivityMap = m_sensMapper.BuildSensitivityMap(m_axisSensitivity,
 				XinSettings::SENSITIVITY_MIN,
 				XinSettings::SENSITIVITY_MAX,
@@ -180,9 +154,6 @@ namespace sds
 		/// Determines if the X or Y values are greater than the deadzone values and would
 		/// thus require movement from the mouse.
 		/// </summary>
-		/// <param name="x">X value</param>
-		/// <param name="y">Y value</param>
-		/// <returns>true if requires moving the mouse, false otherwise</returns>
 		bool DoesRequireMove(const int x, const int y) const
 		{
 			const bool xMove = IsBeyondDeadzone(x, true);
@@ -190,26 +161,18 @@ namespace sds
 			if (!xMove && !yMove)
 			{
 				m_isDeadzoneActivated = false;
-				return false;
 			}
 			else
 			{
 				m_isDeadzoneActivated = true;
-				return true;
 			}
+			return m_isX ? xMove : yMove;
 		}
 		/// <summary>
-		/// Main function for use, uses information from the other axis
-		/// to generate the delay for the current axis.
-		/// logs error and returns 1 if bad value internally, because this is a function
-		/// used in a high precision timer class controlled loop, a bad value would likely mean
-		/// a hanging program.
+		/// Main func for use.
 		/// </summary>
-		/// <param name="x">X value</param>
-		/// <param name="y">Y value</param>
-		/// <param name="isX"> is it the X axis? </param>
-		/// <returns>delay in microseconds</returns>
-		size_t GetDelayFromThumbstickValue(int x, int y, const bool isX) const
+		/// <returns>Delay in US</returns>
+		size_t GetDelayFromThumbstickValue(int x, int y) const
 		{
 			using namespace Utilities::MapFunctions;
 			const int xdz = GetDeadzoneCurrent(true);
@@ -217,18 +180,18 @@ namespace sds
 			x = GetRangedThumbstickValue(x, xdz);
 			y = GetRangedThumbstickValue(y, ydz);
 			//The transformation function applied to consider the value of both axes in the calculation.
-			//auto TransformSensitivityValue = [](const int x, const int y, const bool isX)
-			//{
-			//	constexpr auto ToDub = [](auto something) { return static_cast<double>(something); };
-			//	double txVal = XinSettings::SENSITIVITY_MIN;
-			//	if (isX && (y != 0))
-			//		txVal = ToDub(x) + (std::sqrt(y) * 4.0);
-			//	else if (x != 0)
-			//		txVal = ToDub(y) + (std::sqrt(x) * 4.0);
-			//	return static_cast<int>(txVal);
-			//};
-			//x = TransformSensitivityValue(x, y, true);
-			//y = TransformSensitivityValue(x, y, false);
+			auto TransformSensitivityValue = [](const int x, const int y, const bool isX)
+			{
+				constexpr auto ToDub = [](auto something) { return static_cast<double>(something); };
+				double txVal = XinSettings::SENSITIVITY_MIN;
+				if (isX && (y != 0))
+					txVal = ToDub(x) + (std::sqrt(y) * 4.0);
+				else if (x != 0)
+					txVal = ToDub(y) + (std::sqrt(x) * 4.0);
+				return static_cast<int>(txVal);
+			};
+			x = TransformSensitivityValue(x, y, true);
+			y = TransformSensitivityValue(x, y, false);
 
 			//const auto additional = (sqrt(x * x + y * y));
 			//x = x + static_cast<int>((ToDub(x) / 100.0) * additional);
@@ -236,28 +199,38 @@ namespace sds
 			//TODO compute totalMagnitude of both axes, use that as a max and adjust each axis (according to their percentage of the total) up to the total.
 			//const int totalMagnitude = x + y;
 			//Utilities::XErrorLogger::LogError(std::to_string(totalMagnitude));
-			int txVal = isX ? x : y;
-			txVal = RangeBindValue(txVal, XinSettings::SENSITIVITY_MIN, XinSettings::SENSITIVITY_MAX);
+			const int txVal = GetMappedValue(m_isX ? x : y);
+			if (txVal >= XinSettings::MICROSECONDS_MIN && txVal <= XinSettings::MICROSECONDS_MAX)
+			{
+				return txVal;
+			}
+			else
+			{
+				Utilities::XErrorLogger::LogError("ThumbstickToDelay::GetDelayFromThumbstickValue(): Failed to acquire mapped value with key: " + (m_isX ? std::to_string(x) : std::to_string(y)));
+				return XinSettings::MICROSECONDS_MAX;
+			}
+			
+		}
+		int GetMappedValue(int keyValue) const
+		{
+			keyValue = RangeBindValue(keyValue, XinSettings::SENSITIVITY_MIN, XinSettings::SENSITIVITY_MAX);
 			//error checking to make sure the value is in the map
 			int rval = 0;
-			if (!IsInMap<int, int>(txVal, m_sharedSensitivityMap, rval))
+			if (!Utilities::MapFunctions::IsInMap<int, int>(keyValue, m_sharedSensitivityMap, rval))
 			{
 				//this should not happen, but in case it does I want a plain string telling me it did.
 				Utilities::XErrorLogger::LogError("Exception in ThumbstickToDelay::GetDelayFromThumbstickValue(int,int,bool): " + BAD_DELAY_MSG);
 				return 1;
 			}
-			txVal = rval;
-			if (txVal >= XinSettings::MICROSECONDS_MIN && txVal <= XinSettings::MICROSECONDS_MAX)
-				return txVal;
-			return XinSettings::MICROSECONDS_MAX;
+			return rval;
 		}
 		/// <summary>
 		/// For the case where sensitivity range is 1 to 100
 		/// this function will convert the thumbstick value to
 		/// an integer percentage. The deadzone value is subtracted before processing.
 		/// </summary>
-		/// <param name="thumbstick">:thumbstick value between short minimum and short maximum</param>
-		/// <param name="axisDeadzone">:positive deadzone value to use for the axis value</param>
+		/// <param name="thumbstick">thumbstick value between short minimum and short maximum</param>
+		/// <param name="axisDeadzone">positive deadzone value to use for the axis value</param>
 		/// <returns>positive value between (inclusive) SENSITIVITY_MIN and SENSITIVITY_MAX, or SENSITIVITY_MIN for thumbstick less than deadzone</returns>
 		int GetRangedThumbstickValue(int thumbstick, int axisDeadzone) const
 		{

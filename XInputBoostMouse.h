@@ -145,8 +145,8 @@ namespace sds
 		void workThread() override
 		{
 			this->isThreadRunning = true;
-			ThumbstickToDelay xThread(this->GetSensitivity(), m_localPlayerInfo, m_stickMapInfo);
-			ThumbstickToDelay yThread(this->GetSensitivity(), m_localPlayerInfo, m_stickMapInfo);
+			ThumbstickToDelay xThread(this->GetSensitivity(), m_localPlayerInfo, m_stickMapInfo, true);
+			ThumbstickToDelay yThread(this->GetSensitivity(), m_localPlayerInfo, m_stickMapInfo, false);
 			MouseMoveThread mover;
 			//thread main loop
 			while (!isStopRequested)
@@ -156,12 +156,12 @@ namespace sds
 				//is X or Y negative, and if the axis is moving
 				const SHORT tx = m_threadX;
 				const SHORT ty = m_threadY;
-				const size_t xDelay = xThread.GetDelayFromThumbstickValue(tx, ty, true);
-				const size_t yDelay = yThread.GetDelayFromThumbstickValue(tx, ty, false);
+				const size_t xDelay = xThread.GetDelayFromThumbstickValue(tx, ty);
+				const size_t yDelay = yThread.GetDelayFromThumbstickValue(tx, ty);
 				const bool ixp = tx > 0;
 				const bool iyp = ty > 0;
 				// here, below, inverted Y positive for Y axis to screen coord translation
-				mover.UpdateState(xDelay, yDelay, ixp, !iyp, xThread.DoesRequireMove(tx, 0), yThread.DoesRequireMove(0, ty));
+				mover.UpdateState(xDelay, yDelay, ixp, iyp, xThread.DoesRequireMove(tx, 0), yThread.DoesRequireMove(0, ty));
 				std::this_thread::sleep_for(std::chrono::milliseconds(XinSettings::THREAD_DELAY_POLLER));
 			}
 			

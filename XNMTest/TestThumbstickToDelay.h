@@ -29,7 +29,7 @@ namespace XNMTest
 
 			sds::PlayerInfo pl;
 			sds::MouseMap mp = sds::MouseMap::RIGHT_STICK;
-			sds::ThumbstickToDelay delay(Sens,pl,mp);
+			sds::ThumbstickToDelay delay(Sens,pl,mp, true);
 
 			auto testValues = [&delay](const int thumbstick, const int deadzone, const int comparison, std::wstring msg = L"Tested ")
 			{
@@ -66,10 +66,10 @@ namespace XNMTest
 			{
 				const sds::PlayerInfo pl;
 				const sds::MouseMap mp = sds::MouseMap::RIGHT_STICK;
-				sds::ThumbstickToDelay delay(localSensMax, pl, mp);
+				sds::ThumbstickToDelay delay(localSensMax, pl, mp, isX);
 
 				//do a computation to get the transformed value expected from GetDelayFromThumbstickValues
-				const size_t dualResult = delay.GetDelayFromThumbstickValue(thumbValueX, thumbValueY, isX);
+				const size_t dualResult = delay.GetDelayFromThumbstickValue(thumbValueX, thumbValueY);
 				std::wstring msg = L"Tested: X" + std::to_wstring(thumbValueX);
 				msg += L" Y:" + std::to_wstring(thumbValueY);
 				msg += L" ended with result: " + std::to_wstring(dualResult);

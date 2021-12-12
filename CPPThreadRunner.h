@@ -17,7 +17,7 @@ namespace sds
 	/// </summary>
 	template <class InternalData> class CPPThreadRunner
 	{
-		std::shared_ptr<std::thread> localThread;
+		std::unique_ptr<std::thread> localThread;
 	protected:
 		//Interestingly, accessibility modifiers (public/private/etc.) work on "using" typedefs!
 		using lock = std::lock_guard<std::mutex>;
@@ -35,13 +35,13 @@ namespace sds
 		/// </summary>
 		void startThread()
 		{
-			if( ! this->isThreadRunning )
+			if (!this->isThreadRunning)
 			{
 				if (this->localThread == nullptr)
 				{
 					this->isStopRequested = false;
 					this->isThreadRunning = true;
-					this->localThread = std::make_shared<std::thread>([this] { workThread(); });
+					this->localThread = std::make_unique<std::thread>([this] { workThread(); });
 				}
 				else
 				{
@@ -53,7 +53,7 @@ namespace sds
 					this->localThread.reset(); //reset the shared_ptr (call's dtor, deletes object if unique)
 					this->isStopRequested = false;
 					this->isThreadRunning = true;
-					this->localThread = std::make_shared<std::thread>([this] { workThread(); });
+					this->localThread = std::make_unique<std::thread>([this] { workThread(); });
 				}
 			}
 		}
@@ -62,7 +62,7 @@ namespace sds
 		/// </summary>
 		void requestStop()
 		{
-			if( this->localThread != nullptr )
+			if (this->localThread != nullptr)
 			{
 				//if thread not running, return
 				if (!this->isThreadRunning)
@@ -84,19 +84,19 @@ namespace sds
 			//Get this setting out of the way.
 			this->isStopRequested = true;
 			//If there is a thread obj..
-			if(this->localThread != nullptr)
+			if (this->localThread != nullptr)
 			{
 				//if it is not joinable, set to nullptr
 				if (!this->localThread->joinable())
 				{
-					this->localThread = nullptr;
+					this->localThread.reset();
 					this->isThreadRunning = false;
 					return;
 				}
 				else
 				{
 					this->localThread->join();
-					this->localThread = nullptr;
+					this->localThread.reset();
 					this->isThreadRunning = false;
 				}
 			}
@@ -105,7 +105,7 @@ namespace sds
 		/// Utility function to update the InternalData with mutex locking thread safety.
 		/// </summary>
 		/// <param name="state">InternalData obj to be copied to the internal one.</param>
-		void updateState(const InternalData &state) 
+		void updateState(const InternalData& state)
 		{
 			lock l1(stateMutex);
 			local_state = state;
@@ -121,13 +121,10 @@ namespace sds
 		}
 	public:
 		/// <summary>
-		/// Constructor, default overridden, does not initialize the internal InternalData
+		/// Constructor, default overridden, does not initialize the internal InternalData with class-specific value other than default construction
 		/// </summary>
-		CPPThreadRunner()
+		CPPThreadRunner() : isThreadRunning(false), isStopRequested(false), local_state()
 		{
-			local_state = {};
-			isThreadRunning = false;
-			isStopRequested = false;
 		}
 		CPPThreadRunner(const CPPThreadRunner& other) = delete;
 		CPPThreadRunner(CPPThreadRunner&& other) = delete;
@@ -137,17 +134,7 @@ namespace sds
 		/// Virtual destructor, the running thread should be stopped in the inherited class,
 		/// before the member function "workThread" is destructed.
 		/// </summary>
-		virtual ~CPPThreadRunner()
-		{
-			//if( this->thread != nullptr )
-			//{
-			//	this->isStopRequested = true;
-			//	if (this->thread->joinable())
-			//	{
-			//		this->thread->join();
-			//	}
-			//}
-		}
+		virtual ~CPPThreadRunner() = default;
 
 	};
 }

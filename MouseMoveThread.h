@@ -33,7 +33,7 @@ namespace sds
 			const bool isYM = m_isYMoving;
 			const bool isXP = m_isXPositive;
 			const bool isYP = m_isYPositive;
-			if (isXM || isYM)
+			//if (isXM || isYM)
 			{
 				size_t xDelay = m_xDelay;
 				size_t yDelay = m_yDelay;
@@ -42,7 +42,7 @@ namespace sds
 				const bool isXPast = high_resolution_clock::now() > xTime + microseconds(xDelay);
 				const bool isYPast = high_resolution_clock::now() > yTime + microseconds(yDelay);
 				int xVal = (!isXM ? XinSettings::PIXELS_NOMOVE : (isXP? XinSettings::PIXELS_MAGNITUDE : (-XinSettings::PIXELS_MAGNITUDE)));
-				int yVal = (!isYM ? XinSettings::PIXELS_NOMOVE : (isYP? XinSettings::PIXELS_MAGNITUDE : (-XinSettings::PIXELS_MAGNITUDE))); // y is inverted before it gets here.
+				int yVal = (!isYM ? XinSettings::PIXELS_NOMOVE : (isYP? -XinSettings::PIXELS_MAGNITUDE : (XinSettings::PIXELS_MAGNITUDE))); // y is inverted
 				if (isXPast)
 				{
 					//xVal = m_isXPositive ? XinSettings::PIXELS_MAGNITUDE : -XinSettings::PIXELS_MAGNITUDE;
@@ -59,10 +59,6 @@ namespace sds
 				{
 					keySend.SendMouseMove(xVal, yVal);
 				}
-			}
-			else
-			{
-				//std::this_thread::sleep_for(milliseconds(XinSettings::THREAD_DELAY_POLLER));
 			}
 		}
 		this->isThreadRunning = false;
