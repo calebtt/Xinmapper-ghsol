@@ -1,6 +1,7 @@
 #pragma once
 #include "CPPThreadRunner.h"
 #include "SendKey.h"
+#include "DelayManager.h"
 
 namespace sds
 {
@@ -22,44 +23,41 @@ namespace sds
 		this->isThreadRunning = true;
 		using namespace std::chrono;
 		Utilities::SendKey keySend;
-		auto xTime = high_resolution_clock::now();
-		auto yTime = high_resolution_clock::now();
+		DelayManager xTime(XinSettings::MICROSECONDS_MAX);
+		DelayManager yTime(XinSettings::MICROSECONDS_MAX);
 		//A loop with no delay, that checks each delay value
 		//against a timepoint, and performs the move for that axis if it beyond the timepoint
 		//and in that way, will perform the single pixel move with two different variable time delays.
+		bool isXM = false;
+		bool isYM = false;
 		while(!this->isStopRequested)
 		{
-			const bool isXM = m_isXMoving;
-			const bool isYM = m_isYMoving;
-			const bool isXP = m_isXPositive;
-			const bool isYP = m_isYPositive;
-			//if (isXM || isYM)
+			const bool isXPos = m_isXPositive;
+			const bool isYPos = m_isYPositive;
+			const size_t xDelay = m_xDelay;
+			const size_t yDelay = m_yDelay;
+			const bool isXPast = xTime();
+			const bool isYPast = yTime();
+			if (isXM || isYM)
 			{
-				size_t xDelay = m_xDelay;
-				size_t yDelay = m_yDelay;
-				//It might be a good idea for a delay value to be "completed" and sent before
-				//being changed and processing begins for a new one, testing of this will tell for sure.
-				const bool isXPast = high_resolution_clock::now() > xTime + microseconds(xDelay);
-				const bool isYPast = high_resolution_clock::now() > yTime + microseconds(yDelay);
-				int xVal = (!isXM ? XinSettings::PIXELS_NOMOVE : (isXP? XinSettings::PIXELS_MAGNITUDE : (-XinSettings::PIXELS_MAGNITUDE)));
-				int yVal = (!isYM ? XinSettings::PIXELS_NOMOVE : (isYP? -XinSettings::PIXELS_MAGNITUDE : (XinSettings::PIXELS_MAGNITUDE))); // y is inverted
-				if (isXPast)
+				int xVal = 0;
+				int yVal = 0;
+				if(isXPast)
 				{
-					//xVal = m_isXPositive ? XinSettings::PIXELS_MAGNITUDE : -XinSettings::PIXELS_MAGNITUDE;
-					//reset clock
-					xTime = high_resolution_clock::now();
+					xVal = (isXPos ? XinSettings::PIXELS_MAGNITUDE : (-XinSettings::PIXELS_MAGNITUDE));
+					xTime.Reset(xDelay);
 				}
 				if (isYPast)
 				{
-					//yVal = m_isYPositive ? XinSettings::PIXELS_MAGNITUDE : -XinSettings::PIXELS_MAGNITUDE;
-					//reset clock
-					yTime = high_resolution_clock::now();
+					yVal = (isYPos ? -XinSettings::PIXELS_MAGNITUDE : (XinSettings::PIXELS_MAGNITUDE)); // y is inverted
+					yTime.Reset(yDelay);
 				}
-				if (isXPast || isYPast)
-				{
-					keySend.SendMouseMove(xVal, yVal);
-				}
+				//TODO there is some kind of condition where at the diagonal and both timers are nearly equal the performance is worse.
+				//TODO the vector of movement curves a bit too far. Probably because doesn't use alt deadzone at the moment. Start there.
+				keySend.SendMouseMove(xVal, yVal);
 			}
+			isXM = m_isXMoving;
+			isYM = m_isYMoving;
 		}
 		this->isThreadRunning = false;
 	}

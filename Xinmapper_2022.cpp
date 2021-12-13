@@ -25,7 +25,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		//Error in setting the map information.
 		return errInfo("Error in setting the map information. Exiting.\n" + err, 1);
 	}
-	err = gamepadUser.mouse.SetSensitivity(75);
+	err = gamepadUser.mouse.SetSensitivity(65);
 	if (!err.empty())
 	{
 		return errInfo("Error in setting the mouse sensitivity. Exiting.\n" + err, 2);

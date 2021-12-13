@@ -72,9 +72,7 @@ namespace sds
 		size_t GetDelayFromThumbstickValue(int val, const bool isX) const
 		{
 			using namespace Utilities::MapFunctions;
-			const int curr = static_cast<int>((!m_isDeadzoneActivated) ?
-				(isX ? ToFloat(m_xAxisDeadzone) : ToFloat(m_yAxisDeadzone))
-				: (isX ? ToFloat(m_xAxisDeadzone) * m_altDeadzoneMultiplier : ToFloat(m_yAxisDeadzone) * m_altDeadzoneMultiplier));
+			const int curr = isX ? m_xAxisDeadzone: m_yAxisDeadzone;
 			val = GetRangedThumbstickValue(val, curr);
 
 			int rval = 0;
@@ -87,20 +85,29 @@ namespace sds
 			}
 
 			//double check the value from the map is within bounds
-			if (rval >= XinSettings::MICROSECONDS_MIN && rval <= XinSettings::MICROSECONDS_MAX)
-				return rval;
-			return XinSettings::MICROSECONDS_MAX;
+			return RangeBindValue(rval, XinSettings::MICROSECONDS_MIN, XinSettings::MICROSECONDS_MAX);
 		}
 		bool IsBeyondDeadzone(const int val, const bool isX) const
 		{
-			bool move = 
+			auto GetDeadzoneCurrent = [this](const bool isX)
+			{
+				return static_cast<int>(isX ? this->m_xAxisDeadzone : this->m_yAxisDeadzone);
+			};
+			const bool move = 
 				(ToFloat(val) > ToFloat(GetDeadzoneCurrent(isX)) 
 					|| ToFloat(val) < -ToFloat(GetDeadzoneCurrent(isX)));
 			return move;
 		}
-		int GetDeadzoneCurrent(const bool isX) const
+		bool IsBeyondAltDeadzone(const int val, const bool isX) const
 		{
-			return static_cast<int>(isX ? (m_isDeadzoneActivated ? ToFloat(m_xAxisDeadzone) * m_altDeadzoneMultiplier : m_xAxisDeadzone) : (m_isDeadzoneActivated ? ToFloat(m_yAxisDeadzone) * m_altDeadzoneMultiplier : m_yAxisDeadzone));
+			auto GetDeadzoneCurrent = [this](const bool isX)
+			{
+				return static_cast<int>(isX ? (ToFloat(m_xAxisDeadzone) * m_altDeadzoneMultiplier) : (ToFloat(m_yAxisDeadzone) * m_altDeadzoneMultiplier));
+			};
+			const bool move =
+				(ToFloat(val) > ToFloat(GetDeadzoneCurrent(isX))
+					|| ToFloat(val) < -ToFloat(GetDeadzoneCurrent(isX)));
+			return move;
 		}
 	public:
 		/// <summary>
@@ -154,7 +161,25 @@ namespace sds
 		/// Determines if the X or Y values are greater than the deadzone values and would
 		/// thus require movement from the mouse.
 		/// </summary>
-		bool DoesRequireMove(const int x, const int y) const
+		//bool DoesRequireMove(const int x, const int y)
+		//{
+		//	const bool xMove = IsBeyondDeadzone(x, true);
+		//	const bool yMove = IsBeyondDeadzone(y, false);
+		//	if (!xMove && !yMove)
+		//	{
+		//		m_isDeadzoneActivated = false;
+		//	}
+		//	else
+		//	{
+		//		m_isDeadzoneActivated = true;
+		//	}
+		//	return m_isX ? xMove : yMove;
+		//}
+		/// <summary>
+		/// Determines if the X or Y is beyond deadzone, uses internal m_isX identifier.
+		///	Specific concern is the axis the class is created to work with.
+		/// </summary>
+		bool DoesAxisRequireMove(const int x, const int y)
 		{
 			const bool xMove = IsBeyondDeadzone(x, true);
 			const bool yMove = IsBeyondDeadzone(y, false);
@@ -185,9 +210,9 @@ namespace sds
 				constexpr auto ToDub = [](auto something) { return static_cast<double>(something); };
 				double txVal = XinSettings::SENSITIVITY_MIN;
 				if (isX && (y != 0))
-					txVal = ToDub(x) + (std::sqrt(y) * 4.0);
+					txVal = ToDub(x) + (std::sqrt(y) * 3.5);
 				else if (x != 0)
-					txVal = ToDub(y) + (std::sqrt(x) * 4.0);
+					txVal = ToDub(y) + (std::sqrt(x) * 3.5);
 				return static_cast<int>(txVal);
 			};
 			x = TransformSensitivityValue(x, y, true);
@@ -197,19 +222,18 @@ namespace sds
 			//x = x + static_cast<int>((ToDub(x) / 100.0) * additional);
 			//y = y + static_cast<int>((ToDub(y) / 100.0) * additional);
 			//TODO compute totalMagnitude of both axes, use that as a max and adjust each axis (according to their percentage of the total) up to the total.
-			//const int totalMagnitude = x + y;
+			//const float totalMagnitude = ToFloat(RangeBindValue((x + y), XinSettings::SENSITIVITY_MIN, XinSettings::SENSITIVITY_MAX));
+			//const float xPercent = ToFloat(x) / ToFloat(totalMagnitude);
+			//const float yPercent = ToFloat(y) / ToFloat(totalMagnitude);
+			//x *= static_cast<int>(xPercent);
+			//y *= static_cast<int>(yPercent);
+			//x += RangeBindValue(x, XinSettings::SENSITIVITY_MIN, XinSettings::SENSITIVITY_MAX);
+			//y += RangeBindValue(y, XinSettings::SENSITIVITY_MIN, XinSettings::SENSITIVITY_MAX);
 			//Utilities::XErrorLogger::LogError(std::to_string(totalMagnitude));
+			//Utilities::XErrorLogger::LogError("X: " + std::to_string(GetMappedValue(x)));
+			//Utilities::XErrorLogger::LogError("Y: " + std::to_string(GetMappedValue(y)));
 			const int txVal = GetMappedValue(m_isX ? x : y);
-			if (txVal >= XinSettings::MICROSECONDS_MIN && txVal <= XinSettings::MICROSECONDS_MAX)
-			{
-				return txVal;
-			}
-			else
-			{
-				Utilities::XErrorLogger::LogError("ThumbstickToDelay::GetDelayFromThumbstickValue(): Failed to acquire mapped value with key: " + (m_isX ? std::to_string(x) : std::to_string(y)));
-				return XinSettings::MICROSECONDS_MAX;
-			}
-			
+			return txVal;
 		}
 		int GetMappedValue(int keyValue) const
 		{
@@ -222,7 +246,15 @@ namespace sds
 				Utilities::XErrorLogger::LogError("Exception in ThumbstickToDelay::GetDelayFromThumbstickValue(int,int,bool): " + BAD_DELAY_MSG);
 				return 1;
 			}
-			return rval;
+			if(rval >= XinSettings::MICROSECONDS_MIN && rval <= XinSettings::MICROSECONDS_MAX)
+			{
+				return rval;
+			}
+			else
+			{
+				Utilities::XErrorLogger::LogError("ThumbstickToDelay::GetDelayFromThumbstickValue(): Failed to acquire mapped value with key: " + (std::to_string(keyValue)));
+				return XinSettings::MICROSECONDS_MAX;
+			}
 		}
 		/// <summary>
 		/// For the case where sensitivity range is 1 to 100

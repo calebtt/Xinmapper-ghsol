@@ -167,6 +167,7 @@
     <ClInclude Include="ActionDescriptors.h" />
     <ClInclude Include="CPPThreadRunner.h" />
     <ClInclude Include="DelayHighPrecision.h" />
+    <ClInclude Include="DelayManager.h" />
     <ClInclude Include="GamepadUser.h" />
     <ClInclude Include="Globals.h" />
     <ClInclude Include="InputPoller.h" />
