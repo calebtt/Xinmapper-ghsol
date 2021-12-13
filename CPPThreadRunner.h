@@ -35,7 +35,7 @@ namespace sds
 		/// </summary>
 		void startThread()
 		{
-			if( ! this->isThreadRunning )
+			if (!this->isThreadRunning)
 			{
 				if (this->localThread == nullptr)
 				{
@@ -62,7 +62,7 @@ namespace sds
 		/// </summary>
 		void requestStop()
 		{
-			if( this->localThread != nullptr )
+			if (this->localThread != nullptr)
 			{
 				//if thread not running, return
 				if (!this->isThreadRunning)
@@ -84,7 +84,7 @@ namespace sds
 			//Get this setting out of the way.
 			this->isStopRequested = true;
 			//If there is a thread obj..
-			if(this->localThread != nullptr)
+			if (this->localThread != nullptr)
 			{
 				//if it is not joinable, set to nullptr
 				if (!this->localThread->joinable())
@@ -105,7 +105,7 @@ namespace sds
 		/// Utility function to update the InternalData with mutex locking thread safety.
 		/// </summary>
 		/// <param name="state">InternalData obj to be copied to the internal one.</param>
-		void updateState(const InternalData &state) 
+		void updateState(const InternalData& state)
 		{
 			lock l1(stateMutex);
 			local_state = state;

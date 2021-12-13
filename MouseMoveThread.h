@@ -1,6 +1,7 @@
 #pragma once
 #include "CPPThreadRunner.h"
 #include "SendKey.h"
+#include "DelayManager.h"
 
 namespace sds
 {
@@ -12,7 +13,8 @@ namespace sds
 	{
 		std::atomic<size_t> m_xDelay;
 		std::atomic<size_t> m_yDelay;
-		std::atomic<bool> m_isMoving;
+		std::atomic<bool> m_isXMoving;
+		std::atomic<bool> m_isYMoving;
 		std::atomic<bool> m_isXPositive;
 		std::atomic<bool> m_isYPositive;
 	protected:
@@ -20,50 +22,46 @@ namespace sds
 	{
 		this->isThreadRunning = true;
 		using namespace std::chrono;
-		SendKey keySend;
-		auto xTime = high_resolution_clock::now();
-		auto yTime = high_resolution_clock::now();
+		Utilities::SendKey keySend;
+		DelayManager xTime(XinSettings::MICROSECONDS_MAX);
+		DelayManager yTime(XinSettings::MICROSECONDS_MAX);
 		//A loop with no delay, that checks each delay value
 		//against a timepoint, and performs the move for that axis if it beyond the timepoint
 		//and in that way, will perform the single pixel move with two different variable time delays.
+		bool isXM = false;
+		bool isYM = false;
 		while(!this->isStopRequested)
 		{
-			if (m_isMoving)
+			const bool isXPos = m_isXPositive;
+			const bool isYPos = m_isYPositive;
+			const size_t xDelay = m_xDelay;
+			const size_t yDelay = m_yDelay;
+			const bool isXPast = xTime();
+			const bool isYPast = yTime();
+			if (isXM || isYM)
 			{
-				size_t xDelay = m_xDelay;
-				size_t yDelay = m_yDelay;
-				//It might be a good idea for a delay value to be "completed" and sent before
-				//being changed and processing begins for a new one, testing of this will tell for sure.
-				const bool isXPast = high_resolution_clock::now() > xTime + microseconds(xDelay);
-				const bool isYPast = high_resolution_clock::now() > yTime + microseconds(yDelay);
 				int xVal = 0;
 				int yVal = 0;
-				if (isXPast)
+				if(isXPast && m_isXMoving)
 				{
-					xVal = m_isXPositive ? XinSettings::PIXELS_MAGNITUDE : -XinSettings::PIXELS_MAGNITUDE;
-					//reset clock
-					xTime = high_resolution_clock::now();
+					xVal = (isXPos ? XinSettings::PIXELS_MAGNITUDE : (-XinSettings::PIXELS_MAGNITUDE));
+					xTime.Reset(xDelay);
 				}
-				if (isYPast)
+				if (isYPast && m_isYMoving)
 				{
-					yVal = m_isYPositive ? XinSettings::PIXELS_MAGNITUDE : -XinSettings::PIXELS_MAGNITUDE;
-					//reset clock
-					yTime = high_resolution_clock::now();
+					yVal = (isYPos ? -XinSettings::PIXELS_MAGNITUDE : (XinSettings::PIXELS_MAGNITUDE)); // y is inverted
+					yTime.Reset(yDelay);
 				}
-				if (isXPast || isYPast)
-				{
-					keySend.SendMouseMove(xVal, yVal);
-				}
+				keySend.SendMouseMove(xVal, yVal);
 			}
-			else
-			{
-				std::this_thread::sleep_for(milliseconds(XinSettings::THREAD_DELAY_POLLER));
-			}
+			isXM = m_isXMoving;
+			isYM = m_isYMoving;
+			std::this_thread::yield();
 		}
 		this->isThreadRunning = false;
 	}
 	public:
-		MouseMoveThread() : CPPThreadRunner<int>(), m_xDelay(1), m_yDelay(1), m_isMoving(false), m_isXPositive(false), m_isYPositive(false)
+		MouseMoveThread() : CPPThreadRunner<int>(), m_xDelay(1), m_yDelay(1), m_isXMoving(false), m_isYMoving(false), m_isXPositive(false), m_isYPositive(false)
 		{
 			this->startThread();
 		}
@@ -75,13 +73,19 @@ namespace sds
 		MouseMoveThread(MouseMoveThread&& other) = delete;
 		MouseMoveThread& operator=(const MouseMoveThread& other) = delete;
 		MouseMoveThread& operator=(MouseMoveThread&& other) = delete;
-		void UpdateState(const size_t x, const size_t y, bool isXPositive, bool isYPositive, bool isMoving)
+
+		/// <summary>
+		/// Called to update mouse mover thread with new microsecond delay values,
+		///	and whether the axis to move should move positive or negative.
+		/// </summary>
+		void UpdateState(const size_t x, const size_t y, const bool isXPositive, const bool isYPositive, const bool isXMoving, const bool isYMoving)
 		{
 			m_xDelay = x;
 			m_yDelay = y;
 			m_isXPositive = isXPositive;
 			m_isYPositive = isYPositive;
-			m_isMoving = isMoving;
+			m_isXMoving = isXMoving;
+			m_isYMoving = isYMoving;
 		}
 
 	};

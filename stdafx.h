@@ -50,4 +50,5 @@
 #include "MouseMap.h"
 #include "PlayerInfo.h"
 #include "XinSettings.h"
+#include "XErrorLogger.h"
 //#include "SendKey.h"

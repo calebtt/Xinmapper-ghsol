@@ -6,13 +6,13 @@ namespace sds
 	struct SensitivityMap
 	{
 	private:
-		
+		const std::string m_exceptMinimum = "Exception in SensitivityMap::SensitivityToMinimum(): ";
+		const std::string m_exceptBuildMap = "Exception in SensitivityMap::BuildSensitivityMap(): ";
 	public:
 		/// <summary>
 		/// Builds a sensitivity map that maps values from sens_min to sens_max to values between
 		/// us_delay_min and us_delay_max
 		/// </summary>
-		/// <exception cref="std::string">throws std::string on exception with detailed information.</exception>
 		/// <param name="user_sens">user sensitivity value</param>
 		/// <param name="sens_min">minimum sensitivity value</param>
 		/// <param name="sens_max">maximum sensitivity value</param>
@@ -28,9 +28,8 @@ namespace sds
 			const int us_delay_min_max) const
 		{
 			//arg error checking
-			const std::string m_except_message = "Exception in SensitivityMap::BuildSensitivityMap(): ";
 			if (sens_min >= sens_max || us_delay_min >= us_delay_max || user_sens < sens_min || user_sens > sens_max)
-				throw std::string(m_except_message + "user sensitivity, or sensitivity range or delay range out of range.");
+				Utilities::XErrorLogger::LogError(m_exceptBuildMap + "user sensitivity, or sensitivity range or delay range out of range.");
 
 			//getting new minimum using minimum maximum
 			const int adjustedMinimum = SensitivityToMinimum(user_sens, sens_min, sens_max, us_delay_min, us_delay_min_max);
@@ -38,7 +37,7 @@ namespace sds
 			//building map 
 			const int step = (us_delay_max - adjustedMinimum) / (sens_max - sens_min);
 			if (step <= 0)
-				throw std::string(m_except_message + "computed step value <= 0");
+				Utilities::XErrorLogger::LogError(m_exceptBuildMap + "computed step value <=0");
 
 			std::map<int, int> sens_map;
 			for (int i = sens_min, j = us_delay_max; i <= sens_max; i++, j-=step)
@@ -52,7 +51,6 @@ namespace sds
 					sens_map[i] = j;
 				}
 			}
-			//
 			return sens_map;
 		}
 
@@ -61,7 +59,6 @@ namespace sds
 		/// on the arguments. This is used to alter the minimum microsecond delay of the sensitivity map,
 		/// when a sensitivity value is used.
 		/// </summary>
-		/// <exception cref="std::string"> throws a string containing an error message on invalid arguments given.</exception>
 		/// <param name="user_sens">a user sensitivity value</param>
 		/// <param name="sens_min">minimum possible sensitivity value</param>
 		/// <param name="sens_max">maximum possible sensitivity value</param>
@@ -75,9 +72,12 @@ namespace sds
 			const int us_delay_max) const
 		{
 			//arg error checking
-			const std::string m_except_message = "Exception in SensitivityMap::SensitivityToMinimum(): ";
+			
 			if (sens_min >= sens_max || us_delay_min >= us_delay_max || user_sens < sens_min || user_sens > sens_max)
-				throw std::string(m_except_message + "user sensitivity, or sensitivity range or delay range out of range.");
+			{
+				Utilities::XErrorLogger::LogError(m_exceptMinimum + "user sensitivity, or sensitivity range or delay range out of range.");
+				return 1;
+			}
 
 			const double sensitivityRange = (double)sens_max - (double)sens_min;
 			const double step = ((double)us_delay_max - (double)us_delay_min) / sensitivityRange;

@@ -54,9 +54,6 @@
     <ClInclude Include="XInputBoostMouse.h">
       <Filter>Header Files\MouseMovement</Filter>
     </ClInclude>
-    <ClInclude Include="ThumbstickAxisThread.h">
-      <Filter>Header Files\MouseMovement</Filter>
-    </ClInclude>
     <ClInclude Include="MultiBool.h">
       <Filter>Header Files\Utility</Filter>
     </ClInclude>
@@ -88,6 +85,12 @@
       <Filter>Header Files\Utility</Filter>
     </ClInclude>
     <ClInclude Include="MouseMoveThread.h">
+      <Filter>Header Files\MouseMovement</Filter>
+    </ClInclude>
+    <ClInclude Include="XErrorLogger.h">
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="DelayManager.h">
       <Filter>Header Files\MouseMovement</Filter>
     </ClInclude>
   </ItemGroup>

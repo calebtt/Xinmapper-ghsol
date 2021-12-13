@@ -22,7 +22,7 @@ namespace XNMTest
 			constexpr int RandomStringLength = 3;
 			constexpr int MinimumRandomStringLength = 1;
 
-			sds::SendKey sk;
+			sds::Utilities::SendKey sk;
 			// 
 			// WARNING:
 			// 
