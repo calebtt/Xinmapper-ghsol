@@ -76,6 +76,7 @@ namespace sds
 		{
 			if(this->isThreadRunning && !this->isStopRequested)
 			{
+				this->stopThread();
 				m_stickMapInfo = info;
 				this->startThread();
 			}
@@ -160,8 +161,7 @@ namespace sds
 				const size_t yDelay = yThread.GetDelayFromThumbstickValue(tx, ty);
 				const bool ixp = tx > 0;
 				const bool iyp = ty > 0;
-				// here, below, inverted Y positive for Y axis to screen coord translation
-				mover.UpdateState(xDelay, yDelay, ixp, iyp, xThread.DoesRequireMove(tx, 0), yThread.DoesRequireMove(0, ty));
+				mover.UpdateState(xDelay, yDelay, ixp, iyp, xThread.DoesAxisRequireMoveAlt(tx, ty), yThread.DoesAxisRequireMoveAlt(tx, ty));
 				std::this_thread::sleep_for(std::chrono::milliseconds(XinSettings::THREAD_DELAY_POLLER));
 			}
 			

@@ -42,18 +42,16 @@ namespace sds
 			{
 				int xVal = 0;
 				int yVal = 0;
-				if(isXPast)
+				if(isXPast && m_isXMoving)
 				{
 					xVal = (isXPos ? XinSettings::PIXELS_MAGNITUDE : (-XinSettings::PIXELS_MAGNITUDE));
 					xTime.Reset(xDelay);
 				}
-				if (isYPast)
+				if (isYPast && m_isYMoving)
 				{
 					yVal = (isYPos ? -XinSettings::PIXELS_MAGNITUDE : (XinSettings::PIXELS_MAGNITUDE)); // y is inverted
 					yTime.Reset(yDelay);
 				}
-				//TODO there is some kind of condition where at the diagonal and both timers are nearly equal the performance is worse.
-				//TODO the vector of movement curves a bit too far. Probably because doesn't use alt deadzone at the moment. Start there.
 				keySend.SendMouseMove(xVal, yVal);
 			}
 			isXM = m_isXMoving;

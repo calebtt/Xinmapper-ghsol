@@ -14,6 +14,8 @@ namespace sds
 	{
 		const std::string BAD_DELAY_MSG = "Bad timer delay value, exception.";
 		inline static std::atomic<bool> m_isDeadzoneActivated;
+		//inline static std::atomic<bool> m_isXActivated;
+		//inline static std::atomic<bool> m_isYActivated;
 		float m_altDeadzoneMultiplier;
 		int m_axisSensitivity;
 		int m_xAxisDeadzone;
@@ -109,6 +111,16 @@ namespace sds
 					|| ToFloat(val) < -ToFloat(GetDeadzoneCurrent(isX)));
 			return move;
 		}
+		//Returns the dz for the axis, or the alternate if the dz is already activated.
+		int GetDeadzoneActivated(const bool isX) const
+		{
+			int dz = 0;
+			if (m_isDeadzoneActivated)
+				dz = static_cast<int>(isX ? (ToFloat(m_xAxisDeadzone) * m_altDeadzoneMultiplier) : (ToFloat(m_yAxisDeadzone) * m_altDeadzoneMultiplier));
+			else
+				dz = isX ? m_xAxisDeadzone : m_yAxisDeadzone;
+			return dz;
+		}
 	public:
 		/// <summary>
 		/// Ctor for dual axis sensitivity and deadzone processing.
@@ -158,24 +170,6 @@ namespace sds
 			return m_sharedSensitivityMap;
 		}
 		/// <summary>
-		/// Determines if the X or Y values are greater than the deadzone values and would
-		/// thus require movement from the mouse.
-		/// </summary>
-		//bool DoesRequireMove(const int x, const int y)
-		//{
-		//	const bool xMove = IsBeyondDeadzone(x, true);
-		//	const bool yMove = IsBeyondDeadzone(y, false);
-		//	if (!xMove && !yMove)
-		//	{
-		//		m_isDeadzoneActivated = false;
-		//	}
-		//	else
-		//	{
-		//		m_isDeadzoneActivated = true;
-		//	}
-		//	return m_isX ? xMove : yMove;
-		//}
-		/// <summary>
 		/// Determines if the X or Y is beyond deadzone, uses internal m_isX identifier.
 		///	Specific concern is the axis the class is created to work with.
 		/// </summary>
@@ -194,14 +188,35 @@ namespace sds
 			return m_isX ? xMove : yMove;
 		}
 		/// <summary>
+		/// Determines if m_isX axis requires move based on alt deadzone if dz is activated.
+		/// </summary>
+		bool DoesAxisRequireMoveAlt(const int x, const int y)
+		{
+			if (!m_isDeadzoneActivated)
+			{
+				const bool xMove = IsBeyondDeadzone(x, true);
+				const bool yMove = IsBeyondDeadzone(y, false);
+				m_isDeadzoneActivated = xMove || yMove;
+				return m_isX ? xMove : yMove;
+			}
+			else
+			{
+				const bool xMove = IsBeyondAltDeadzone(x, true);
+				const bool yMove = IsBeyondAltDeadzone(y, false);
+				m_isDeadzoneActivated = xMove || yMove;
+				return m_isX ? xMove : yMove;
+			}
+		}
+
+		/// <summary>
 		/// Main func for use.
 		/// </summary>
 		/// <returns>Delay in US</returns>
 		size_t GetDelayFromThumbstickValue(int x, int y) const
 		{
 			using namespace Utilities::MapFunctions;
-			const int xdz = GetDeadzoneCurrent(true);
-			const int ydz = GetDeadzoneCurrent(false);
+			const int xdz = GetDeadzoneActivated(true);
+			const int ydz = GetDeadzoneActivated(false);
 			x = GetRangedThumbstickValue(x, xdz);
 			y = GetRangedThumbstickValue(y, ydz);
 			//The transformation function applied to consider the value of both axes in the calculation.
@@ -210,9 +225,9 @@ namespace sds
 				constexpr auto ToDub = [](auto something) { return static_cast<double>(something); };
 				double txVal = XinSettings::SENSITIVITY_MIN;
 				if (isX && (y != 0))
-					txVal = ToDub(x) + (std::sqrt(y) * 3.5);
+					txVal = ToDub(std::abs(x)) + (std::sqrt(std::abs(y)) * 4.0);
 				else if (x != 0)
-					txVal = ToDub(y) + (std::sqrt(x) * 3.5);
+					txVal = ToDub(std::abs(y)) + (std::sqrt(std::abs(x)) * 4.0);
 				return static_cast<int>(txVal);
 			};
 			x = TransformSensitivityValue(x, y, true);
