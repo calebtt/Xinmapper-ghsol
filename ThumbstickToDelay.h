@@ -230,21 +230,6 @@ namespace sds
 			};
 			x = TransformSensitivityValue(x, y, true);
 			y = TransformSensitivityValue(x, y, false);
-
-			//const auto additional = (sqrt(x * x + y * y));
-			//x = x + static_cast<int>((ToDub(x) / 100.0) * additional);
-			//y = y + static_cast<int>((ToDub(y) / 100.0) * additional);
-			//TODO compute totalMagnitude of both axes, use that as a max and adjust each axis (according to their percentage of the total) up to the total.
-			//const float totalMagnitude = ToFloat(RangeBindValue((x + y), XinSettings::SENSITIVITY_MIN, XinSettings::SENSITIVITY_MAX));
-			//const float xPercent = ToFloat(x) / ToFloat(totalMagnitude);
-			//const float yPercent = ToFloat(y) / ToFloat(totalMagnitude);
-			//x *= static_cast<int>(xPercent);
-			//y *= static_cast<int>(yPercent);
-			//x += RangeBindValue(x, XinSettings::SENSITIVITY_MIN, XinSettings::SENSITIVITY_MAX);
-			//y += RangeBindValue(y, XinSettings::SENSITIVITY_MIN, XinSettings::SENSITIVITY_MAX);
-			//Utilities::XErrorLogger::LogError(std::to_string(totalMagnitude));
-			//Utilities::XErrorLogger::LogError("X: " + std::to_string(GetMappedValue(x)));
-			//Utilities::XErrorLogger::LogError("Y: " + std::to_string(GetMappedValue(y)));
 			const int txVal = GetMappedValue(m_isX ? x : y);
 			return txVal;
 		}

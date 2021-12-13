@@ -56,6 +56,7 @@ namespace sds
 			}
 			isXM = m_isXMoving;
 			isYM = m_isYMoving;
+			std::this_thread::yield();
 		}
 		this->isThreadRunning = false;
 	}
