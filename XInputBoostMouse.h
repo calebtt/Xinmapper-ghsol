@@ -152,7 +152,7 @@ namespace sds
 			//thread main loop
 			while (!isStopRequested)
 			{
-				//TODO store the returned delay from axisthread for each axis
+				//store the returned delay from axisthread for each axis
 				//then pass the delays on to MouseMoveThread, along with some information like
 				//is X or Y negative, and if the axis is moving
 				const SHORT tx = m_threadX;
@@ -164,7 +164,6 @@ namespace sds
 				mover.UpdateState(xDelay, yDelay, ixp, iyp, xThread.DoesAxisRequireMoveAlt(tx, ty), yThread.DoesAxisRequireMoveAlt(tx, ty));
 				std::this_thread::sleep_for(std::chrono::milliseconds(XinSettings::THREAD_DELAY_POLLER));
 			}
-			
 			//mark thread status as not running.
 			isThreadRunning = false;
 		}

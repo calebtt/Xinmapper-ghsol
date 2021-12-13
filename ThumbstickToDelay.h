@@ -14,8 +14,6 @@ namespace sds
 	{
 		const std::string BAD_DELAY_MSG = "Bad timer delay value, exception.";
 		inline static std::atomic<bool> m_isDeadzoneActivated;
-		//inline static std::atomic<bool> m_isXActivated;
-		//inline static std::atomic<bool> m_isYActivated;
 		float m_altDeadzoneMultiplier;
 		int m_axisSensitivity;
 		int m_xAxisDeadzone;
@@ -225,9 +223,9 @@ namespace sds
 				constexpr auto ToDub = [](auto something) { return static_cast<double>(something); };
 				double txVal = XinSettings::SENSITIVITY_MIN;
 				if (isX && (y != 0))
-					txVal = ToDub(std::abs(x)) + (std::sqrt(std::abs(y)) * 4.0);
+					txVal = ToDub(std::abs(x)) + (std::sqrt(std::abs(y)) * 3.6);
 				else if (x != 0)
-					txVal = ToDub(std::abs(y)) + (std::sqrt(std::abs(x)) * 4.0);
+					txVal = ToDub(std::abs(y)) + (std::sqrt(std::abs(x)) * 3.6);
 				return static_cast<int>(txVal);
 			};
 			x = TransformSensitivityValue(x, y, true);
