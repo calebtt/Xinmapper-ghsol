@@ -5,6 +5,8 @@
 █▀▄█▄▀█▄▄▄█▄██▄█▄███▄█▄██▄█░████░████▄▄▄█▄█▄▄
 ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
    
+<h1><b>NOW DEPRECATED BY XMAPLIB!!!</b></h1>
+<a href="https://github.com/calebtt/XMapLib">XMapLib</a>
 <h1>Xinmapper is an xbox controller keyboard input sim app </h1>
 <b>*NOTE:</b> Latest development build code is in the timerbuild branch
 if you want to follow the progress or see what is upcoming.
